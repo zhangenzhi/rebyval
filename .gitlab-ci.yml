@@ -8,12 +8,6 @@ pylint:
   stage: linting
   script:
     - yapf --version
-    - yapf --style=pep8 -r -d autosparsedl/ examples/ test/
+    - yapf --style=pep8 -r -d dataloader/ model/ train/
 
-unittest-python:
-  stage: build
-  script:
-    - pushd test/
-    - python3 -m unittest -v *_test.py
-    - popd
 
