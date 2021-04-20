@@ -8,6 +8,7 @@
 cnbj1*
 __pycache__
 autosparsedl.egg-info
+dataset/
 data/
 build/
 dist/
