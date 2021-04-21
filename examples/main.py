@@ -64,7 +64,7 @@ def get_conv_target_net():
         tf.keras.layers.Dense(10, activation='softmax')
     ])
 
-    optimizer = tf.keras.optimizers.Adam(0.01)
+    optimizer = tf.keras.optimizers.Adam(0.001)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
@@ -80,9 +80,9 @@ def train_target_net():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     train_net = get_conv_target_net()
-    train_net.fit(x_train, y_train, batch_size= 1024, epochs=10000, validation_data=(x_test,y_test))
+    train_net.fit(x_train, y_train, batch_size= 4096, epochs=10000, validation_data=(x_test,y_test))
 
-    train_net.evaluate(x_test, y_test, batch_size= 128, verbose=2)
+    train_net.evaluate(x_test, y_test, batch_size= 1024, verbose=2)
 
 
 def save_train_net_vars(path, num, vars, val_loss):
