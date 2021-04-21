@@ -1,6 +1,8 @@
 import os
 import tensorflow as tf
 
+from optimizer.scheduler.linear_scaling_with_warmup import *
+
 
 def get_target_dataset(name=None):
     if name == 'cifar10':
@@ -39,7 +41,9 @@ def get_dnn_target_net():
         tf.keras.layers.Dense(32, activation='relu'),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0004)
+
+    lr_scheduler = LinearScalingWithWarmupSchedule(10, base_learning_rate=0.0004, warmup_steps=4000, gradual_steps=80000)
+    optimizer = tf.keras.optimizers.Adam(lr_scheduler)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
@@ -55,7 +59,7 @@ def train_target_net():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     train_net = get_dnn_target_net()
-    train_net.fit(x_train, y_train, batch_size= 32, epochs=10000)
+    train_net.fit(x_train, y_train, batch_size= 32, epochs=10000, validation_data=(x_test,y_test))
 
     train_net.evaluate(x_test, y_test, batch_size= 32, verbose=2)
 
