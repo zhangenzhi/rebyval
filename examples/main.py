@@ -34,9 +34,9 @@ def get_value_net():
 def get_dnn_target_net():
     model = tf.keras.models.Sequential([
         tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(10000, activation='relu'),
-        tf.keras.layers.Dense(1000, activation='relu'),
-        tf.keras.layers.Dense(100, activation='relu'),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(32, activation='relu'),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
