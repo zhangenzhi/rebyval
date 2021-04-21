@@ -52,6 +52,7 @@ def get_dnn_target_net():
     return model
 
 def get_conv_target_net():
+
     model = tf.keras.models.Sequential([
         tf.keras.layers.Flatten(),
         tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
@@ -63,6 +64,11 @@ def get_conv_target_net():
         tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
+
+    optimizer = tf.keras.optimizers.Adam(0.01)
+    model.compile(optimizer=optimizer,
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
 
     return model
 
