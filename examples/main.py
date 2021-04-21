@@ -39,7 +39,7 @@ def get_dnn_target_net():
         tf.keras.layers.Dense(32, activation='relu'),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0004)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
