@@ -51,6 +51,18 @@ def get_dnn_target_net():
                   metrics=['accuracy'])
     return model
 
+def get_conv_target_net():
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(10, activation='softmax')
+    ])
 
 def train_value_net():
     value_net = get_value_net()
@@ -61,7 +73,7 @@ def train_target_net():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     train_net = get_dnn_target_net()
-    train_net.fit(x_train, y_train, batch_size= 256, epochs=10000, validation_data=(x_test,y_test))
+    train_net.fit(x_train, y_train, batch_size= 512, epochs=10000, validation_data=(x_test,y_test))
 
     train_net.evaluate(x_test, y_test, batch_size= 128, verbose=2)
 
