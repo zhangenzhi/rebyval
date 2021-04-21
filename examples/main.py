@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 
-from optimizer.scheduler.linear_scaling_with_warmup import *
+from ..rebyval.optimizer.scheduler.linear_scaling_with_warmup import *
 
 
 def get_target_dataset(name=None):
