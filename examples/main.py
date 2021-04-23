@@ -64,7 +64,7 @@ def get_conv_target_net():
         tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(10, activation='softmax')
+        tf.keras.layers.Dense(100, activation='softmax')
     ])
 
     optimizer = tf.keras.optimizers.Adam(0.001)
