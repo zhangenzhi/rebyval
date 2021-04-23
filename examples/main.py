@@ -83,7 +83,7 @@ def train_target_net():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     train_net = get_dnn_target_net()
-    train_net.fit(x_train, y_train, batch_size= 1024, epochs=1000000, validation_data=(x_test,y_test))
+    train_net.fit(x_train, y_train, batch_size= 512, epochs=1000000, validation_data=(x_test,y_test))
 
 
 def save_train_net_vars(path, num, vars, val_loss):
