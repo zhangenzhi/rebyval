@@ -52,7 +52,7 @@ class surrogate_dnn(Model):
         for tensor in x:
             flat_vars.append(tf.reshape(tensor, shape=(-1)))
         flat_vars = tf.concat(flat_vars, axis=0)
-        flat_vars = tf.reshape(flat_vars,shape=(1,-1))
+        flat_vars = tf.reshape(flat_vars, shape=(1, -1))
         next_input = Flatten()(flat_vars)
         for deep_layer in self.dnn_layer:
             next_input = deep_layer(next_input)
@@ -78,6 +78,6 @@ if __name__ == '__main__':
     surrogate_model_grad = tape.gradient(s_loss, target_model.trainable_variables)
     consider_grad = []
     for i in range(len(target_model_grad)):
-        consider_grad.append(surrogate_model_grad[i]+target_model_grad[i])
+        consider_grad.append(surrogate_model_grad[i] + target_model_grad[i])
     gradients = tape.gradient(loss, target_model.trainable_variables)
     optimizer.apply_gradients(zip(gradients, target_model.trainable_variables))
