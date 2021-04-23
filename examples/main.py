@@ -48,7 +48,7 @@ def get_dnn_target_net():
     ])
 
     # lr_scheduler = LinearScalingWithWarmupSchedule(10, base_learning_rate=0.0004, warmup_steps=40000, gradual_steps=100000)
-    optimizer = tf.keras.optimizers.Adam(0.0005)
+    optimizer = tf.keras.optimizers.Adam(0.0004)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
