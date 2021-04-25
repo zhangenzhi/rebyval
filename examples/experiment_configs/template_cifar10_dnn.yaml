@@ -1,66 +1,60 @@
 experiment:
   context:
     name: 001
-    log: ./
-
+    log_path: ./
   main_loop_control:
-    warmup_step:
+    warmup_steps:
       target_model_samples: 15 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 3
-
   target_trainer:
     dataloader:
       name: cifar10 # default cifar10
       datapath: ~/.keras/dataset/cifar10 # default cifar10
-      data_type: tfrecord # default cifar10
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,32 # default 128,64,64,32
       activations_for_all: relu # default relu
-      activation_for_each: relu,sigmoid,sigmoid,relu # default relu,relu,relu,relu
-      restore_model: True
-        restore_from: ./examples/model/target/001/latest
+      restore_model:
+        restore_from: ./examples/model/target/001
+        version: latest # or best
     loss:
       name: sparse_categorical_crossentropy
       metric: accuracy
     optimizer:
       name: SDG # default SDG
       learning_rate: 0.01 # default 0.01
-      learning_rate_scheduler: linear_scaling_with_warmup # default None
+      scheduler: None # default None
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 10000 # default inf
-        max_training_epochs: 10 # default inf
+        max_training_steps: 10000 # default 10000
+        max_training_epochs: 10 # default 10
       valid:
         check_should_valid: True # default False for no validation step
-        datapath: ~/.keras/dataset/cifar10 # None for automatic splits for 20% of trainset
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        save_model: True
+        save_model:
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         check_should_test: True # default False for no test step
-        path: ~/.keras/dataset/cifar10 # None for automatic splits for 20% of wholeset
 
   surrogate_trainer:
     dataloader:
       name: dnn_weights
-      path: ./dataset/weights_pool/dnn
-      data_type: tfrecord
+      datapath: ./dataset/weights_pool/dnn
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,32
-      activations_for_all: relu # default relu
       activation_for_each: relu,sigmoid,sigmoid,relu
-      restore_model: True
-        restore_from: ./examples/model/surrogate/001/latest
+      restore_model:
+        restore_from: ./examples/model/surrogate/001
+        version: latest # or best
     optimizer:
       name: SDG
       learning_rate: 0.01
     loss:
-      name: crossentropy
-      metric: mse
+      name: mean_squared_error
+      metric: mean_squared_logarithmic_error
     train_loop_control:
       train:
         check_should_train: True
@@ -68,11 +62,10 @@ experiment:
         max_training_epochs: 10 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        datapath: ./dataset/weights_pool/dnn # None for automatic splits for 20% of trainset
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        save_model: True
+        save_model:
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         check_should_test: True # default False for no test step
-        path: ./dataset/weights_pool/dnn # None for automatic splits for 20% of wholeset
+
