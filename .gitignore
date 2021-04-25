@@ -5,9 +5,8 @@
 .idea
 *.pyc
 .DS_Store
-cnbj1*
 __pycache__
-autosparsedl.egg-info
+rebyval.egg-info
 dataset/
 data/
 build/
