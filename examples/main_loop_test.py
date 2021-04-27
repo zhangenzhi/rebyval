@@ -63,7 +63,7 @@ if __name__ == '__main__':
     x = tf.ones(shape=(8, 2))
     y = tf.zeros(shape=(8, 1))
 
-    train_steps=30
+    train_steps = 100
     target_model = dnn()
     surrogate_model = surrogate_dnn()
     loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
             s_loss = surrogate_model(target_model.trainable_variables, training=False)
             m_loss = loss_fn(predict, y)
             loss = m_loss + s_loss
-            print("train_loss + surrogate_loss:",loss.numpy())
+            print("target_loss:{},surrogate_loss:{},total_loss:{}".format(m_loss.numpy(), s_loss.numpy(), loss.numpy()))
 
         target_model_grad = tape.gradient(m_loss, target_model.trainable_variables)
         surrogate_model_grad = tape.gradient(s_loss, target_model.trainable_variables)
