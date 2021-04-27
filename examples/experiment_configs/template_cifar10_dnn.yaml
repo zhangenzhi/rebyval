@@ -1,10 +1,13 @@
 experiment:
+
   context:
     name: 001
+
   main_loop_control:
     warmup_steps:
       target_model_samples: 15 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 3
+
   target_trainer:
     dataloader:
       name: cifar10 # default cifar10
