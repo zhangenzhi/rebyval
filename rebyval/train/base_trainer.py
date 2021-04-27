@@ -15,7 +15,6 @@ from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScaling
 # others
 from rebyval.train.utils import get_scheduler,prepare_dirs
 from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
-from rebyval.dataloader.utils import glob_tfrecords
 
 
 # tf.compat.v1.disable_eager_execution()
@@ -561,50 +560,3 @@ class BaseTrainer:
         with tf.io.TFRecordWriter(record_file) as writer:
             example = self._during_vars_example()
             writer.write(example.SerializeToString())
-
-    def _make_analyse_describs(self, analyse_feature=None):
-        if analyse_feature == None:
-            analyse_feature = {
-                'train_loss': {"type": 'value', "length": 1, "dtype": tf.float32},
-                'valid_loss': {"type": 'value', "length": 1, "dtype": tf.float32},
-                'var': {"type": 'list', "length": 74, "dtype": tf.string},
-            }
-
-        analyse_feature_describs = {}
-        for feature, info in analyse_feature.items():
-            if info['type'] == 'list':
-                for i in range(info["length"]):
-                    feature_type = tf.io.FixedLenFeature([], info["dtype"])
-                    analyse_feature_describs[feature + "_{}".format(i)] = feature_type
-                info_type = tf.io.FixedLenFeature([], tf.int64)
-                analyse_feature_describs[feature + "_length"] = info_type
-            elif info['type'] == 'value':
-                feature_type = tf.io.FixedLenFeature([], info["dtype"])
-                analyse_feature_describs[feature] = feature_type
-            else:
-                print("no such type to describe")
-                raise
-        return analyse_feature_describs
-
-    def _load_analyse_from_tfrecord(self):
-        filepath = self.args.analyse_dir
-        filelist = glob_tfrecords(filepath, glob_pattern='*')
-
-        raw_analyse_dataset = tf.data.TFRecordDataset(filelist)
-
-        analyse_feature_describ = self._make_analyse_describs()
-
-        def _parse_analyse_function(example_proto):
-            example = tf.io.parse_example(example_proto, analyse_feature_describ)
-            parsed_example = {}
-            for feat, tensor in analyse_feature_describ.items():
-                if example[feat].dtype == tf.string:
-                    parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
-                else:
-                    parsed_example[feat] = example[feat]
-
-            return parsed_example
-
-        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function)
-
-        return parsed_analyse_dataset
