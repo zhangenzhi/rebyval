@@ -60,24 +60,29 @@ class surrogate_dnn(Model):
 
 
 if __name__ == '__main__':
+    x = tf.ones(shape=(8, 2))
+    y = tf.zeros(shape=(8, 1))
+
+    train_steps=30
     target_model = dnn()
     surrogate_model = surrogate_dnn()
     loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     optimizer = tf.keras.optimizers.SGD(learning_rate=0.01)
-    with tf.GradientTape(persistent=True) as tape:
-        x = tf.ones(shape=(8, 2))
-        y = tf.zeros(shape=(8, 1))
 
-        predict = target_model(x, training=True)
+    for i in range(train_steps):
+        with tf.GradientTape(persistent=True) as tape:
 
-        s_loss = surrogate_model(target_model.trainable_variables, training=False)
-        m_loss = loss_fn(predict, y)
-        loss = m_loss + s_loss
+            predict = target_model(x, training=True)
 
-    target_model_grad = tape.gradient(m_loss, target_model.trainable_variables)
-    surrogate_model_grad = tape.gradient(s_loss, target_model.trainable_variables)
-    consider_grad = []
-    for i in range(len(target_model_grad)):
-        consider_grad.append(surrogate_model_grad[i] + target_model_grad[i])
-    gradients = tape.gradient(loss, target_model.trainable_variables)
-    optimizer.apply_gradients(zip(gradients, target_model.trainable_variables))
+            s_loss = surrogate_model(target_model.trainable_variables, training=False)
+            m_loss = loss_fn(predict, y)
+            loss = m_loss + s_loss
+            print("train_loss + surrogate_loss:",loss.numpy())
+
+        target_model_grad = tape.gradient(m_loss, target_model.trainable_variables)
+        surrogate_model_grad = tape.gradient(s_loss, target_model.trainable_variables)
+        consider_grad = []
+        for i in range(len(target_model_grad)):
+            consider_grad.append(surrogate_model_grad[i] + target_model_grad[i])
+        gradients = tape.gradient(loss, target_model.trainable_variables)
+        optimizer.apply_gradients(zip(gradients, target_model.trainable_variables))

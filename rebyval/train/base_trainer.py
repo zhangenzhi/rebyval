@@ -6,6 +6,7 @@ from functools import wraps
 # dataloader
 from rebyval.dataloader.dataset_loader import Cifar10DataLoader
 from rebyval.dataloader.weights_loader import DnnWeightsLoader
+
 # model
 from rebyval.model.dnn import DenseNeuralNetwork
 
