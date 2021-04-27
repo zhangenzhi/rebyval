@@ -3,6 +3,9 @@ import time
 import tensorflow as tf
 from functools import wraps
 
+# dataloader
+from rebyval.dataloader.dataset_loader import Cifar10DataLoader
+from rebyval.dataloader.weights_loader import DnnWeightsLoader
 # model
 from rebyval.model.dnn import DenseNeuralNetwork
 
@@ -10,7 +13,7 @@ from rebyval.model.dnn import DenseNeuralNetwork
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
 
 # others
-from rebyval.train.utils import get_scheduler
+from rebyval.train.utils import get_scheduler,prepare_dirs
 from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
 from rebyval.dataloader.utils import glob_tfrecords
 
@@ -50,23 +53,30 @@ class BaseTrainer:
         return wrapper
 
     def _build_dataset(self):
-        train_dir = ""
-        valid_dir = ""
-        test_dir = ""
+        dataset_args = self.args['dataloader']
+        train_dir = test_dir = valid_dir = ""
 
-        self.train_dataset = []
-        self.test_dataset = []
-        self.valid_dataset = []
+        if dataset_args['name'] == 'cifar10':
+            dataloader = Cifar10DataLoader(dataset_args)
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+        elif dataset_args['name'] == 'dnn_weights':
+            dataloader = DnnWeightsLoader(dataset_args)
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+        else:
+            print_error("no such dataset:{}".format(dataset_args['name']))
+            raise
+
         self.dataset_path = {
             "train_dir": train_dir,
             "valid_dir": valid_dir,
             "test_dir": test_dir
         }
+        return train_dataset, valid_dataset, test_dataset, dataloader
 
     def _build_model(self):
         model_args = self.args['model']
         if model_args['name'] == 'dnn':
-            deep_dims = list(map(lambda x: float(x), self.args.deep_dims.split(',')))
+            deep_dims = list(map(lambda x: float(x), model_args['deep_dims'].split(',')))
             model = DenseNeuralNetwork(deep_dims=deep_dims)
         else:
             print_error("no such model: {}".format(model_args['name']))
@@ -77,6 +87,8 @@ class BaseTrainer:
     def _build_losses(self):
         metrics = dict()
 
+        metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['name'])
+
         metrics['train_loss'] = tf.keras.metrics.Mean(name='train_loss')
         metrics['train_accuracy'] = tf.keras.metrics.AUC(name='train_auc')
         metrics['valid_loss'] = tf.keras.metrics.Mean(name='valid_loss')
@@ -86,12 +98,12 @@ class BaseTrainer:
 
         return metrics
 
-    def _build_enviroment(self, set_args=None):
+    def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
-    def _build_optimizer(self, set_args=None):
+    def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         learning_rate = float(optimizer_args['learning_rate'])
 
@@ -142,7 +154,7 @@ class BaseTrainer:
 
     def _build_optimier_from_keras_get(self):
         optimizer_args = self.args['optimizer']
-        optimzier =tf.keras.optimizers.get(optimizer_args['name'])
+        optimzier = tf.keras.optimizers.get(optimizer_args['name'])
         if optimizer_args['scheduler']:
             scheduler_args = optimizer_args['scheduler']
             scheduler = get_scheduler(scheduler_args)
@@ -156,18 +168,17 @@ class BaseTrainer:
 
         return optimzier
 
-    def reset_dataset(self, dataset_dir, repeat, glob_pattern="examples"):
-        dataset = self.dataloader.load_dataset(input_dirs=dataset_dir,
-                                               repeat=repeat,
-                                               glob_pattern=glob_pattern)
+    def reset_dataset(self):
+        dataset = self.dataloader.load_dataset()
         return dataset
 
-    def model_restore(self, set_args=None):
+    def model_restore(self):
         step = 0
         best_auc = 0
-
-        if self.args.restore_model > 0:
-            model_latest = os.path.join(self.args.restore_model_dir,
+        model_args = self.args['model']
+        model_args['restore_model'] = None
+        if model_args['restore_model']:
+            model_latest = os.path.join(model_args['restore_model']['restore_model_dir'],
                                         'model_latest')
             if os.path.exists(model_latest + '.data-00000-of-00001') \
                     and os.path.exists(model_latest + '.index'):
@@ -194,83 +205,76 @@ class BaseTrainer:
             print('\033[33m[Model Status]: Training from Scratch ...\033[0m')
         return step, best_auc
 
-    def model_save(self, step, test_auc_numpy, best_auc):
-        if self.args.save_model:
-            if test_auc_numpy > best_auc and step > self.args.save_after_steps:
-                save_path = os.path.join(self.args.model_dir, 'model_best')
+    def model_save_by_name(self, name):
+        save_path = os.path.join(self.valid_args['model_dir'], self.valid_args['save_model']['save_in'])
+        save_path = os.path.join(save_path, 'model_{}'.format(name))
 
-                save_msg = '\033[33m[Model Status]: Saving best model at step:{:08d} in {:}.\033[0m'.format(
-                    step, save_path)
-                print(save_msg)
-                self.model.save_weights(save_path,
-                                        overwrite=True,
-                                        save_format='tf')
+        save_msg = '\033[33m[Model Status]: Saving {} model at step:{:08d} in {:}.\033[0m'.format(
+            name, self.global_step, save_path)
+        print(save_msg)
+        self.model.save_weights(save_path,
+                                overwrite=True,
+                                save_format='tf')
 
-            if step > self.args.save_after_steps:
-                save_path = os.path.join(self.args.model_dir, 'model_latest')
-                save_msg = '[Model Status]: Saving latest model at step:{:08d} in {:}'.format(
-                    step, save_path)
-                print(save_msg)
-                self.model.save_weights(save_path,
-                                        overwrite=True,
-                                        save_format='tf')
-
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
-        with tf.GradientTape() as tape:
-            predictions = self.model(inputs, training=True)
-            loss = self.metrics['loss_fn'](labels, predictions)
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(inputs, training=True)
+                loss = self.metrics['loss_fn'](labels, predictions)
 
-        gradients = tape.gradient(loss, self.model.trainable_variables)
+            gradients = tape.gradient(loss, self.model.trainable_variables)
 
-        # clip grad by norm 2
-        if self.args.clip_grad == True:
-            gradients = [tf.clip_by_norm(g, 2.0) for g in gradients]
-
-        self.optimizer.apply_gradients(
-            zip(gradients, self.model.trainable_variables))
-        self.metrics['train_loss'](loss)
-        self.metrics['train_accuracy'](labels, tf.sigmoid(predictions))
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("train step error")
+            raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels):
+        try:
+            predictions = self.model(inputs, training=False)
+            v_loss = self.metrics['loss_fn'](labels, predictions)
 
-        predictions = self.model(inputs, training=False)
-        v_loss = self.metrics['loss_fn'](labels, predictions)
+            self.metrics['valid_loss'](v_loss)
+            return predictions
+        except:
+            print_error("valid step erroe")
+            raise
 
-        self.metrics['valid_loss'](v_loss)
-        self.metrics['valid_accuracy'](labels, predictions)
-
-        return predictions
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
+        try:
+            predictions = self.model(inputs, training=False)
+            t_loss = self.metrics['loss_fn'](labels, predictions)
 
-        predictions = self.model(inputs, training=False)
-        t_loss = self.metrics['loss_fn'](labels, predictions)
+            self.metrics['test_loss'](t_loss)
 
-        self.metrics['test_loss'](t_loss)
-        self.metrics['test_accuracy'](labels, predictions)
-
-        return predictions
+            return predictions
+        except:
+            print_error("test step error")
+            raise
 
     def run(self, set_args=None):
 
         # set enviroment
-        self._build_enviroment(set_args=set_args)
+        self._build_enviroment()
 
         # prepare dataset
         self.train_dataset, self.valid_dataset, self.test_dataset, \
         self.dataloader = self._build_dataset()
 
         # build optimizer
-        self.optimizer = self._build_optimizer(set_args=set_args)
+        self.optimizer = self._build_optimizer()
 
         # build model
-        self.model = self._build_model(set_args=set_args)
+        self.model = self._build_model()
 
         # build losses and metrics
-        self.metrics = self._build_losses(set_args=set_args)
+        self.metrics = self._build_losses()
 
         # train
         train_msg = self.main_loop()
@@ -294,6 +298,12 @@ class BaseTrainer:
         # This function is the last validation before main training procedure.
         # which means all the elements should be ready here.
 
+        # parse train loop control args
+        train_loop_control_args = self.args['train_loop_control']
+        self.train_args = train_loop_control_args['train']
+        self.valid_args = train_loop_control_args['valid']
+        self.test_args = train_loop_control_args['test']
+
         # model restore
         self.global_step = 0
         self.global_step, self.global_best_auc = self.model_restore()
@@ -310,10 +320,6 @@ class BaseTrainer:
 
         # log collection flags
         self.init_step = self.global_step
-
-        # debug mode
-        if self.args.log_level == 'DEBUG':
-            tf.profiler.experimental.start('logdir')
 
     # Train
     def before_train(self):
@@ -338,12 +344,12 @@ class BaseTrainer:
         self.train_step += 1
 
         # message print
-        if not self.args.quiet_mode:
-            iter_msg = '[Training Status]: step={:08d}, train loss={:.4f}' \
-                           .format(self.train_step, self.metrics['train_loss'].result()
-                                   ) + ', traning_current_time={:.4f}s, training_cumulative_time={:.4f}h' \
-                           .format(self.timer_dict['during_train'], self.timer_dict['cumulate_during_train'] / 3600)
-            print(iter_msg)
+
+        iter_msg = '[Training Status]: step={:08d}, train loss={:.4f}' \
+                       .format(self.train_step, self.metrics['train_loss'].result()
+                               ) + ', traning_current_time={:.4f}s, training_cumulative_time={:.4f}h' \
+                       .format(self.timer_dict['during_train'], self.timer_dict['cumulate_during_train'] / 3600)
+        print(iter_msg)
 
     def after_train(self):
         pass
@@ -352,7 +358,7 @@ class BaseTrainer:
         if self.train_step == 0:
             return False
         else:
-            return self.train_step % self.args.valid_gap == 0
+            return self.train_step % self.valid_args['valid_gap'] == 0
 
     # Valid
     def before_valid(self):
@@ -366,6 +372,10 @@ class BaseTrainer:
             self.valid_metrics_list = []
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
+
+            # prepare_dirs
+            prepare_dirs(valid_args=self.valid_args)
+
         except:
             raise ValueError
 
@@ -393,36 +403,36 @@ class BaseTrainer:
 
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: AUC :{:.6f}: ' \
-            .format((self.global_step + 1) * self.args.valid_gap, self.epoch, self.metrics['valid_loss'].result(),
+            .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch, self.metrics['valid_loss'].result(),
                     valid_auc)
         print(valid_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
                     self.timer_dict['cumulate_during_train'] / (
-                            (self.global_step + 1) * self.args.valid_gap - self.init_step),
+                            (self.global_step + 1) * self.valid_args['valid_gap'] - self.init_step),
                     (self.timer_dict['cumulate_during_train'] + self.timer_dict['cumulate_during_valid']) / 3600)
         print(time_msg)
 
         # save model best
-        if self.args.save_model:
+        if self.valid_args['save_model']:
             if valid_auc >= max(self.auc_list):
                 self.model_save_by_name(name="best")
 
         # collect analyse data
-        if self.args.analyse == True:
+        if self.valid_args['analyse'] == True:
             self.during_value_dict['var'] = self.model.trainable_variables
             self.during_value_dict['train_loss'] = self.metrics['train_loss'].result()
             self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result()
             self._write_analyse_to_tfrecord()
 
-        write_log(self.args.log_file, valid_msg)
-        write_log(self.args.log_file, time_msg)
+        write_log(self.valid_args['log_file'], valid_msg)
+        write_log(self.valid_args['log_file'], time_msg)
 
     def check_should_valid(self) -> bool:
-        return self.args.test_check
+        return self.test_args['check_should_test']
 
     def valid_stop_condition(self):
-        return self.valid_step >= self.args.valid_steps
+        return self.valid_step >= self.valid_args['valid_steps']
 
     # Test
     def before_test(self):
@@ -465,8 +475,8 @@ class BaseTrainer:
         self.auc_list.append(test_auc_numpy)
         self.step_list.append(self.global_step)
 
-        write_log(self.args.log_file, test_msg)
-        write_log(self.args.log_file, time_msg)
+        write_log(self.valid_args['log_file'], test_msg)
+        write_log(self.valid_args['log_file'], time_msg)
         print(test_msg)
         print(time_msg)
 
@@ -478,15 +488,11 @@ class BaseTrainer:
         self.global_step += 1
 
     def exp_stop_condition(self) -> bool:
-        return self.global_step >= int(self.args.max_training_steps / self.args.valid_gap)
+        return self.global_step >= int(self.train_args['max_training_steps'] / self.valid_args['valid_gap'])
 
     def after_exp(self):
         print('[Training Status]: Training Done at Step: {:}'.format(
             self.global_step))
-
-        # collect profile logs
-        if self.args.log_level == 'DEBUG':
-            tf.profiler.experimental.stop()
 
         tf.keras.backend.clear_session()
         return_dict = {

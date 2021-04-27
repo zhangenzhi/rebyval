@@ -24,7 +24,9 @@ class DenseNeuralNetwork(Model):
         return deep_layers
 
     def call(self, x):
-        next_input = Flatten()(x)
+
+        input = x['inputs']
+        next_input = Flatten()(input)
         # next_input = next_input * next_input * 5
         for deep_layer in self.dnn_layer:
             next_input = deep_layer(next_input)

@@ -18,7 +18,6 @@ class BaseController:
             self.yaml_configs = get_yml_content(command_args.config)
 
         print_dict(self.yaml_configs)
-        self.args = check_args_from_yaml_content(yaml_content=self.yaml_configs)['experiment']
 
     def _args_parser(self):
         parser = argparse.ArgumentParser('autosparsedl_config')
@@ -33,20 +32,23 @@ class BaseController:
 
 
     def _build_enviroment(self):
-        pass
+
+        self.args = self.yaml_configs['experiment']
+        check_args_from_yaml_content(self.args)
+
 
     def _build_trainer(self):
         target_trainer_args = self.args["target_trainer"]
         surrogate_trainer = self.args["surrogate_trainer"]
 
         try:
-            target_trainer = TargetTrainer(args=target_trainer_args)
+            target_trainer = TargetTrainer(trainer_args=target_trainer_args)
         except:
             print_error("build target trainer failed.")
             raise
 
         try:
-            suroragte_trainer = SurrogateTrainer(args=surrogate_trainer)
+            suroragte_trainer = SurrogateTrainer(trainer_args=surrogate_trainer)
         except:
             print_error("build suroragte trainer failed.")
             raise
@@ -57,7 +59,7 @@ class BaseController:
         pass
 
     def warmup_stage(self):
-        pass
+        self.target_trainer.run()
 
     def main_loop_for_experiment(self):
         self.warmup_stage()
@@ -67,7 +69,7 @@ class BaseController:
         self._build_enviroment()
 
         print_green("build trainer for both target and surrogate nets")
-        self._build_trainer()
+        self.target_trainer,self.surrogate_trainer =  self._build_trainer()
 
         print_green("Start to run!")
         self.main_loop_for_experiment()
