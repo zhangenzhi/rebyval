@@ -1,4 +1,5 @@
-default_values_dict = {
+default_values_dict ={ 
+
     'experiment': {
         'context': {
             'name': "None",
@@ -13,22 +14,15 @@ default_values_dict = {
         },
         'target_trainer': {
             'dataloader': {
-                'name': "cifar10",
-                'datapath': "~/.keras/dataset/cifar10"
+                'name': "cifar10"
             },
             'model': {
                 'name': "dnn",
                 'deep_dims': "128,64,64,32",
-                'activation_for_all': "relu",
-                'restore_mode': {
-                    'restore_from': "./examples/model/target/001",
-                    'version': "latest"
-                }
-            },
-            'loss': {
-                'name': "sparse_categorical_crossentropy",
-                'metric': 'accuracy'
-            },
+                'activation_for_all': "relu,relu,relu,softmax",
+                'restore_mode': None
+                },
+            'loss': None,
             'optimizer': {
                 'name': 'SGD',
                 'learning_rate': 0.01,
@@ -44,9 +38,7 @@ default_values_dict = {
                     'check_should_valid': True,
                     'valid_gap': 1000,
                     'valid_steps': 100,
-                    'save_model': {
-                        'save_after_step': 1000
-                    }
+                    'save_model': None
                 },
                 'test': {
                     'check_should_test': True
@@ -62,16 +54,10 @@ default_values_dict = {
             'model': {
                 'name': "dnn",
                 'deep_dims': "128,64,64,32",
-                'activation_for_all': "relu",
-                'restore_mode': {
-                    'restore_from': "./examples/model/target/001",
-                    'version': "latest"
-                }
+                'activations': "relu,relu,relu,softmax",
+                'restore_mode': None
             },
-            'loss': {
-                'name': "mean_squared_error",
-                'metric': 'mean_squared_logarithmic_error'
-            },
+            'loss': None,
             'optimizer': {
                 'name': 'SGD',
                 'learning_rate': 0.01,
@@ -86,14 +72,12 @@ default_values_dict = {
                     'check_should_valid': True,
                     'valid_gap': 1000,
                     'valid_steps': 100,
-                    'save_model': {
-                        'save_after_step': 1000
-                    }
+                    'save_model': None
                 },
                 'test': {
                     'check_should_test': True
                 }
             }
-        }
-    },
-}
+        } # surrogate model
+    }# experiment
+}# dict

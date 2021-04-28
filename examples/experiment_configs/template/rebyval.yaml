@@ -1,7 +1,9 @@
 experiment:
 
   context:
-    name: 001
+    name: "001"
+    experiment_type: rebyval 
+    log_path: ./
 
   main_loop_control:
     warmup_steps:
@@ -11,15 +13,14 @@ experiment:
   target_trainer:
     dataloader:
       name: cifar10 # default cifar10
-      datapath: ~/.keras/dataset/cifar10 # default cifar10
+      trainer_dataset_path: ~/.keras/dataset/cifar10 # default using keras
       batch_size: 256
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,10 # default 128,64,64,32
       activations_for_all: relu,relu,relu,softmax # default relu
       restore_model:
-        restore_from: ./target/001
-        version: latest # or best
+        restore_from: latest # or best, default None
     loss:
       name: SparseCategoricalCrossentropy
       metric: accuracy
@@ -36,10 +37,9 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log
         analyse: False
         save_model:
-          save_in: target/001
+          save_in: "001" # or name as your wish
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         check_should_test: True # default False for no test step
@@ -47,15 +47,14 @@ experiment:
   surrogate_trainer:
     dataloader:
       name: dnn_weights
-      datapath: ./dataset/weights_pool/dnn
+      surrogaet_dataset_path: ./dataset/weights_pool/dnn # as default
       batch_size: 32
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,32
       activation_for_each: relu,sigmoid,sigmoid,relu
       restore_model:
-        restore_from: surrogate/001
-        version: latest # or best
+        version: latest # or best, default None
     optimizer:
       name: SGD
       learning_rate: 0.01
@@ -73,7 +72,7 @@ experiment:
         valid_steps: 100 # default valid for 100 steps
         log_path: ./log
         save_model:
-          save_in: surrogate/001
+          save_in: "001" # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         check_should_test: True # default False for no test step

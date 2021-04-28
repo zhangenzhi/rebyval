@@ -1,0 +1,78 @@
+experiment:
+
+  context:
+    name: "001"
+    experiment_type: rebyval 
+    log_path: ./
+
+  main_loop_control:
+    warmup_steps:
+      target_model_samples: 15 # train 10 taget model and collect validation weight.
+    target_samples_per_iter: 3
+
+  target_trainer:
+    dataloader:
+      name: cifar10 # default cifar10
+      trainer_dataset_path: ~/.keras/dataset/cifar10 # default using keras
+      batch_size: 256
+    model:
+      name: dnn # default dnn
+      deep_dims: 128,64,64,10 # default 128,64,64,32
+      activations_for_all: relu,relu,relu,softmax # default relu
+      restore_model:
+        restore_from: latest # or best, default None
+    loss:
+      name: SparseCategoricalCrossentropy
+      metric: accuracy
+    optimizer:
+      name: SGD # default SGD
+      learning_rate: 0.01 # default 0.01
+      scheduler: None # default None
+    train_loop_control:
+      train:
+        check_should_train: True
+        max_training_steps: 1000 # default 10000
+        max_training_epochs: 10 # default 10
+      valid:
+        check_should_valid: True # default False for no validation step
+        valid_gap: 1000 # default 1000 training steps
+        valid_steps: 100 # default valid for 100 steps
+        analyse: False
+        save_model:
+          save_in: "001" # or name as your wish
+          save_after_step: 1000 # save latest and best model per 1000 steps
+      test:
+        check_should_test: True # default False for no test step
+
+  surrogate_trainer:
+    dataloader:
+      name: dnn_weights
+      surrogaet_dataset_path: ./dataset/weights_pool/dnn # as default
+      batch_size: 32
+    model:
+      name: dnn # default dnn
+      deep_dims: 128,64,64,32
+      activation_for_each: relu,sigmoid,sigmoid,relu
+      restore_model:
+        version: latest # or best, default None
+    optimizer:
+      name: SGD
+      learning_rate: 0.01
+    loss:
+      name: mean_squared_error
+      metric: mean_squared_logarithmic_error
+    train_loop_control:
+      train:
+        check_should_train: True
+        max_training_steps: 1000 # default inf
+        max_training_epochs: 10 # default inf
+      valid:
+        check_should_valid: True # default False for no validation step
+        valid_gap: 1000 # default 1000 training steps
+        valid_steps: 100 # default valid for 100 steps
+        log_path: ./log
+        save_model:
+          save_in: "001" # or name as your wish, default None
+          save_after_step: 1000 # save latest and best model per 1000 steps
+      test:
+        check_should_test: True # default False for no test step
