@@ -6,11 +6,16 @@ def prepare_dirs(valid_args):
         valid_args['log_file'] = os.path.join(valid_args['log_path'], 'log_file.txt')
         valid_args['model_dir'] = os.path.join(valid_args['log_path'], 'models')
         valid_args['tensorboard_dir'] = os.path.join(valid_args['log_path'], 'tensorboard')
-        valid_args['analyse_dir'] = os.path.join(valid_args['log_path'], 'analyse')
-
         mkdirs(valid_args['model_dir'])
         mkdirs(valid_args['tensorboard_dir'])
-        mkdirs(valid_args['analyse_dir'])
+
+        # weights pool
+        if valid_args['analyse']:
+            valid_args['analyse_dir'] = os.path.join(valid_args['log_path'], 'analyse')
+            target_model_version = len(os.listdir(valid_args['analyse_dir']))
+            valid_args['analyse_dir'] = os.path.join(valid_args['analyse_dir'],str(target_model_version))
+            mkdirs(valid_args['analyse_dir'])
+
 
 def mkdirs(dir_path):
     if not os.path.exists(dir_path):

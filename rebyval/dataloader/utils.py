@@ -1,3 +1,4 @@
+import fnmatch, os
 from tensorflow.io import gfile
 
 def glob_tfrecords(input_dirs, glob_pattern="example", recursively=False):

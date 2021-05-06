@@ -53,6 +53,7 @@ class BaseTrainer:
         return wrapper
 
     def _build_dataset(self):
+
         dataset_args = self.args['dataloader']
         train_dir = test_dir = valid_dir = ""
 
@@ -321,6 +322,9 @@ class BaseTrainer:
         # log collection flags
         self.init_step = self.global_step
 
+        # prepare_dirs
+        prepare_dirs(valid_args=self.valid_args)
+
     # Train
     def before_train(self):
 
@@ -373,9 +377,6 @@ class BaseTrainer:
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
 
-            # prepare_dirs
-            prepare_dirs(valid_args=self.valid_args)
-
         except:
             raise ValueError
 
@@ -420,7 +421,7 @@ class BaseTrainer:
 
         # collect analyse data
         if self.valid_args['analyse'] == True:
-            self.during_value_dict['var'] = self.model.trainable_variables
+            self.during_value_dict['vars'] = self.model.trainable_variables
             self.during_value_dict['train_loss'] = self.metrics['train_loss'].result()
             self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result()
             self._write_analyse_to_tfrecord()
@@ -554,7 +555,8 @@ class BaseTrainer:
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
     def _write_analyse_to_tfrecord(self):
-        filepath = self.args.analyse_dir
+        filepath = self.valid_args['analyse_dir']
+
         record_file = '{}.tfrecords'.format(self.global_step)
         record_file = os.path.join(filepath, record_file)
 

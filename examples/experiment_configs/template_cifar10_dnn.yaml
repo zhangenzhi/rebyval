@@ -4,8 +4,8 @@ experiment:
     name: 001
 
   main_loop_control:
-    warmup_steps:
-      target_model_samples: 15 # train 10 taget model and collect validation weight.
+    warmup_stage:
+      target_model_samples: 3 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 3
 
   target_trainer:
@@ -30,14 +30,14 @@ experiment:
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 1000 # default 10000
+        max_training_steps: 20 # default 10000
         max_training_epochs: 10 # default 10
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
+        valid_gap: 10 # default 1000 training steps
+        valid_steps: 3 # default valid for 100 steps
         log_path: ./log
-        analyse: False
+        analyse: True
         save_model:
           save_in: target/001
           save_after_step: 1000 # save latest and best model per 1000 steps
@@ -47,18 +47,21 @@ experiment:
   surrogate_trainer:
     dataloader:
       name: dnn_weights
-      datapath: ./dataset/weights_pool/dnn
-      batch_size: 32
+      datapath: ./log/analyse
+      batch_size: 4
+      num_of_samples: 40
+      num_trainable_variables: 8
     model:
       name: dnn # default dnn
-      deep_dims: 128,64,64,32
-      activation_for_each: relu,sigmoid,sigmoid,relu
+      deep_dims: 128,64,64,32,1
+      activation_for_each: relu,relu,relu,relu,relu
       restore_model:
         restore_from: surrogate/001
         version: latest # or best
     optimizer:
-      name: SGD
+      name: Adam
       learning_rate: 0.01
+      scheduler: None # default None
     loss:
       name: mean_squared_error
       metric: mean_squared_logarithmic_error
@@ -66,11 +69,12 @@ experiment:
       train:
         check_should_train: True
         max_training_steps: 1000 # default inf
-        max_training_epochs: 10 # default inf
+        max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
+        valid_gap: 100 # default 1000 training steps
+        valid_steps: 1 # default valid for 100 steps
+        analyse: False
         log_path: ./log
         save_model:
           save_in: surrogate/001

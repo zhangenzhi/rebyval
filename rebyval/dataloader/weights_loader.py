@@ -33,6 +33,7 @@ class DnnWeightsLoader(BaseDataLoader):
         return analyse_feature_describs
 
     def _load_analyse_from_tfrecord(self, filepath, num_trainable_variables):
+
         filelist = glob_tfrecords(filepath, glob_pattern='*')
 
         raw_analyse_dataset = tf.data.TFRecordDataset(filelist)
@@ -57,9 +58,12 @@ class DnnWeightsLoader(BaseDataLoader):
     def load_dataset(self):
 
         dataset = self._load_analyse_from_tfrecord(filepath=self.dataloader_args['datapath'],
-                                                   num_trainable_variables=self.dataloader_args['datapath'])
+                                                   num_trainable_variables=self.dataloader_args['num_trainable_variables'])
+        # import pdb
+        # pdb.set_trace()
+
         full_train_size = self.dataloader_args['num_of_samples']
-        valid_size = int(0.2*0.*full_train_size)
+        valid_size = int(0.2*0.8*full_train_size)
         test_size = int(0.2 * full_train_size)
 
         test_dataset = dataset.take(test_size)

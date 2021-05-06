@@ -37,9 +37,8 @@ class BaseController:
         check_args_from_yaml_content(self.args)
 
 
-    def _build_trainer(self):
+    def _build_target_trainer(self):
         target_trainer_args = self.args["target_trainer"]
-        surrogate_trainer = self.args["surrogate_trainer"]
 
         try:
             target_trainer = TargetTrainer(trainer_args=target_trainer_args)
@@ -47,29 +46,46 @@ class BaseController:
             print_error("build target trainer failed.")
             raise
 
+        return target_trainer
+
+    def _build_surrogate_trainer(self):
+        surrogate_trainer = self.args["surrogate_trainer"]
         try:
-            suroragte_trainer = SurrogateTrainer(trainer_args=surrogate_trainer)
+            surrogate_trainer = SurrogateTrainer(trainer_args=surrogate_trainer)
         except:
             print_error("build suroragte trainer failed.")
             raise
 
-        return target_trainer, suroragte_trainer
+        return  surrogate_trainer
 
     def before_experiment(self):
         pass
 
-    def warmup_stage(self):
-        self.target_trainer.run()
+    def warmup_stage(self, warmup_steps):
+        target_model_samples = warmup_steps['target_model_samples']
+        for i in range(target_model_samples):
+            target_trainer = self._build_target_trainer()
+            target_trainer.run_with_weights_collect()
+
+        # TODO: add validation for training surrogate model
+        try:
+            valid_weights_pool(self.surrogate_trainer.args)
+        except:
+            print_error("No weights in the pool")
+            raise
+
+        self.surrogate_trainer.run()
 
     def main_loop_for_experiment(self):
-        self.warmup_stage()
+        main_loop_args = self.args['main_loop_control']
+        self.warmup_stage(main_loop_args['warmup_stage'])
 
     def run(self):
 
         self._build_enviroment()
 
         print_green("build trainer for both target and surrogate nets")
-        self.target_trainer,self.surrogate_trainer =  self._build_trainer()
+        self.surrogate_trainer =  self._build_surrogate_trainer()
 
         print_green("Start to run!")
         self.main_loop_for_experiment()
