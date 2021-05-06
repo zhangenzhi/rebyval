@@ -24,7 +24,7 @@ class BaseController:
         parser.add_argument(
             '--config',
             type=str,
-            default='./examples/experiment_configs/template_cifar10_dnn.yaml',
+            default='./examples/experiment_configs/template/rebyval.yaml',
             # default='autosparsedl\\webui\\static\\config_train_local.yaml',
             help='yaml config file path')
         args = parser.parse_args()
