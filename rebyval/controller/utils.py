@@ -16,6 +16,6 @@ def valid_weights_pool(surrogate_args):
     subfiles = os.listdir(weights_pool_path)
     if subfiles == []:
         print("No weights in the pool.")
-        raise
+        raise("No weights in the pool.")
     new_datapath = [os.path.join(weights_pool_path,f) for f in subfiles]
     surrogate_args['dataloader']['datapath'] = new_datapath

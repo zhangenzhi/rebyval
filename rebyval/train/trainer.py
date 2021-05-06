@@ -54,7 +54,7 @@ class TargetTrainer(BaseTrainer):
             self.run()
         else:
             print_error("analysis not open in Target Trainer")
-            raise
+            raise("error")
 
 class SurrogateTrainer(BaseTrainer):
     def __init__(self, trainer_args):
@@ -89,7 +89,7 @@ class SurrogateTrainer(BaseTrainer):
     def during_valid(self):
         try:
             x_valid = self.valid_iter.get_next()
-            y_valid = x_valid.pop('label')
+            y_valid = x_valid.pop('valid_loss')
             x_valid.pop('train_loss')
             x_valid.pop('vars_length')
             flat_vars = []
@@ -111,7 +111,7 @@ class SurrogateTrainer(BaseTrainer):
 
         try:
             x_test = self.test_iter.get_next()
-            y_test = x_test.pop('label')
+            y_test = x_test.pop('valid_loss')
             x_test.pop('train_loss')
             x_test.pop('vars_length')
             flat_vars = []

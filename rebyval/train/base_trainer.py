@@ -65,7 +65,7 @@ class BaseTrainer:
             train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         else:
             print_error("no such dataset:{}".format(dataset_args['name']))
-            raise
+            raise("no such dataset")
 
         self.dataset_path = {
             "train_dir": train_dir,
@@ -81,7 +81,7 @@ class BaseTrainer:
             model = DenseNeuralNetwork(deep_dims=deep_dims)
         else:
             print_error("no such model: {}".format(model_args['name']))
-            raise
+            raise("no such model")
 
         return model
 
@@ -217,7 +217,7 @@ class BaseTrainer:
                                 overwrite=True,
                                 save_format='tf')
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
@@ -456,10 +456,11 @@ class BaseTrainer:
     def check_should_test(self) -> bool:
         return True
 
-    def after_test(self):
-
+    def after_test_step(self):
         # increase step
         self.test_step += 1
+
+    def after_test(self):
 
         # test log collection
         test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: AUC :{:.6f}' \
@@ -532,6 +533,7 @@ class BaseTrainer:
             self.before_test()
             while not self.test_stop_condition():
                 self.during_test()
+                self.after_test_step()
             self.after_test()
 
         return self.after_exp()

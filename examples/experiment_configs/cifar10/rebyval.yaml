@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_steps:
-      target_model_samples: 15 # train 10 taget model and collect validation weight.
+      target_model_samples: 20 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 3
 
   target_trainer:
@@ -37,7 +37,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        analyse: False
+        analyse: True
         save_model:
           save_in: "001" # or name as your wish
           save_after_step: 1000 # save latest and best model per 1000 steps

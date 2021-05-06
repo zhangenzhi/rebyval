@@ -25,7 +25,6 @@ class BaseController:
             '--config',
             type=str,
             default='./examples/experiment_configs/template/rebyval.yaml',
-            # default='autosparsedl\\webui\\static\\config_train_local.yaml',
             help='yaml config file path')
         args = parser.parse_args()
         return args
@@ -84,7 +83,7 @@ class BaseController:
 
         self._build_enviroment()
 
-        print_green("build trainer for both target and surrogate nets")
+        print_green("build trainer from surrogate nets")
         self.surrogate_trainer =  self._build_surrogate_trainer()
 
         print_green("Start to run!")

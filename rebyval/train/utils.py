@@ -12,6 +12,8 @@ def prepare_dirs(valid_args):
         # weights pool
         if valid_args['analyse']:
             valid_args['analyse_dir'] = os.path.join(valid_args['log_path'], 'analyse')
+            if not os.path.isdir(valid_args['analyse_dir']):
+                mkdirs(valid_args['analyse_dir'])
             target_model_version = len(os.listdir(valid_args['analyse_dir']))
             valid_args['analyse_dir'] = os.path.join(valid_args['analyse_dir'],str(target_model_version))
             mkdirs(valid_args['analyse_dir'])
