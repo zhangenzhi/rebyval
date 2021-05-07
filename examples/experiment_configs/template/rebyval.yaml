@@ -67,6 +67,7 @@ experiment:
       metric: mean_squared_logarithmic_error
     train_loop_control:
       train:
+        rebyval: False
         check_should_train: True
         max_training_steps: 1000 # default inf
         max_training_epochs: 100 # default inf

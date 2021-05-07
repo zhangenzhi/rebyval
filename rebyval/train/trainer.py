@@ -4,8 +4,9 @@ from rebyval.train.base_trainer import BaseTrainer
 
 
 class TargetTrainer(BaseTrainer):
-    def __init__(self, trainer_args):
+    def __init__(self, trainer_args,surrogate_model):
         super(TargetTrainer, self).__init__(trainer_args=trainer_args)
+        self.surrogate_model = surrogate_model
 
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'cifar10':
@@ -17,9 +18,10 @@ class TargetTrainer(BaseTrainer):
         try:
             x = self.train_iter.get_next()
             y = x.pop('label')
-            self._train_step(x, y)
-            # import pdb
-            # pdb.set_trace()
+            if self.train_args['rebyval']:
+                self._train_step_rebyval(x,y)
+            else:
+                self._train_step(x, y)
         except:
             print_warning("during traning exception")
             self.epoch += 1
@@ -48,6 +50,24 @@ class TargetTrainer(BaseTrainer):
             self._test_step(x_test, y_test)
         except:
             self.test_flag = False
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step_rebyval(self, inputs, labels):
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(inputs, training=True)
+                t_loss = self.metrics['loss_fn'](labels, predictions)
+                v_loss = self.surrogate_model({'inputs':self.model.trainable_variables})
+                loss = t_loss + v_loss
+
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("rebyval train step error")
+            raise
 
     def run_with_weights_collect(self):
         if self.args['train_loop_control']['valid']['analyse']:
