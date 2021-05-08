@@ -29,18 +29,20 @@ class BaseController:
         args = parser.parse_args()
         return args
 
-
     def _build_enviroment(self):
 
         self.args = self.yaml_configs['experiment']
         check_args_from_yaml_content(self.args)
 
-
-    def _build_target_trainer(self):
+    def _build_target_trainer(self, rebyval=False):
         target_trainer_args = self.args["target_trainer"]
 
         try:
-            target_trainer = TargetTrainer(trainer_args=target_trainer_args)
+            if rebyval:
+                target_trainer = TargetTrainer(trainer_args=target_trainer_args,
+                                               surrogate_model=self.surrogate_trainer.model)
+            else:
+                target_trainer = TargetTrainer(trainer_args=target_trainer_args)
         except:
             print_error("build target trainer failed.")
             raise
@@ -55,7 +57,7 @@ class BaseController:
             print_error("build suroragte trainer failed.")
             raise
 
-        return  surrogate_trainer
+        return surrogate_trainer
 
     def before_experiment(self):
         pass
@@ -77,19 +79,28 @@ class BaseController:
 
     def main_loop_for_experiment(self):
         main_loop_args = self.args['main_loop_control']
-        self.warmup_stage(main_loop_args['warmup_stage'])
+
+        if main_loop_args.get('warmup_stage'):
+            self.warmup_stage(main_loop_args['warmup_stage'])
+
+        for j in range(main_loop_args['main_loop_times']):
+            for i in range(main_loop_args['target_samples_per_iter']):
+                target_trainer = self._build_target_trainer(rebyval=True)
+                target_trainer.run_with_weights_collect()
+            self.surrogate_trainer.run_main_loop()
 
     def run(self):
 
         self._build_enviroment()
 
         print_green("build trainer from surrogate nets")
-        self.surrogate_trainer =  self._build_surrogate_trainer()
+        self.surrogate_trainer = self._build_surrogate_trainer()
 
         print_green("Start to run!")
         self.main_loop_for_experiment()
 
         print_green('[Task Status]: Task done! Time cost: {:}')
+
 
 if __name__ == '__main__':
     BaseController().run()

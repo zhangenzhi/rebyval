@@ -7,8 +7,9 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 3 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 3
+      target_model_samples: 1 # train 10 taget model and collect validation weight.
+    target_samples_per_iter: 1
+    main_loop_times: 1
 
   target_trainer:
     dataloader:
@@ -17,25 +18,25 @@ experiment:
       batch_size: 256
     model:
       name: dnn # default dnn
-      deep_dims: 128,64,64,10 # default 128,64,64,32
-      activations_for_all: relu,relu,relu,softmax # default relu
+      deep_dims: 128,128,64,32,10 # default 128,64,64,32
+      activations_for_all: relu,relu,relu,relu,softmax # default relu
       restore_model:
         restore_from: latest # or best, default None
     loss:
       name: SparseCategoricalCrossentropy
       metric: accuracy
     optimizer:
-      name: SGD # default SGD
-      learning_rate: 0.01 # default 0.01
+      name: Adam # default SGD
+      learning_rate: 0.0001 # default 0.01
       scheduler: None # default None
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 1000 # default 10000
-        max_training_epochs: 10 # default 10
+        max_training_steps: 1000000 # default 10000
+        max_training_epochs: 10000 # default 10
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 100 # default 1000 training steps
+        valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         analyse: True
         log_path: ./log
@@ -49,8 +50,8 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      batch_size: 4
-      num_of_samples: 40
+      batch_size: 8
+      num_of_samples: 80
       num_trainable_variables: 8
     model:
       name: dnn # default dnn
@@ -59,12 +60,12 @@ experiment:
       restore_model:
         version: latest # or best, default None
     optimizer:
-      name: Adam
+      name: SGD
       learning_rate: 0.01
       scheduler: None # default None
     loss:
-      name: mean_squared_error
-      metric: mean_squared_logarithmic_error
+      name: MeanSquaredError
+      metric: MeanSquaredLogarithmicError
     train_loop_control:
       train:
         rebyval: False
@@ -74,11 +75,11 @@ experiment:
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 100 # default 1000 training steps
-        valid_steps: 1 # default valid for 100 steps
+        valid_steps: 10 # default valid for 100 steps
         analyse: False
         log_path: ./log
         save_model:
-          save_in: "001" # or name as your wish, default None
+          save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         check_should_test: True # default False for no test step

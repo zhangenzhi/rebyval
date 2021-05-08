@@ -32,9 +32,7 @@ class DnnWeightsLoader(BaseDataLoader):
                 raise
         return analyse_feature_describs
 
-    def _load_analyse_from_tfrecord(self, filepath, num_trainable_variables):
-
-        filelist = glob_tfrecords(filepath, glob_pattern='*')
+    def _load_analyse_from_tfrecord(self, filelist, num_trainable_variables):
 
         raw_analyse_dataset = tf.data.TFRecordDataset(filelist)
 
@@ -57,24 +55,24 @@ class DnnWeightsLoader(BaseDataLoader):
 
     def load_dataset(self):
 
-        dataset = self._load_analyse_from_tfrecord(filepath=self.dataloader_args['datapath'],
-                                                   num_trainable_variables=self.dataloader_args['num_trainable_variables'])
+        filelist = glob_tfrecords(self.dataloader_args['datapath'], glob_pattern='*')
+        dataset = self._load_analyse_from_tfrecord(filelist=filelist,
+                                                   num_trainable_variables=self.dataloader_args[
+                                                       'num_trainable_variables'])
         # import pdb
         # pdb.set_trace()
 
-        full_train_size = self.dataloader_args['num_of_samples']
-        valid_size = int(0.2*0.8*full_train_size)
+        full_train_size = len(filelist)
+        valid_size = int(0.2 * 0.8 * full_train_size)
         test_size = int(0.2 * full_train_size)
 
         test_dataset = dataset.take(test_size)
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
 
-
         valid_dataset = dataset.skip(test_size).take(valid_size)
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
-        train_dataset = dataset.skip(valid_size+test_size)
+        train_dataset = dataset.skip(valid_size + test_size)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
 
         return train_dataset, valid_dataset, test_dataset
-

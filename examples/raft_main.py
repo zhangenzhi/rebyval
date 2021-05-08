@@ -44,11 +44,11 @@ def get_dnn_target_net():
         tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dense(32, activation='relu'),
-        tf.keras.layers.Dense(100, activation='softmax')
+        tf.keras.layers.Dense(10, activation='softmax')
     ])
 
     # lr_scheduler = LinearScalingWithWarmupSchedule(10, base_learning_rate=0.0004, warmup_steps=40000, gradual_steps=100000)
-    optimizer = tf.keras.optimizers.Adam(0.0004)
+    optimizer = tf.keras.optimizers.Adam(0.0001)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
@@ -80,10 +80,10 @@ def train_value_net():
 
 def train_target_net():
     # train_dataset, test_dataset = get_target_dataset('cifar10')
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     train_net = get_dnn_target_net()
-    train_net.fit(x_train, y_train, batch_size= 512, epochs=1000000, validation_data=(x_test,y_test))
+    train_net.fit(x_train, y_train, batch_size= 256, epochs=1000000, validation_data=(x_test,y_test))
 
 
 def save_train_net_vars(path, num, vars, val_loss):
