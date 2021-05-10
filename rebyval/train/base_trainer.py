@@ -88,7 +88,11 @@ class BaseTrainer:
     def _build_losses(self):
         metrics = dict()
 
-        metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['name'])
+        if self.args['loss'].get('identifier'):
+            metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['identifier'])
+        else:
+            loss_name = self.args['loss']['name']
+            metrics['loss_fn'] = tf.keras.losses.get(loss_name)
 
         metrics['train_loss'] = tf.keras.metrics.Mean(name='train_loss')
         metrics['train_accuracy'] = tf.keras.metrics.AUC(name='train_auc')

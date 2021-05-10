@@ -16,6 +16,7 @@ def prepare_dirs(valid_args):
                 mkdirs(valid_args['analyse_dir'])
             target_model_version = len(os.listdir(valid_args['analyse_dir']))
             valid_args['analyse_dir'] = os.path.join(valid_args['analyse_dir'],str(target_model_version))
+            valid_args['log_file'] = os.path.join(valid_args['analyse_dir'], 'log_file.txt')
             mkdirs(valid_args['analyse_dir'])
 
 

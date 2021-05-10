@@ -7,9 +7,9 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 1 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 1
-    main_loop_times: 1
+      target_model_samples: 0 # train 10 taget model and collect validation weight.
+    target_samples_per_iter: 3
+    main_loop_times: 10
 
   target_trainer:
     dataloader:
@@ -24,6 +24,10 @@ experiment:
         restore_from: latest # or best, default None
     loss:
       name: SparseCategoricalCrossentropy
+      identifier:
+        class_name: SparseCategoricalCrossentropy
+        config:
+          from_logits: True
       metric: accuracy
     optimizer:
       name: Adam # default SGD
@@ -32,8 +36,8 @@ experiment:
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 1000000 # default 10000
-        max_training_epochs: 10000 # default 10
+        max_training_steps: 10000 # default 10000
+        max_training_epochs: 100 # default 10
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
@@ -50,9 +54,8 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      batch_size: 8
-      num_of_samples: 80
-      num_trainable_variables: 8
+      batch_size: 32
+      num_trainable_variables: 10
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,32,1
