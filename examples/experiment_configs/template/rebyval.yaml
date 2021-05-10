@@ -36,7 +36,7 @@ experiment:
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 10000 # default 10000
+        max_training_steps: 100000 # default 10000
         max_training_epochs: 100 # default 10
       valid:
         check_should_valid: True # default False for no validation step
