@@ -17,16 +17,15 @@ class DenseNeuralNetwork(Model):
         for i in range(num_layers):
             dense_layer = Dense(
                 self.deep_dims[i],
-                activation=self.activations[i],
-                kernel_initializer=tf.keras.initializers.GlorotUniform())
+                activation=self.activations[i])
             deep_layers.append(dense_layer)
 
         return deep_layers
 
     def call(self, x):
 
-        input = x['inputs']
-        next_input = Flatten()(input)
+        x_inputs = x['inputs']
+        next_input = Flatten()(x_inputs)
         # next_input = next_input * next_input * 5
         for deep_layer in self.dnn_layer:
             next_input = deep_layer(next_input)

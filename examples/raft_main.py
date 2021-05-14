@@ -38,20 +38,33 @@ def get_value_net():
 
 
 def get_dnn_target_net():
+    initializer = tf.keras.initializers.RandomUniform()
     model = tf.keras.models.Sequential([
         tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(32, activation='relu'),
-        tf.keras.layers.Dense(10, activation='softmax')
+        tf.keras.layers.Dense(128, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(128, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(64, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(32, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(10, activation='softmax',kernel_initializer=initializer)
     ])
 
     # lr_scheduler = LinearScalingWithWarmupSchedule(10, base_learning_rate=0.0004, warmup_steps=40000, gradual_steps=100000)
-    optimizer = tf.keras.optimizers.Adam(0.0001)
+    optimizer = tf.keras.optimizers.SGD(0.0001)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
+    return model
+
+def uncompiled_dnn_model():
+    initializer = tf.keras.initializers.GlorotUniform()
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(128, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(128, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(64, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(32, activation='relu',kernel_initializer=initializer),
+        tf.keras.layers.Dense(10, activation='softmax',kernel_initializer=initializer)
+    ])
     return model
 
 def get_conv_target_net():
@@ -81,21 +94,39 @@ def train_value_net():
 def train_target_net():
     # train_dataset, test_dataset = get_target_dataset('cifar10')
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
     # (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    train_net = get_dnn_target_net()
-    train_net.fit(x_train, y_train, batch_size= 256, epochs=1000000, validation_data=(x_test,y_test))
+    # train_net = get_dnn_target_net()
 
+    # keras model fit
+    # train_net.fit(x_train, y_train, batch_size= 256, epochs=1000000, validation_data=(x_test,y_test))
 
-def save_train_net_vars(path, num, vars, val_loss):
-    features = tf.train.Feature(feature={
-        "label": tf.train.Feature(float32_list=tf.train.Float32List(value=[val_loss])),
-        "target_weight": tf.train.Feature(float32_list=tf.train.Float32List(value=[vars]))
-    })
-    example = tf.train.Example(features=features)
+    # --------------------- eager model ---------------------
+    train_net = uncompiled_dnn_model()
+    train_net.run_eagerly = True
 
-    writer = tf.python_io.TFRecordWriter(os.path.join(path, num + ".tfrecord"))
-    writer.write(example.SerializeToString())
-    writer.close()
+    dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'label': y_train})
+    dataset = dataset.batch(256)
+    dataset = dataset.repeat(-1)
+    dataset_iter = iter(dataset)
+
+    optimizer = tf.keras.optimizers.Adam(0.0001)
+    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+
+    while True:
+        x = dataset_iter.get_next()
+        y = x.pop('label')
+
+        with tf.GradientTape() as tape:
+            prediction = train_net(x['inputs'])
+            loss = loss_fn(y,prediction)
+            print("train_loss:",loss)
+
+        import pdb
+        pdb.set_trace()
+
+        grads = tape.gradient(loss,train_net.trainable_variables)
+        optimizer.apply_gradients(zip(grads,train_net.trainable_variables))
 
 
 def main():

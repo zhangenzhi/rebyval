@@ -14,7 +14,7 @@ from rebyval.model.dnn import DenseNeuralNetwork
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
 
 # others
-from rebyval.train.utils import get_scheduler,prepare_dirs
+from rebyval.train.utils import get_scheduler, prepare_dirs
 from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
 
 
@@ -65,7 +65,7 @@ class BaseTrainer:
             train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         else:
             print_error("no such dataset:{}".format(dataset_args['name']))
-            raise("no such dataset")
+            raise ("no such dataset")
 
         self.dataset_path = {
             "train_dir": train_dir,
@@ -78,10 +78,11 @@ class BaseTrainer:
         model_args = self.args['model']
         if model_args['name'] == 'dnn':
             deep_dims = list(map(lambda x: float(x), model_args['deep_dims'].split(',')))
-            model = DenseNeuralNetwork(deep_dims=deep_dims)
+            activations = list(map(lambda x: str(x), model_args['activations_for_all'].split(',')))
+            model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations)
         else:
             print_error("no such model: {}".format(model_args['name']))
-            raise("no such model")
+            raise ("no such model")
 
         return model
 
@@ -249,7 +250,6 @@ class BaseTrainer:
             print_error("valid step erroe")
             raise
 
-
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
         try:
@@ -408,7 +408,8 @@ class BaseTrainer:
 
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: AUC :{:.6f}: ' \
-            .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch, self.metrics['valid_loss'].result(),
+            .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch,
+                    self.metrics['valid_loss'].result(),
                     valid_auc)
         print(valid_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
