@@ -30,18 +30,18 @@ experiment:
           from_logits: True
       metric: accuracy
     optimizer:
-      name: SGD # default SGD
+      name: Adam # default SGD
       learning_rate: 0.0001 # default 0.01
       scheduler: None # default None
     train_loop_control:
       train:
         check_should_train: True
-        max_training_steps: 100000 # default 10000
+        max_training_steps: 1000000 # default 10000
         max_training_epochs: 100 # default 10
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
+        valid_steps: 10 # default valid for 100 steps
         analyse: True
         log_path: ./log
         save_model:

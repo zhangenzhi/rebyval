@@ -59,8 +59,6 @@ class DnnWeightsLoader(BaseDataLoader):
         dataset = self._load_analyse_from_tfrecord(filelist=filelist,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
-        # import pdb
-        # pdb.set_trace()
 
         full_train_size = len(filelist)
         valid_size = int(0.2 * 0.8 * full_train_size)

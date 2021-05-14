@@ -59,9 +59,6 @@ class TargetTrainer(BaseTrainer):
                 predictions = self.model(inputs, training=True)
                 t_loss = self.metrics['loss_fn'](labels, predictions)
 
-                # import pdb
-                # pdb.set_trace()
-
                 weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
                 v_loss = self.surrogate_model(v_inputs)
