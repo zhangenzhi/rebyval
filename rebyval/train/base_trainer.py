@@ -567,6 +567,9 @@ class BaseTrainer:
         record_file = '{}.tfrecords'.format(0)
         record_file = os.path.join(filepath, record_file)
 
-        with tf.io.TFRecordWriter(record_file) as writer:
-            example = self._during_vars_example()
-            writer.write(example.SerializeToString())
+        writer =  tf.io.TFRecordWriter(record_file)
+        example = self._during_vars_example()
+        writer.write(example.SerializeToString())
+
+    def _partition_tfrecord(self):
+        filepath = self.valid_args['analyse_dir']
