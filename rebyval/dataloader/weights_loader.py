@@ -39,13 +39,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = raw_analyse_dataset.shuffle(
             self.dataloader_args['batch_size'])
-        raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
-
-        raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
-            x, buffer_size=100000000, num_parallel_reads=tf.data.AUTOTUNE),
-            block_length=1024,
-            num_parallel_calls=tf.data.AUTOTUNE,
-            deterministic=False)
+        # raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
 
         analyse_feature_describ = self._make_analyse_describs(
             num_trainable_variables)
@@ -65,7 +59,13 @@ class DnnWeightsLoader(BaseDataLoader):
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=tf.data.AUTOTUNE
-                                                    ).cache()
+                                                    )
+
+        parsed_analyse_dataset = parsed_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
+            x, buffer_size=100000000, num_parallel_reads=tf.data.AUTOTUNE),
+            block_length=1024,
+            num_parallel_calls=tf.data.AUTOTUNE,
+            deterministic=False)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
@@ -86,11 +86,11 @@ class DnnWeightsLoader(BaseDataLoader):
         test_dataset = dataset.take(test_size)
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
 
-        valid_dataset = dataset.skip(test_size).take(valid_size)
+        valid_dataset = dataset.skip(test_size).take(valid_size).cache()
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
         valid_dataset = valid_dataset.repeat(-1)
 
-        train_dataset = dataset.skip(valid_size + test_size)
+        train_dataset = dataset.skip(valid_size + test_size).cache()
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         train_dataset = train_dataset.repeat(-1)
 
