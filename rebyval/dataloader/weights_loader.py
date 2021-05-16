@@ -64,7 +64,7 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=24)
+                                                         num_parallel_calls=128)
 
         parsed_analyse_dataset = parsed_analyse_dataset.apply(
             tf.data.experimental.prefetch_to_device('/gpu:0', buffer_size=1000))
