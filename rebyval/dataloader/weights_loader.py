@@ -42,10 +42,10 @@ class DnnWeightsLoader(BaseDataLoader):
         # raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
-            x, buffer_size=100000000, num_parallel_reads=8),
+            x, num_parallel_reads=16),
                                                              block_length=16,
-                                                             cycle_length=8,
-                                                             num_parallel_calls=8,
+                                                             cycle_length=16,
+                                                             num_parallel_calls=16,
                                                              deterministic=False)
 
         analyse_feature_describ = self._make_analyse_describs(
@@ -65,7 +65,7 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=8)
+                                                         num_parallel_calls=16)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(10240)
 
