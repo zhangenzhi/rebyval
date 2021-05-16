@@ -35,7 +35,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
     def _load_analyse_from_tfrecord(self, filelist, num_trainable_variables):
 
-        raw_analyse_dataset = tf.data.TFRecordDataset(filelist)
+        raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.shuffle(
             self.dataloader_args['batch_size'])
