@@ -121,8 +121,7 @@ class SurrogateTrainer(BaseTrainer):
         x.pop('vars_length')
         flat_vars = []
         for feat, tensor in x.items():
-            flat_t = tf.reshape(tensor, shape=(-1,))
-            flat_vars.append(flat_t)
+            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         import pdb
         pdb.set_trace()
         flat_vars = tf.concat(flat_vars, axis=1)
