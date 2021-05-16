@@ -564,7 +564,7 @@ class BaseTrainer:
     def _write_analyse_to_tfrecord(self):
         filepath = self.valid_args['analyse_dir']
 
-        record_file = '{}.tfrecords'.format(self.global_step)
+        record_file = '{}.tfrecords'.format(0)
         record_file = os.path.join(filepath, record_file)
 
         with tf.io.TFRecordWriter(record_file) as writer:
