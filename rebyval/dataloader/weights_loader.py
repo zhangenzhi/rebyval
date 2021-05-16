@@ -21,7 +21,8 @@ class DnnWeightsLoader(BaseDataLoader):
             if info['type'] == 'list':
                 for i in range(info["length"]):
                     feature_type = tf.io.FixedLenFeature([], info["dtype"])
-                    analyse_feature_describs[feature + "_{}".format(i)] = feature_type
+                    analyse_feature_describs[feature +
+                                             "_{}".format(i)] = feature_type
                 info_type = tf.io.FixedLenFeature([], tf.int64)
                 analyse_feature_describs[feature + "_length"] = info_type
             elif info['type'] == 'value':
@@ -36,26 +37,40 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = tf.data.TFRecordDataset(filelist)
 
-        analyse_feature_describ = self._make_analyse_describs(num_trainable_variables)
+        raw_analyse_dataset = raw_analyse_dataset.shuffle(
+            self.dataloader_args['batch_size'])
+        raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
+
+        analyse_feature_describ = self._make_analyse_describs(
+            num_trainable_variables)
+        analyse_feature_describ = analyse_feature_describ.interleave(lambda x: tf.data.TFRecordDataset(
+            x, buffer_size=100000000, num_parallel_reads=10),
+            block_length=16,
+            num_parallel_calls=tf.data.AUTOTUNE,
+            deterministic=False)
 
         def _parse_analyse_function(example_proto):
-            example = tf.io.parse_example(example_proto, analyse_feature_describ)
+            example = tf.io.parse_example(
+                example_proto, analyse_feature_describ)
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:
-                    parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
+                    parsed_example[feat] = tf.io.parse_tensor(
+                        example[feat], out_type=tf.float32)
                 else:
                     parsed_example[feat] = example[feat]
 
             return parsed_example
 
-        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function)
+        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
+                                                         num_parallel_calls=num_parsing_calls)
 
         return parsed_analyse_dataset
 
     def load_dataset(self):
 
-        filelist = glob_tfrecords(self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
+        filelist = glob_tfrecords(
+            self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
         dataset = self._load_analyse_from_tfrecord(filelist=filelist,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
@@ -69,10 +84,10 @@ class DnnWeightsLoader(BaseDataLoader):
 
         valid_dataset = dataset.skip(test_size).take(valid_size)
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
-        valid_dataset = valid_dataset.repeat(-1)
+        # valid_dataset = valid_dataset.repeat(-1)
 
         train_dataset = dataset.skip(valid_size + test_size)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
-        train_dataset = train_dataset.repeat(-1)
+        # train_dataset = train_dataset.repeat(-1)
 
         return train_dataset, valid_dataset, test_dataset
