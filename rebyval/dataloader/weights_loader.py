@@ -30,7 +30,7 @@ class DnnWeightsLoader(BaseDataLoader):
                 analyse_feature_describs[feature] = feature_type
             else:
                 print("no such type to describe")
-                raise("no such type to describe")
+                raise ("no such type to describe")
         return analyse_feature_describs
 
     def _load_analyse_from_tfrecord(self, filelist, num_trainable_variables):
@@ -42,11 +42,11 @@ class DnnWeightsLoader(BaseDataLoader):
         # raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
-            x, buffer_size=100000000, num_parallel_reads=256),
-            block_length=1024,
-            cycle_length=256,
-            num_parallel_calls=256,
-            deterministic=False)
+            x, buffer_size=100000000, num_parallel_reads=8),
+                                                             block_length=16,
+                                                             cycle_length=8,
+                                                             num_parallel_calls=8,
+                                                             deterministic=False)
 
         analyse_feature_describ = self._make_analyse_describs(
             num_trainable_variables)
@@ -65,8 +65,7 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=256
-                                                    )
+                                                         num_parallel_calls=8)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
