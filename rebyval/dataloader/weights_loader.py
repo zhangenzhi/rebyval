@@ -41,8 +41,7 @@ class DnnWeightsLoader(BaseDataLoader):
             self.dataloader_args['batch_size'])
         # raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
 
-        raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
-            x, num_parallel_reads=24),
+        raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(x),
                                                              block_length=24,
                                                              cycle_length=24,
                                                              num_parallel_calls=24,
