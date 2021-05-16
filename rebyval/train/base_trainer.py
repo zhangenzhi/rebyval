@@ -319,6 +319,15 @@ class BaseTrainer:
         self.valid_iter = iter(self.valid_dataset)
         self.test_iter = iter(self.test_dataset)
 
+        # weights writer
+        if self.valid_args['analyse'] == True:
+            filepath = self.valid_args['analyse_dir']
+
+            record_file = '{}.tfrecords'.format(0)
+            record_file = os.path.join(filepath, record_file)
+
+            self.writer = tf.io.TFRecordWriter(record_file)
+
         # numerical reset
         self.metrics['train_loss'].reset_states()
         self.metrics['train_accuracy'].reset_states()
@@ -562,14 +571,8 @@ class BaseTrainer:
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
     def _write_analyse_to_tfrecord(self):
-        filepath = self.valid_args['analyse_dir']
-
-        record_file = '{}.tfrecords'.format(0)
-        record_file = os.path.join(filepath, record_file)
-
-        writer =  tf.io.TFRecordWriter(record_file)
         example = self._during_vars_example()
-        writer.write(example.SerializeToString())
+        self.writer.write(example.SerializeToString())
 
     def _partition_tfrecord(self):
         filepath = self.valid_args['analyse_dir']

@@ -7,6 +7,7 @@ class TargetTrainer(BaseTrainer):
     def __init__(self, trainer_args, surrogate_model=None):
         super(TargetTrainer, self).__init__(trainer_args=trainer_args)
         self.surrogate_model = surrogate_model
+        self.extra_metrics = {}
         if self.surrogate_model is not None:
             self.extra_metrics['v_loss'] = tf.keras.metrics.Mean(name='surrogate_loss')
             self.extra_metrics['t_loss'] = tf.keras.metrics.Mean(name='target_loss')
