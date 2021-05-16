@@ -7,6 +7,9 @@ class TargetTrainer(BaseTrainer):
     def __init__(self, trainer_args, surrogate_model=None):
         super(TargetTrainer, self).__init__(trainer_args=trainer_args)
         self.surrogate_model = surrogate_model
+        if self.surrogate_model is not None:
+            self.extra_metrics['v_loss'] = tf.keras.metrics.Mean(name='surrogate_loss')
+            self.extra_metrics['t_loss'] = tf.keras.metrics.Mean(name='target_loss')
 
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'cifar10':
@@ -20,6 +23,9 @@ class TargetTrainer(BaseTrainer):
             y = x.pop('label')
             if self.surrogate_model is not None:
                 self._train_step_rebyval(x, y)
+                extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
+                       .format(self.extra_metrics['v_loss'].result, self.extra_metrics['t_loss'].result()) 
+                print_green(extra_train_msg)
             else:
                 self._train_step(x, y)
         except:
@@ -69,7 +75,10 @@ class TargetTrainer(BaseTrainer):
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
+
             self.metrics['train_loss'](loss)
+            self.extra_metrics['t_loss'](t_loss)
+            self.extra_metrics['v_loss'](v_loss)
         except:
             print_error("rebyval train step error")
             raise

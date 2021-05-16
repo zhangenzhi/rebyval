@@ -7,9 +7,9 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 30 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 5
-    main_loop_times: 10
+      target_model_samples: 0 # train 10 taget model and collect validation weight.
+    target_samples_per_iter: 0
+    main_loop_times: 0
 
   target_trainer:
     dataloader:
@@ -54,7 +54,7 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      batch_size: 64
+      batch_size: 256
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
