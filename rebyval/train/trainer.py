@@ -122,6 +122,8 @@ class SurrogateTrainer(BaseTrainer):
         flat_vars = []
         for feat, tensor in x.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        import pdb
+        pdb.set_trace()
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
 
