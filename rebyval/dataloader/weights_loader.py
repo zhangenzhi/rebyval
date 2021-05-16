@@ -67,6 +67,8 @@ class DnnWeightsLoader(BaseDataLoader):
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=1024)
 
+        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(10)
+
         return parsed_analyse_dataset
 
     def load_dataset(self):
