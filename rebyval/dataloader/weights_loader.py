@@ -63,7 +63,7 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=num_parsing_calls)
+                                                         num_parallel_calls=tf.data.AUTOTUNE)
 
         return parsed_analyse_dataset
 
