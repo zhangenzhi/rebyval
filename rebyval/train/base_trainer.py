@@ -319,15 +319,6 @@ class BaseTrainer:
         self.valid_iter = iter(self.valid_dataset)
         self.test_iter = iter(self.test_dataset)
 
-        # weights writer
-        if self.valid_args['analyse'] == True:
-            filepath = self.valid_args['analyse_dir']
-
-            record_file = '{}.tfrecords'.format(0)
-            record_file = os.path.join(filepath, record_file)
-
-            self.writer = tf.io.TFRecordWriter(record_file)
-
         # numerical reset
         self.metrics['train_loss'].reset_states()
         self.metrics['train_accuracy'].reset_states()
@@ -337,6 +328,15 @@ class BaseTrainer:
 
         # prepare_dirs
         prepare_dirs(valid_args=self.valid_args)
+
+        # weights writer
+        if self.valid_args['analyse'] == True:
+            filepath = self.valid_args['analyse_dir']
+
+            record_file = '{}.tfrecords'.format(0)
+            record_file = os.path.join(filepath, record_file)
+
+            self.writer = tf.io.TFRecordWriter(record_file)
 
     # Train
     def before_train(self):
