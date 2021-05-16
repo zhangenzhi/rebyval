@@ -59,7 +59,7 @@ experiment:
     model:
       name: dnn # default dnn
       deep_dims: 128,64,64,32,1
-      activation_for_each: relu,relu,relu,relu,relu
+      activations_for_all: relu,relu,relu,relu,relu
       restore_model:
         version: latest # or best, default None
     optimizer:
