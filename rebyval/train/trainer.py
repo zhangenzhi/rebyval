@@ -7,6 +7,7 @@ class TargetTrainer(BaseTrainer):
     def __init__(self, trainer_args, surrogate_model=None):
         super(TargetTrainer, self).__init__(trainer_args=trainer_args)
         self.surrogate_model = surrogate_model
+        self.extra_metrics = {}
         if self.surrogate_model is not None:
             self.extra_metrics['v_loss'] = tf.keras.metrics.Mean(name='surrogate_loss')
             self.extra_metrics['t_loss'] = tf.keras.metrics.Mean(name='target_loss')
@@ -95,16 +96,35 @@ class SurrogateTrainer(BaseTrainer):
     def __init__(self, trainer_args):
         super(SurrogateTrainer, self).__init__(trainer_args=trainer_args)
 
+
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'dnn_weights':
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
             return train_dataset, valid_dataset, test_dataset
 
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _parse_tensor(self, x):
+        parsed_tensors = {}
+        for feat, tensor in x.items():
+            batch_serilized_tensor = []
+            for i in range(256):
+                batch_serilized_tensor.append(tf.io.parse_tensor(tensor[i],tf.float32))
+            parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
+        return parsed_tensors
+
+
+
     @BaseTrainer.timer
     def during_train(self):
 
         try:
+            # tf.profiler.experimental.start("./log/tensorboard")
+
             x = self.train_iter.get_next()
+                # import pdb
+                # pdb.set_trace()
+            # tf.profiler.experimental.stop()
+
         except:
             print_warning("during traning dataset exception")
             try:
@@ -116,24 +136,25 @@ class SurrogateTrainer(BaseTrainer):
                 print_error("reset train iter failed")
                 raise
 
+        # self._parse_tensor(x)
         y = x.pop('valid_loss')
-        x.pop('train_loss')
         x.pop('vars_length')
-        flat_vars = []
-        for feat, tensor in x.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+        x.pop('train_loss')
+
+        # flat_vars = []
+        # for feat, tensor in x.items():
+        #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        # flat_vars = tf.concat(flat_vars, axis=1)
+        # flat_input = {'inputs': flat_vars}
 
         try:
-            self._train_step(flat_input, y)
+            self._train_step_surrogate(x, y)
         except:
             print_error("during traning train_step exception")
             raise
 
     @BaseTrainer.timer
     def during_valid(self):
-
         try:
             x_valid = self.valid_iter.get_next()
         except:
@@ -181,6 +202,28 @@ class SurrogateTrainer(BaseTrainer):
             self._test_step(flat_input, y_test)
         except:
             self.test_flag = False
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step_surrogate(self,inputs,labels):
+        flat_vars = []
+        for feat, tensor in inputs.items():
+            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        flat_vars = tf.concat(flat_vars, axis=1)
+        flat_input = {'inputs': flat_vars}
+
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(flat_input, training=True)
+                loss = self.metrics['loss_fn'](labels, predictions)
+
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("train step error")
+            raise
 
     def run_main_loop(self):
 

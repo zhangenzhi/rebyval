@@ -328,6 +328,16 @@ class BaseTrainer:
 
         # prepare_dirs
         prepare_dirs(valid_args=self.valid_args)
+        # print_green(self.valid_args['analyse_dir'])
+
+        # weights writer
+        if self.valid_args['analyse'] == True:
+            filepath = self.valid_args['analyse_dir']
+
+            record_file = '{}.tfrecords'.format(0)
+            record_file = os.path.join(filepath, record_file)
+
+            self.writer = tf.io.TFRecordWriter(record_file)
 
     # Train
     def before_train(self):
@@ -482,6 +492,7 @@ class BaseTrainer:
         self.auc_list.append(test_auc_numpy)
         self.step_list.append(self.global_step)
 
+        # print_green(self.valid_args['log_file'])
         write_log(self.valid_args['log_file'], test_msg)
         write_log(self.valid_args['log_file'], time_msg)
         print(test_msg)
@@ -562,11 +573,8 @@ class BaseTrainer:
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
     def _write_analyse_to_tfrecord(self):
+        example = self._during_vars_example()
+        self.writer.write(example.SerializeToString())
+
+    def _partition_tfrecord(self):
         filepath = self.valid_args['analyse_dir']
-
-        record_file = '{}.tfrecords'.format(self.global_step)
-        record_file = os.path.join(filepath, record_file)
-
-        with tf.io.TFRecordWriter(record_file) as writer:
-            example = self._during_vars_example()
-            writer.write(example.SerializeToString())
