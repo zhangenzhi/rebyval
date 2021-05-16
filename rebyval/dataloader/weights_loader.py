@@ -44,6 +44,7 @@ class DnnWeightsLoader(BaseDataLoader):
         raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(
             x, buffer_size=100000000, num_parallel_reads=256),
             block_length=1024,
+            cycle_length=256,
             num_parallel_calls=256,
             deterministic=False)
 
