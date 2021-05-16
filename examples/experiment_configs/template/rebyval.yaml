@@ -63,7 +63,7 @@ experiment:
       restore_model:
         version: latest # or best, default None
     optimizer:
-      name: Adam
+      name: SGD
       learning_rate: 0.01
       scheduler: None # default None
     loss:
