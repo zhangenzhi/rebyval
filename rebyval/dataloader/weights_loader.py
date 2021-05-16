@@ -45,7 +45,7 @@ class DnnWeightsLoader(BaseDataLoader):
             x, buffer_size=100000000, num_parallel_reads=1024),
             block_length=1024,
             cycle_length=1024,
-            num_parallel_calls=4096,
+            num_parallel_calls=1024,
             deterministic=False)
 
         analyse_feature_describ = self._make_analyse_describs(
