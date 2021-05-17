@@ -102,6 +102,15 @@ class SurrogateTrainer(BaseTrainer):
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
             return train_dataset, valid_dataset, test_dataset
 
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _parse_tensor(self, x):
+        _parsed_tensors = {}
+        for feat, tensor in x.items():
+            batch_serilized_tensor = [tf.io.parse_tensor(t,tf.float32) for t in tensor]
+            _parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
+
+
+
     @BaseTrainer.timer
     def during_train(self):
 
@@ -124,19 +133,18 @@ class SurrogateTrainer(BaseTrainer):
                 print_error("reset train iter failed")
                 raise
 
-        # y = x.pop('valid_loss')
-        # x.pop('train_loss')
-        # x.pop('vars_length')
+        y = x.pop('valid_loss')
+        x.pop('train_loss')
+        x.pop('vars_length')
+        self._parse_tensor(x)
         # flat_vars = []
         # for feat, tensor in x.items():
         #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        # # import pdb
-        # # pdb.set_trace()
         # flat_vars = tf.concat(flat_vars, axis=1)
         # flat_input = {'inputs': flat_vars}
 
         # try:
-        #     self._train_step(flat_input, y)
+        #     # self._train_step(flat_input, y)
         # except:
         #     print_error("during traning train_step exception")
         #     raise
