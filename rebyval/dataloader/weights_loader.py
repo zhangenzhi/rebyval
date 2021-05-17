@@ -39,7 +39,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = raw_analyse_dataset.shuffle(
             self.dataloader_args['batch_size'])
-        raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
+        # raw_analyse_dataset = raw_analyse_dataset.repeat(-1)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(x),
                                                              block_length=24,
