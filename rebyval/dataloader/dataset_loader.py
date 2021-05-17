@@ -28,3 +28,11 @@ class Cifar10DataLoader(BaseDataLoader):
         valid_dataset = test_dataset.repeat(-1)
 
         return train_dataset, valid_dataset, test_dataset
+
+class ImageNetDataLoader(BaseDataLoader):
+    def __init__(self,dataloader_args):
+        super(ImageNetDataLoader,self).__init__(dataloader_args=dataloader_args)
+
+    def load_dataset(self):
+        pass
+
