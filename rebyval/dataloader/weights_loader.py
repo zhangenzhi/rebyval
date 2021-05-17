@@ -79,23 +79,8 @@ class DnnWeightsLoader(BaseDataLoader):
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
 
-        full_train_size = len(filelist)
-        valid_size = int(0.2 * 0.8 * full_train_size)
-        test_size = int(0.2 * full_train_size)
+        dataset = dataset.batch(self.dataloader_args['batch_size'])
+        dataset = dataset.repeat(-1)
 
-        # test_dataset = dataset.take(test_size)
-        # test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
-        #
-        # valid_dataset = dataset.skip(test_size).take(valid_size)
-        # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
-        # valid_dataset = valid_dataset.repeat(-1)
-        #
-        # train_dataset = dataset.skip(valid_size + test_size)
-        # train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
-        # train_dataset = train_dataset.repeat(-1)
+        return dataset, dataset, dataset
 
-
-        # return train_dataset, valid_dataset, test_dataset
-        train_dataset = dataset
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
-        return train_dataset,train_dataset,train_dataset
