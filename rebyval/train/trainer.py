@@ -102,7 +102,7 @@ class SurrogateTrainer(BaseTrainer):
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
             return train_dataset, valid_dataset, test_dataset
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _parse_tensor(self, x):
         _parsed_tensors = {}
         for feat, tensor in x.items():
