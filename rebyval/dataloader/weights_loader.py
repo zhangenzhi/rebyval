@@ -58,6 +58,8 @@ class DnnWeightsLoader(BaseDataLoader):
                 if example[feat].dtype == tf.string:
                     parsed_example[feat] = tf.io.parse_tensor(
                         example[feat], out_type=tf.float32)
+                    import pdb
+                    pdb.set_trace()
                 else:
                     parsed_example[feat] = example[feat]
 
