@@ -117,19 +117,20 @@ class SurrogateTrainer(BaseTrainer):
                 print_error("reset train iter failed")
                 raise
 
-        y = x.pop('valid_loss')
-        x.pop('train_loss')
-        x.pop('vars_length')
-        flat_vars = []
-        for feat, tensor in x.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        # import pdb
-        # pdb.set_trace()
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+        # y = x.pop('valid_loss')
+        # x.pop('train_loss')
+        # x.pop('vars_length')
+        # flat_vars = []
+        # for feat, tensor in x.items():
+        #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        # # import pdb
+        # # pdb.set_trace()
+        # flat_vars = tf.concat(flat_vars, axis=1)
+        # flat_input = {'inputs': flat_vars}
 
         try:
-            self._train_step(flat_input, y)
+            # self._train_step(flat_input, y)
+            print("good luck")
         except:
             print_error("during traning train_step exception")
             raise
