@@ -108,7 +108,7 @@ class SurrogateTrainer(BaseTrainer):
         for feat, tensor in x.items():
             batch_serilized_tensor = []
             for i in range(256):
-                batch_serilized_tensor = tf.io.parse_tensor(tensor[i],tf.float32)
+                batch_serilized_tensor.append(tf.io.parse_tensor(tensor[i],tf.float32))
             _parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
 
 
