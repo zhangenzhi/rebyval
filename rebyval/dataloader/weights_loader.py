@@ -38,7 +38,7 @@ class DnnWeightsLoader(BaseDataLoader):
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.shuffle(
-            self.dataloader_args['batch_size'],drop_remainder=True)
+            self.dataloader_args['batch_size'])
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
             lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=32),
@@ -47,7 +47,7 @@ class DnnWeightsLoader(BaseDataLoader):
             num_parallel_calls=32,
             deterministic=False)
 
-        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'])
+        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'],drop_remainder=True)
 
         analyse_feature_describ = self._make_analyse_describs(
             num_trainable_variables)
