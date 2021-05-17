@@ -128,12 +128,11 @@ class SurrogateTrainer(BaseTrainer):
         # flat_vars = tf.concat(flat_vars, axis=1)
         # flat_input = {'inputs': flat_vars}
 
-        try:
-            # self._train_step(flat_input, y)
-            print("good luck")
-        except:
-            print_error("during traning train_step exception")
-            raise
+        # try:
+        #     self._train_step(flat_input, y)
+        # except:
+        #     print_error("during traning train_step exception")
+        #     raise
 
     @BaseTrainer.timer
     def during_valid(self):
