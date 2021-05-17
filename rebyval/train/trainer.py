@@ -109,8 +109,8 @@ class SurrogateTrainer(BaseTrainer):
             # tf.profiler.experimental.start("./log/tensorboard")
 
             x = self.train_iter.get_next()
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             # tf.profiler.experimental.stop()
 
         except:
