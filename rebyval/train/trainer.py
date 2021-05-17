@@ -96,6 +96,7 @@ class SurrogateTrainer(BaseTrainer):
     def __init__(self, trainer_args):
         super(SurrogateTrainer, self).__init__(trainer_args=trainer_args)
 
+
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'dnn_weights':
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
@@ -105,8 +106,10 @@ class SurrogateTrainer(BaseTrainer):
     def during_train(self):
 
         try:
-            tf.profiler.experimental.start('./log/tensorboard')
-            x = self.train_iter.get_next()
+            tf.profiler.experimental.start("./log/tensorboard")
+            for i in range(10):
+                x = self.train_iter.get_next()
+            tf.profiler.experimental.stop()
 
         except:
             print_warning("during traning dataset exception")
@@ -138,7 +141,6 @@ class SurrogateTrainer(BaseTrainer):
 
     @BaseTrainer.timer
     def during_valid(self):
-        tf.profiler.experimental.stop()
         try:
             x_valid = self.valid_iter.get_next()
         except:
