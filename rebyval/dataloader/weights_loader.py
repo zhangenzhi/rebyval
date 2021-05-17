@@ -40,11 +40,12 @@ class DnnWeightsLoader(BaseDataLoader):
         raw_analyse_dataset = raw_analyse_dataset.shuffle(
             self.dataloader_args['batch_size'])
 
-        raw_analyse_dataset = raw_analyse_dataset.interleave(lambda x: tf.data.TFRecordDataset(x,num_parallel_reads=32),
-                                                             block_length=24,
-                                                             cycle_length=32,
-                                                             num_parallel_calls=32,
-                                                             deterministic=False)
+        raw_analyse_dataset = raw_analyse_dataset.interleave(
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=32),
+            block_length=24,
+            cycle_length=32,
+            num_parallel_calls=32,
+            deterministic=False)
 
         analyse_feature_describ = self._make_analyse_describs(
             num_trainable_variables)
@@ -61,7 +62,6 @@ class DnnWeightsLoader(BaseDataLoader):
                     parsed_example[feat] = example[feat]
 
             return parsed_example
-
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=16).cache()
@@ -85,4 +85,3 @@ class DnnWeightsLoader(BaseDataLoader):
         dataset = dataset.repeat(-1)
 
         return dataset, dataset, dataset
-

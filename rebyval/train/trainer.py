@@ -105,7 +105,9 @@ class SurrogateTrainer(BaseTrainer):
     def during_train(self):
 
         try:
+            tf.profiler.experimental.start('./log/tensorboard')
             x = self.train_iter.get_next()
+            tf.profiler.experimental.stop()
         except:
             print_warning("during traning dataset exception")
             try:
