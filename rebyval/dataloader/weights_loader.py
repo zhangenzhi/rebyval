@@ -63,11 +63,13 @@ class DnnWeightsLoader(BaseDataLoader):
 
             return parsed_example
 
-        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=16)
+        raw_analyse_dataset = raw_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
-        parsed_analyse_dataset = parsed_analyse_dataset.apply(
-            tf.data.experimental.prefetch_to_device('/gpu:0', buffer_size=1000))
+        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
+                                                         num_parallel_calls=16).cache()
+
+        # parsed_analyse_dataset = parsed_analyse_dataset.apply(
+        #     tf.data.experimental.prefetch_to_device('/gpu:0', buffer_size=1000))
 
         return parsed_analyse_dataset
 
