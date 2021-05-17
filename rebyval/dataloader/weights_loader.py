@@ -63,6 +63,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
             return parsed_example
 
+        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'])
         raw_analyse_dataset = raw_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
@@ -81,7 +82,7 @@ class DnnWeightsLoader(BaseDataLoader):
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
 
-        dataset = dataset.batch(self.dataloader_args['batch_size'])
+        # dataset = dataset.batch(self.dataloader_args['batch_size'])
         dataset = dataset.repeat(-1)
 
         return dataset, dataset, dataset
