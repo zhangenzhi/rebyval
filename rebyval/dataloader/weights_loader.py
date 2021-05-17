@@ -42,7 +42,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
             lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=32),
-            block_length=24,
+            block_length=256,
             cycle_length=32,
             num_parallel_calls=32,
             deterministic=False)
@@ -58,15 +58,13 @@ class DnnWeightsLoader(BaseDataLoader):
                 if example[feat].dtype == tf.string:
                     parsed_example[feat] = tf.io.parse_tensor(
                         example[feat], out_type=tf.float32)
-                    import pdb
-                    pdb.set_trace()
                 else:
                     parsed_example[feat] = example[feat]
 
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=16).cache()
+                                                         num_parallel_calls=56,deterministic=False).cache()
         parsed_analyse_dataset = parsed_analyse_dataset.batch(self.dataloader_args['batch_size'])
         # parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
