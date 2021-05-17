@@ -102,11 +102,13 @@ class SurrogateTrainer(BaseTrainer):
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
             return train_dataset, valid_dataset, test_dataset
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _parse_tensor(self, x):
         _parsed_tensors = {}
         for feat, tensor in x.items():
-            batch_serilized_tensor = [tf.io.parse_tensor(t,tf.float32) for t in tensor]
+            batch_serilized_tensor = []
+            for i in range(256):
+                batch_serilized_tensor = tf.io.parse_tensor(tensor[i],tf.float32)
             _parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
 
 
