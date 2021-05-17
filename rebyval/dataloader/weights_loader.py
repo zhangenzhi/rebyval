@@ -47,6 +47,8 @@ class DnnWeightsLoader(BaseDataLoader):
             num_parallel_calls=32,
             deterministic=False)
 
+        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'])
+
         analyse_feature_describ = self._make_analyse_describs(
             num_trainable_variables)
 
@@ -64,8 +66,8 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=56,deterministic=False).cache()
-        parsed_analyse_dataset = parsed_analyse_dataset.batch(self.dataloader_args['batch_size'])
+                                                         num_parallel_calls=56,deterministic=False)
+
         # parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
         # parsed_analyse_dataset = parsed_analyse_dataset.apply(
