@@ -328,7 +328,7 @@ class BaseTrainer:
 
         # prepare_dirs
         prepare_dirs(valid_args=self.valid_args)
-        print_green(self.valid_args['analyse_dir'])
+        # print_green(self.valid_args['analyse_dir'])
 
         # weights writer
         if self.valid_args['analyse'] == True:
@@ -492,7 +492,7 @@ class BaseTrainer:
         self.auc_list.append(test_auc_numpy)
         self.step_list.append(self.global_step)
 
-        print_green(self.valid_args['log_file'])
+        # print_green(self.valid_args['log_file'])
         write_log(self.valid_args['log_file'], test_msg)
         write_log(self.valid_args['log_file'], time_msg)
         print(test_msg)
