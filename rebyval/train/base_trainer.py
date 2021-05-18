@@ -491,6 +491,7 @@ class BaseTrainer:
         self.auc_list.append(test_auc_numpy)
         self.step_list.append(self.global_step)
 
+        print_green(self.valid_args['log_file'])
         write_log(self.valid_args['log_file'], test_msg)
         write_log(self.valid_args['log_file'], time_msg)
         print(test_msg)
