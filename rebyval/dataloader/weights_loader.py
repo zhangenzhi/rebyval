@@ -82,11 +82,17 @@ class DnnWeightsLoader(BaseDataLoader):
 
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
-        dataset = self._load_analyse_from_tfrecord(filelist=filelist,
+
+        num_train_file = int(len(filelist)*0.8)
+        train_file = filelist[:num_train_file]
+        train_dataset = self._load_analyse_from_tfrecord(filelist=train_file,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
 
-        # dataset = dataset.batch(self.dataloader_args['batch_size'])
-        dataset = dataset.repeat(-1)
+        valid_file = filelist[num_train_file:]
+        valid_dataset = self._load_analyse_from_tfrecord(filelist=valid_file,
+                                                   num_trainable_variables=self.dataloader_args[
+                                                       'num_trainable_variables'])
 
-        return dataset, dataset, dataset
+
+        return train_dataset.repeat(-1), valid_dataset.repeat(-1), valid_dataset
