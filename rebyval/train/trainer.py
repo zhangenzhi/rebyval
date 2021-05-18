@@ -148,7 +148,7 @@ class SurrogateTrainer(BaseTrainer):
         # flat_input = {'inputs': flat_vars}
 
         try:
-            self._train_step(x, y)
+            self._train_step_surrogate(x, y)
         except:
             print_error("during traning train_step exception")
             raise
