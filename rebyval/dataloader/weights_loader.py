@@ -55,15 +55,18 @@ class DnnWeightsLoader(BaseDataLoader):
         def _parse_analyse_function(example_proto):
             example = tf.io.parse_example(
                 example_proto, analyse_feature_describ)
-            # parsed_example = {}
-            # for feat, tensor in analyse_feature_describ.items():
-            #     if example[feat].dtype == tf.string:
-            #         parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
-            #     else:
-            #         parsed_example[feat] = example[feat]
-            #
-            # return parsed_example
-            return example
+            parsed_example = {}
+            for feat, tensor in analyse_feature_describ.items():
+                if example[feat].dtype == tf.string:
+                    parsed_single_example = []
+                    for i in range(self.dataloader_args['batch_size']):
+                        parsed_single_example.append(tf.io.parse_tensor(example[feat][i], out_type=tf.float32))
+                    parsed_example[feat] = parsed_single_example
+                else:
+                    parsed_example[feat] = example[feat]
+
+            return parsed_example
+            # return example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=56, deterministic=False)

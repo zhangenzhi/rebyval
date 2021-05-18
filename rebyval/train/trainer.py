@@ -109,7 +109,8 @@ class SurrogateTrainer(BaseTrainer):
             batch_serilized_tensor = []
             for i in range(256):
                 batch_serilized_tensor.append(tf.io.parse_tensor(tensor[i],tf.float32))
-            _parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
+            parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
+        return parsed_tensors
 
 
 
@@ -135,10 +136,7 @@ class SurrogateTrainer(BaseTrainer):
                 print_error("reset train iter failed")
                 raise
 
-        y = x.pop('valid_loss')
-        x.pop('train_loss')
-        x.pop('vars_length')
-        self._parse_tensor(x)
+        # self._parse_tensor(x)
         # flat_vars = []
         # for feat, tensor in x.items():
         #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
