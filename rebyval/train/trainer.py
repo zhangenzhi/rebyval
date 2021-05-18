@@ -119,10 +119,10 @@ class SurrogateTrainer(BaseTrainer):
 
         try:
             # tf.profiler.experimental.start("./log/tensorboard")
-            for i in range(10):
-                x = self.train_iter.get_next()
-                import pdb
-                pdb.set_trace()
+
+            x = self.train_iter.get_next()
+                # import pdb
+                # pdb.set_trace()
             # tf.profiler.experimental.stop()
 
         except:
@@ -137,17 +137,17 @@ class SurrogateTrainer(BaseTrainer):
                 raise
 
         # self._parse_tensor(x)
-        # flat_vars = []
-        # for feat, tensor in x.items():
-        #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        # flat_vars = tf.concat(flat_vars, axis=1)
-        # flat_input = {'inputs': flat_vars}
+        flat_vars = []
+        for feat, tensor in x.items():
+            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        flat_vars = tf.concat(flat_vars, axis=1)
+        flat_input = {'inputs': flat_vars}
 
-        # try:
-        #     # self._train_step(flat_input, y)
-        # except:
-        #     print_error("during traning train_step exception")
-        #     raise
+        try:
+            self._train_step(flat_input, y)
+        except:
+            print_error("during traning train_step exception")
+            raise
 
     @BaseTrainer.timer
     def during_valid(self):
