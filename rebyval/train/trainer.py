@@ -137,6 +137,10 @@ class SurrogateTrainer(BaseTrainer):
                 raise
 
         # self._parse_tensor(x)
+        y = x.pop('valid_loss')
+        x.pop('var_length')
+        x.pop('train_loss')
+
         flat_vars = []
         for feat, tensor in x.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
