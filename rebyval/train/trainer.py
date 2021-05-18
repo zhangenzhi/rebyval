@@ -138,7 +138,7 @@ class SurrogateTrainer(BaseTrainer):
 
         # self._parse_tensor(x)
         y = x.pop('valid_loss')
-        x.pop('var_length')
+        x.pop('vars_length')
         x.pop('train_loss')
 
         flat_vars = []
