@@ -328,6 +328,7 @@ class BaseTrainer:
 
         # prepare_dirs
         prepare_dirs(valid_args=self.valid_args)
+        print_green(self.valid_args['analyse_dir'])
 
         # weights writer
         if self.valid_args['analyse'] == True:
