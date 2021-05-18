@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      target_model_samples: 60 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 5
     main_loop_times: 10
 
@@ -78,7 +78,7 @@ experiment:
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
+        valid_gap: 200 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         analyse: False
         log_path: ./log
