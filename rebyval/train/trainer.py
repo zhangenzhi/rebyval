@@ -104,7 +104,7 @@ class SurrogateTrainer(BaseTrainer):
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _parse_tensor(self, x):
-        _parsed_tensors = {}
+        parsed_tensors = {}
         for feat, tensor in x.items():
             batch_serilized_tensor = []
             for i in range(256):
@@ -141,14 +141,14 @@ class SurrogateTrainer(BaseTrainer):
         x.pop('vars_length')
         x.pop('train_loss')
 
-        flat_vars = []
-        for feat, tensor in x.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+        # flat_vars = []
+        # for feat, tensor in x.items():
+        #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        # flat_vars = tf.concat(flat_vars, axis=1)
+        # flat_input = {'inputs': flat_vars}
 
         try:
-            self._train_step(flat_input, y)
+            self._train_step(x, y)
         except:
             print_error("during traning train_step exception")
             raise
@@ -202,6 +202,28 @@ class SurrogateTrainer(BaseTrainer):
             self._test_step(flat_input, y_test)
         except:
             self.test_flag = False
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step_surrogate(self,inputs,labels):
+        flat_vars = []
+        for feat, tensor in inputs.items():
+            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        flat_vars = tf.concat(flat_vars, axis=1)
+        flat_input = {'inputs': flat_vars}
+
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(flat_input, training=True)
+                loss = self.metrics['loss_fn'](labels, predictions)
+
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("train step error")
+            raise
 
     def run_main_loop(self):
 
