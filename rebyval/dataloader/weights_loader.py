@@ -85,8 +85,8 @@ class DnnWeightsLoader(BaseDataLoader):
                                                        'num_trainable_variables'])
 
 
-        valid_dataset = fulldataset.take(valid_dataset_size).cache()
-        train_dataset = fulldataset.skip(valid_dataset_size).cache()
+        valid_dataset = fulldataset.take(valid_dataset_size)
+        train_dataset = fulldataset.skip(valid_dataset_size)
 
 
         return train_dataset.repeat(-1), valid_dataset.repeat(-1), valid_dataset
