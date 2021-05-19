@@ -36,8 +36,6 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
-        raw_analyse_dataset = raw_analyse_dataset.shuffle()
-
         raw_analyse_dataset = raw_analyse_dataset.interleave(
             lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=16),
             block_length=256,
@@ -83,6 +81,7 @@ class DnnWeightsLoader(BaseDataLoader):
         fulldataset = self._load_analyse_from_tfrecord(filelist=filelist,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
+        fulldataset = fulldataset.shuffle()
 
         train_dataset = fulldataset.take(train_dataset_size).cache()
         valid_dataset = fulldataset.skip(train_dataset_size).cache()
