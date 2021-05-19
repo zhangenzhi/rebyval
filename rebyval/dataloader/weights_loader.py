@@ -36,8 +36,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
-        raw_analyse_dataset = raw_analyse_dataset.shuffle(
-            self.dataloader_args['batch_size'])
+        raw_analyse_dataset = raw_analyse_dataset.shuffle(1000*len(filelist))
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
             lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=16),
@@ -67,7 +66,7 @@ class DnnWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=64, deterministic=False).cache()
+                                                         num_parallel_calls=64, deterministic=False)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
@@ -77,17 +76,16 @@ class DnnWeightsLoader(BaseDataLoader):
 
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
+        valid_dataset_size = int(len(filelist)*1000)
 
-        num_train_file = int(len(filelist)*0.8)
-        train_file = filelist[:num_train_file]
-        train_dataset = self._load_analyse_from_tfrecord(filelist=train_file,
+
+        fulldataset = self._load_analyse_from_tfrecord(filelist=filelist,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
 
-        valid_file = filelist[num_train_file:]
-        valid_dataset = self._load_analyse_from_tfrecord(filelist=valid_file,
-                                                   num_trainable_variables=self.dataloader_args[
-                                                       'num_trainable_variables'])
+
+        valid_dataset = fulldataset.take(valid_dataset_size).cache()
+        train_dataset = fulldataset.skip(valid_dataset_size).cache()
 
 
         return train_dataset.repeat(-1), valid_dataset.repeat(-1), valid_dataset
