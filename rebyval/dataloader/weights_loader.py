@@ -76,6 +76,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
+        print(filelist)
         valid_dataset_size = int(len(filelist)*1000*0.15)
 
 

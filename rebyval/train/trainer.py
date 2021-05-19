@@ -119,7 +119,7 @@ class SurrogateTrainer(BaseTrainer):
             x = self.train_iter.get_next()
 
         except:
-            print_warning("during traning dataset exception")
+            print_warning("during training dataset exception")
             try:
                 self.epoch += 1
                 self.train_dataset, _, _ = self.reset_dataset()
