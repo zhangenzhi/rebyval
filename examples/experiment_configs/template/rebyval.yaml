@@ -66,7 +66,9 @@ experiment:
     optimizer:
       name: SGD
       learning_rate: 0.01
-      scheduler: None # default None
+      scheduler:
+        name: linear_scaling_with_warmup # default None
+        scaling_factor: 4
     loss:
       name: MeanSquaredError
       metric: MeanSquaredLogarithmicError

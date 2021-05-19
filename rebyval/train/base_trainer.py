@@ -117,12 +117,12 @@ class BaseTrainer:
             optimizer = tf.keras.optimizers.Adadelta(
                 learning_rate=learning_rate)
         elif optimizer_args['name'] == 'SGD':
-            if optimizer_args['scheduler'] == 'linear_scaling_with_warmup':
-                linear_scaling = self.args.examples_per_parsing if self.args.examples_per_parsing else 1
+            if optimizer_args['scheduler']['name'] == 'linear_scaling_with_warmup':
+                linear_scaling = optimizer_args['scheduler']['scaling_factor'] if optimizer_args['scheduler']['scaling_factor'] else 1
                 scheduler = LinearScalingWithWarmupSchedule(linear_scaling=linear_scaling,
                                                             base_learning_rate=learning_rate,
                                                             warmup_steps=3000,
-                                                            gradual_steps=80000)
+                                                            gradual_steps=10000)
                 optimizer = tf.keras.optimizers.SGD(
                     learning_rate=scheduler)
             else:
