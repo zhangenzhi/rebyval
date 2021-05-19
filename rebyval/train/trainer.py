@@ -23,10 +23,6 @@ class TargetTrainer(BaseTrainer):
             x = self.train_iter.get_next()
             y = x.pop('label')
             if self.surrogate_model is not None:
-
-                # import pdb
-                # pdb.set_trace()
-
                 self._train_step_rebyval(x, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
                        .format(self.extra_metrics['v_loss'].result().numpy(), self.extra_metrics['t_loss'].result().numpy())
@@ -193,7 +189,7 @@ class SurrogateTrainer(BaseTrainer):
         except:
             self.test_flag = False
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_surrogate(self,inputs,labels):
         flat_vars = []
         for feat, tensor in inputs.items():
@@ -203,6 +199,8 @@ class SurrogateTrainer(BaseTrainer):
 
         try:
             with tf.GradientTape() as tape:
+                import pdb
+                pdb.set_trace()
                 predictions = self.model(flat_input, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
 
