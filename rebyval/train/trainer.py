@@ -199,8 +199,8 @@ class SurrogateTrainer(BaseTrainer):
 
         try:
             with tf.GradientTape() as tape:
-                import pdb
-                pdb.set_trace()
+                # import pdb
+                # pdb.set_trace()
                 predictions = self.model(flat_input, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
 
