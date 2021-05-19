@@ -59,8 +59,8 @@ experiment:
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 128,128,64,32,1
-      activations_for_all: sigmoid,sigmoid,sigmoid,sigmoid,linear
+      deep_dims: 128,64,64,32,1
+      activations_for_all: relu,relu,relu,relu,relu
       restore_model:
         version: latest # or best, default None
     optimizer:
@@ -74,11 +74,11 @@ experiment:
       train:
         rebyval: False
         check_should_train: True
-        max_training_steps: 100000 # default inf
+        max_training_steps: 10000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
+        valid_gap: 100 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         analyse: False
         log_path: ./log
