@@ -81,7 +81,7 @@ class DnnWeightsLoader(BaseDataLoader):
         fulldataset = self._load_analyse_from_tfrecord(filelist=filelist,
                                                    num_trainable_variables=self.dataloader_args[
                                                        'num_trainable_variables'])
-        fulldataset = fulldataset.shuffle()
+        fulldataset = fulldataset.shuffle(len(filelist)*10)
 
         train_dataset = fulldataset.take(train_dataset_size).cache()
         valid_dataset = fulldataset.skip(train_dataset_size).cache()
