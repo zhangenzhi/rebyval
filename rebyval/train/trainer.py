@@ -23,6 +23,10 @@ class TargetTrainer(BaseTrainer):
             x = self.train_iter.get_next()
             y = x.pop('label')
             if self.surrogate_model is not None:
+
+                import pdb
+                pdb.set_trace()
+
                 self._train_step_rebyval(x, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
                        .format(self.extra_metrics['v_loss'].result, self.extra_metrics['t_loss'].result()) 
@@ -112,18 +116,11 @@ class SurrogateTrainer(BaseTrainer):
             parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
         return parsed_tensors
 
-
-
     @BaseTrainer.timer
     def during_train(self):
 
         try:
-            # tf.profiler.experimental.start("./log/tensorboard")
-
             x = self.train_iter.get_next()
-                # import pdb
-                # pdb.set_trace()
-            # tf.profiler.experimental.stop()
 
         except:
             print_warning("during traning dataset exception")
@@ -136,16 +133,9 @@ class SurrogateTrainer(BaseTrainer):
                 print_error("reset train iter failed")
                 raise
 
-        # self._parse_tensor(x)
         y = x.pop('valid_loss')
         x.pop('vars_length')
         x.pop('train_loss')
-
-        # flat_vars = []
-        # for feat, tensor in x.items():
-        #     flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        # flat_vars = tf.concat(flat_vars, axis=1)
-        # flat_input = {'inputs': flat_vars}
 
         try:
             self._train_step_surrogate(x, y)

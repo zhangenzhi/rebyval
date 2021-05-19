@@ -29,7 +29,6 @@ class DnnWeightsLoader(BaseDataLoader):
                 feature_type = tf.io.FixedLenFeature([], info["dtype"])
                 analyse_feature_describs[feature] = feature_type
             else:
-                print("no such type to describe")
                 raise ("no such type to describe")
         return analyse_feature_describs
 
@@ -66,15 +65,11 @@ class DnnWeightsLoader(BaseDataLoader):
                     parsed_example[feat] = example[feat]
 
             return parsed_example
-            # return example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=32, deterministic=False).cache()
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
-
-        # parsed_analyse_dataset = parsed_analyse_dataset.apply(
-        #     tf.data.experimental.prefetch_to_device('/gpu:0', buffer_size=1000))
 
         return parsed_analyse_dataset
 
