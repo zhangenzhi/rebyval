@@ -55,7 +55,7 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      batch_size: 256
+      batch_size: 64
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
