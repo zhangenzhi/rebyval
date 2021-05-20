@@ -41,7 +41,7 @@ experiment:
         valid_gap: 100 # default 1000 training steps
         valid_steps: 10 # default valid for 100 steps
         analyse:
-            formart: tensor
+            format: tensor
         partition: 5
         log_path: ./log
         save_model:
@@ -54,6 +54,7 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
+      sample_of_curves: 30
       format: tensor
       batch_size: 256
       num_trainable_variables: 10

@@ -124,7 +124,14 @@ class DnnWeightsLoader(BaseDataLoader):
 
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
-        print(filelist)
+
+        if self.dataloader_args.get('sample_of_curves'):
+            total_curves = len(filelist)
+            filelist = filelist[int(total_curves-self.dataloader_args['sample_of_curves']):]
+            if filelist == []:
+                raise('no files included.')
+        print(len(filelist),filelist)
+
         train_dataset_size = int(len(filelist) * 1000 * 0.75 / self.dataloader_args['batch_size'])
 
         if format == 'tensor':

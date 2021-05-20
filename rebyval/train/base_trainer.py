@@ -488,7 +488,7 @@ class BaseTrainer:
         print(time_msg)
 
     def test_stop_condition(self) -> bool:
-        return self.test_flag == False
+        return self.test_flag == False or self.test_step >= self.test_args['test_steps']
 
     def after_exp_step(self):
         # increase global_step
