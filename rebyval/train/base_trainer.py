@@ -313,7 +313,7 @@ class BaseTrainer:
         prepare_dirs(valid_args=self.valid_args)
         # print_green(self.valid_args['analyse_dir'])
 
-        if self.args['train_loop_control']['model'].get('restore_model'):
+        if self.args['model'].get('restore_model'):
             self.model = self.model_restore(self.model)
 
         # weights writer
