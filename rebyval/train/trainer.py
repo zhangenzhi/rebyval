@@ -68,9 +68,9 @@ class TargetTrainer(BaseTrainer):
 
                 weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
-                v_loss = self.surrogate_model(v_inputs) * 0.1
+                v_loss = self.surrogate_model(v_inputs)
 
-                loss = t_loss + v_loss
+                loss = t_loss + v_loss * 0.01
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
 

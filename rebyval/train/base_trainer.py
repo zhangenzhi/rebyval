@@ -84,6 +84,9 @@ class BaseTrainer:
             print_error("no such model: {}".format(model_args['name']))
             raise ("no such model")
 
+        if model_args.get('restore_model'):
+            model = self.model_restore(model)
+
         return model
 
     def _build_losses(self):
@@ -117,17 +120,23 @@ class BaseTrainer:
             optimizer = tf.keras.optimizers.Adadelta(
                 learning_rate=learning_rate)
         elif optimizer_args['name'] == 'SGD':
-            if optimizer_args['scheduler']['name'] == 'linear_scaling_with_warmup':
-                linear_scaling = optimizer_args['scheduler']['scaling_factor'] if optimizer_args['scheduler']['scaling_factor'] else 1
-                scheduler = LinearScalingWithWarmupSchedule(linear_scaling=linear_scaling,
-                                                            base_learning_rate=learning_rate,
-                                                            warmup_steps=3000,
-                                                            gradual_steps=10000)
+            if optimizer_args.get('scheduler'):
+                scheduler_args = optimizer_args['scheduler']
+                if scheduler_args['name'] == 'linear_scaling_with_warmup':
+                    linear_scaling = scheduler_args['scaling_factor'] if scheduler_args['scaling_factor'] else 1
+                    scheduler = LinearScalingWithWarmupSchedule(linear_scaling=linear_scaling,
+                                                                base_learning_rate=learning_rate,
+                                                                warmup_steps=3000,
+                                                                gradual_steps=10000)
+                else:
+                    print_error("No such scheduler")
+                    raise ("No such scheduler")
                 optimizer = tf.keras.optimizers.SGD(
                     learning_rate=scheduler)
             else:
                 optimizer = tf.keras.optimizers.SGD(
                     learning_rate=learning_rate)
+
         elif optimizer_args['name'] == 'Adagrad':
             optimizer = tf.keras.optimizers.Adagrad(
                 learning_rate=learning_rate)
@@ -178,38 +187,16 @@ class BaseTrainer:
         dataset = self.dataloader.load_dataset()
         return dataset
 
-    def model_restore(self):
-        step = 0
-        best_auc = 0
+    def model_restore(self, model):
+
         model_args = self.args['model']
-        model_args['restore_model'] = None
-        if model_args['restore_model']:
-            model_latest = os.path.join(model_args['restore_model']['restore_model_dir'],
-                                        'model_latest')
-            if os.path.exists(model_latest + '.data-00000-of-00001') \
-                    and os.path.exists(model_latest + '.index'):
-
-                with open(self.args.log_file, 'r') as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        cur_auc = float(line.split(':')[-1][:-1])
-                        if cur_auc > best_auc:
-                            best_auc = cur_auc
-                    step = int(lines[-1].split(':')[1])
-
-                self.model.load_weights(model_latest)
-                print(
-                    '\033[33m[Model Status]: Restore training step:{:08d} from {:}.\033[0m'
-                        .format(step, model_latest))
-                return step, best_auc
-
-            else:
-                print(
-                    '\033[33m[Model Status]: Restoring Model failed, {:} not exist.\033[0m'
-                        .format(model_latest))
+        model_path = os.path.join(model_args['restore_model']['restore_model_dir'],
+                                  model_args['restore_model']['restore_from'])
+        if os.path.exists(model_path + '.data-00000-of-00001') and os.path.exists(model_path + '.index'):
+            model.load_weights(model_path)
         else:
-            print('\033[33m[Model Status]: Training from Scratch ...\033[0m')
-        return step, best_auc
+            print_error("model weights not exist, train from begining.")
+        return model
 
     def model_save_by_name(self, name):
         save_path = os.path.join(self.valid_args['model_dir'], self.valid_args['save_model']['save_in'])
@@ -311,7 +298,6 @@ class BaseTrainer:
 
         # model restore
         self.global_step = 0
-        self.global_step, self.global_best_auc = self.model_restore()
 
         # dataset train, valid
         self.epoch = 0

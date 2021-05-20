@@ -8,8 +8,8 @@ experiment:
   main_loop_control:
     warmup_stage:
       target_model_samples: 0 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 5
-    main_loop_times: 3
+    target_samples_per_iter: 3
+    main_loop_times: 5
 
   target_trainer:
     dataloader:
@@ -20,8 +20,6 @@ experiment:
       name: dnn # default dnn
       deep_dims: 128,128,64,32,10 # default 128,64,64,32
       activations_for_all: relu,relu,relu,relu,softmax # default relu
-      restore_model:
-        restore_from: latest # or best, default None
     loss:
       name: SparseCategoricalCrossentropy
       identifier:
@@ -62,7 +60,7 @@ experiment:
       deep_dims: 128,64,64,32,1
       activations_for_all: relu,relu,relu,relu,relu
       restore_model:
-        version: latest # or best, default None
+        version: best # or best, default None
     optimizer:
       name: SGD
       learning_rate: 0.01
