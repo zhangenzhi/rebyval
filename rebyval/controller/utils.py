@@ -15,22 +15,19 @@ def valid_weights_pool(surrogate_args):
     dataloader_args = surrogate_args['dataloader']
 
     if isinstance(surrogate_args['dataloader']['datapath'], str):
-        weights_pool_path = dataloader_args['datapath']
+        weights_pool_path = os.path.join(dataloader_args['datapath'],dataloader_args['format'])
         subfiles = os.listdir(weights_pool_path)
         if subfiles == []:
-            print("No weights in the pool.")
             raise ("No weights in the pool.")
         new_datapath = [os.path.join(weights_pool_path, f) for f in subfiles]
         surrogate_args['dataloader']['datapath'] = new_datapath
 
     elif isinstance(surrogate_args['dataloader']['datapath'], list):
-        weights_pool_path = os.join(surrogate_args['dataloader']['datapath'], '..')
+        weights_pool_path = os.path.join(surrogate_args['dataloader']['datapath'], '..')
         subfiles = os.listdir(weights_pool_path)
         if subfiles == []:
-            print("No weights in the pool.")
             raise ("No weights in the pool.")
         new_datapath = [os.path.join(weights_pool_path, f) for f in subfiles]
         surrogate_args['dataloader']['datapath'] = new_datapath
-
     else:
         raise ("No such type of datapath")
