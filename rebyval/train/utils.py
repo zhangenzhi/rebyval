@@ -10,7 +10,7 @@ def prepare_dirs(valid_args):
         mkdirs(valid_args['tensorboard_dir'])
 
         # weights pool
-        if valid_args['analyse'].get():
+        if valid_args.get('analyse'):
             valid_args['analyse_dir'] = os.path.join(valid_args['log_path'],
                                                      'analyse/{}'.format(valid_args['analyse']['format']))
             if not os.path.isdir(valid_args['analyse_dir']):

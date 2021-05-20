@@ -319,7 +319,7 @@ class BaseTrainer:
             self.model = self.model_restore(self.model)
 
         # weights writer
-        if self.valid_args['analyse'].get():
+        if self.valid_args.get('analyse'):
             filepath = self.valid_args['analyse_dir']
 
             record_file = '{}.tfrecords'.format(0)
@@ -423,7 +423,7 @@ class BaseTrainer:
                 self.model_save_by_name(name="best")
 
         # collect analyse data
-        if self.valid_args['analyse'].get():
+        if self.valid_args.get('analyse'):
             self.during_value_dict['vars'] = self.model.trainable_variables
             self.during_value_dict['train_loss'] = self.metrics['train_loss'].result()
             self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result()
