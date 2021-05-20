@@ -67,7 +67,7 @@ experiment:
       learning_rate: 0.01
       scheduler:
         name: linear_scaling_with_warmup # default None
-        scaling_factor: 4
+        scaling_factor: 1
     loss:
       name: MeanSquaredError
       metric: MeanSquaredLogarithmicError
@@ -75,7 +75,7 @@ experiment:
       train:
         rebyval: False
         check_should_train: True
-        max_training_steps: 10000 # default inf
+        max_training_steps: 30000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
