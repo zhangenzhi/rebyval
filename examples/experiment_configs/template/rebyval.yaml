@@ -61,7 +61,7 @@ experiment:
       activations_for_all: relu,relu,relu,relu,relu
       restore_model:
         restore_model_dir: surroagte/001
-        restore_from: best # or best, default None
+        restore_from: model_best # or best, default None
     optimizer:
       name: SGD
       learning_rate: 0.01

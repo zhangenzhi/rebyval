@@ -187,8 +187,9 @@ class BaseTrainer:
     def model_restore(self, model):
 
         model_args = self.args['model']
-        model_path = os.path.join(self.valid_args['model_dir'],
-                                  model_args['restore_model']['restore_from'])
+        model_path = os.path.join(self.valid_args['model_dir'], model_args['restore_model']['restore_model_dir'])
+        model_path = os.path.join(model_path, model_args['restore_model']['restore_from'])
+
         if os.path.exists(model_path + '.data-00000-of-00001') and os.path.exists(model_path + '.index'):
             model.load_weights(model_path)
         else:
