@@ -85,7 +85,7 @@ class TargetTrainer(BaseTrainer):
             raise
 
     def run_with_weights_collect(self):
-        if self.args['train_loop_control']['valid']['analyse']:
+        if self.args['train_loop_control']['valid']['analyse'].get():
             self.run()
         else:
             print_error("analysis not open in Target Trainer")
