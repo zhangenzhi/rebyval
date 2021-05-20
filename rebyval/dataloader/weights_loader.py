@@ -43,7 +43,7 @@ class DnnWeightsLoader(BaseDataLoader):
             num_parallel_calls=16,
             deterministic=False)
 
-        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'],drop_remainder=True)
+        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
 
         analyse_feature_describ = self._make_analyse_tensor_describs(
             num_trainable_variables)
@@ -112,6 +112,7 @@ class DnnWeightsLoader(BaseDataLoader):
             example = tf.io.parse_example(
                 example_proto, analyse_feature_describ)
             return example
+
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=64, deterministic=False)
 
@@ -119,21 +120,27 @@ class DnnWeightsLoader(BaseDataLoader):
 
         return parsed_analyse_dataset
 
-    def load_dataset(self):
+    def load_dataset(self, format):
 
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
         print(filelist)
-        train_dataset_size = int(len(filelist)*1000*0.75/self.dataloader_args['batch_size'])
+        train_dataset_size = int(len(filelist) * 1000 * 0.75 / self.dataloader_args['batch_size'])
 
+        if format == 'tensor':
+            fulldataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
+                                                                  num_trainable_variables=self.dataloader_args[
+                                                                      'num_trainable_variables'])
+        elif format == 'numpy':
+            fulldataset = self._load_analyse_numpy_from_tfrecord(filelist=filelist,
+                                                                 num_trainable_variables=self.dataloader_args[
+                                                                     'num_trainable_variables'])
+        else:
+            raise ("no such data format")
 
-        fulldataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
-                                                   num_trainable_variables=self.dataloader_args[
-                                                       'num_trainable_variables'])
-        fulldataset = fulldataset.shuffle(len(filelist)*10)
+        fulldataset = fulldataset.shuffle(len(filelist) * 10)
 
         train_dataset = fulldataset.take(train_dataset_size).cache()
         valid_dataset = fulldataset.skip(train_dataset_size).cache()
 
-
-        return train_dataset.repeat(-1), valid_dataset.repeat(-1), valid_dataset
+        return train_dataset.repeat(-1), valid_dataset.repeat(-1)

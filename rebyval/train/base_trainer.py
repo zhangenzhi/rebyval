@@ -62,7 +62,8 @@ class BaseTrainer:
             train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+            train_dataset, valid_dataset = dataloader.load_dataset(format=dataset_args['format'])
+            test_dataset = valid_dataset
         else:
             print_error("no such dataset:{}".format(dataset_args['name']))
             raise ("no such dataset")
@@ -579,7 +580,7 @@ class BaseTrainer:
 
     def _write_analyse_to_tfrecord(self):
 
-        if self.valid_args['analyse']['format']=='tensor':
+        if self.valid_args['analyse']['format'] == 'tensor':
             example = self._during_train_vars_tensor_example()
         else:
             example = self._during_train_vars_numpy_example()

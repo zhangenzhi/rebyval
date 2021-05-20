@@ -9,5 +9,5 @@ class BaseDataLoader:
     def process_example(self, example):
         pass
 
-    def load_dataset(self):
+    def load_dataset(self, format=None):
         raise NotImplementedError("Must be implement in sub class")
