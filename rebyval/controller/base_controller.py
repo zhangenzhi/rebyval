@@ -87,7 +87,14 @@ class BaseController:
             for i in range(main_loop_args['target_samples_per_iter']):
                 target_trainer = self._build_target_trainer(rebyval=True)
                 target_trainer.run_with_weights_collect()
-            self.surrogate_trainer.run_main_loop()
+
+            # TODO: add validation for training surrogate model
+            try:
+                valid_weights_pool(self.surrogate_trainer.args)
+            except:
+                print_error("No weights in the pool")
+                raise
+            self.surrogate_trainer.run_with_refreshed_dataset()
 
     def run(self):
 

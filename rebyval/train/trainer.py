@@ -68,7 +68,7 @@ class TargetTrainer(BaseTrainer):
 
                 weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
-                v_loss = self.surrogate_model(v_inputs)
+                v_loss = self.surrogate_model(v_inputs) * 0.1
 
                 loss = t_loss + v_loss
 
@@ -213,7 +213,7 @@ class SurrogateTrainer(BaseTrainer):
             print_error("train step error")
             raise
 
-    def run_main_loop(self):
+    def run_with_refreshed_dataset(self):
 
         # re-prepare dataset
         self.train_dataset, self.valid_dataset, self.test_dataset, \

@@ -8,8 +8,8 @@ experiment:
   main_loop_control:
     warmup_stage:
       target_model_samples: 0 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 0
-    main_loop_times: 0
+    target_samples_per_iter: 5
+    main_loop_times: 3
 
   target_trainer:
     dataloader:
@@ -76,7 +76,7 @@ experiment:
       train:
         rebyval: False
         check_should_train: True
-        max_training_steps: 100000 # default inf
+        max_training_steps: 30000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
