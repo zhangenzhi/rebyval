@@ -83,8 +83,8 @@ class DnnWeightsLoader(BaseDataLoader):
                                                        'num_trainable_variables'])
         fulldataset = fulldataset.shuffle(len(filelist)*10)
 
-        train_dataset = fulldataset.take(train_dataset_size).cache()
-        valid_dataset = fulldataset.skip(train_dataset_size).cache()
+        train_dataset = fulldataset.take(train_dataset_size)
+        valid_dataset = fulldataset.skip(train_dataset_size)
 
 
         return train_dataset.repeat(-1), valid_dataset.repeat(-1), valid_dataset
