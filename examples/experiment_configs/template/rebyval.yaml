@@ -60,7 +60,8 @@ experiment:
       deep_dims: 128,64,64,32,1
       activations_for_all: relu,relu,relu,relu,relu
       restore_model:
-        version: best # or best, default None
+        restore_model_dir: surroagte/001
+        restore_from: best # or best, default None
     optimizer:
       name: SGD
       learning_rate: 0.01

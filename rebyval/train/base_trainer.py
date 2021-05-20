@@ -84,9 +84,6 @@ class BaseTrainer:
             print_error("no such model: {}".format(model_args['name']))
             raise ("no such model")
 
-        if model_args.get('restore_model'):
-            model = self.model_restore(model)
-
         return model
 
     def _build_losses(self):
@@ -234,7 +231,7 @@ class BaseTrainer:
             self.metrics['valid_loss'](v_loss)
             return predictions
         except:
-            print_error("valid step erroe")
+            print_error("valid step error")
             raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -296,7 +293,7 @@ class BaseTrainer:
         self.valid_args = train_loop_control_args['valid']
         self.test_args = train_loop_control_args['test']
 
-        # model restore
+        # global step
         self.global_step = 0
 
         # dataset train, valid
@@ -315,6 +312,9 @@ class BaseTrainer:
         # prepare_dirs
         prepare_dirs(valid_args=self.valid_args)
         # print_green(self.valid_args['analyse_dir'])
+
+        if self.args['train_loop_control']['model'].get('restore_model'):
+            self.model = self.model_restore(self.model)
 
         # weights writer
         if self.valid_args['analyse'] == True:
