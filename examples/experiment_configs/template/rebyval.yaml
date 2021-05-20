@@ -48,6 +48,7 @@ experiment:
           save_in: "001" # or name as your wish
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
+        test_steps: 50
         check_should_test: True # default False for no test step
 
   surrogate_trainer:
@@ -89,6 +90,6 @@ experiment:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
-        test_step: 500
+        test_steps: 500
         check_should_test: True # default False for no test step
 
