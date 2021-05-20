@@ -543,7 +543,7 @@ class BaseTrainer:
         return self.after_exp()
 
     # Analyse
-    def _during_vars_example(self):
+    def _during_train_vars_tensor_example(self):
         feature = {}
         for feature_name, value in self.during_value_dict.items():
             if isinstance(value, list):
@@ -560,9 +560,28 @@ class BaseTrainer:
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
-    def _write_analyse_to_tfrecord(self):
-        example = self._during_vars_example()
-        self.writer.write(example.SerializeToString())
+    def _during_train_vars_numpy_example(self):
+        feature = {}
+        for feature_name, value in self.during_value_dict.items():
+            if isinstance(value, list):
+                value = [v.numpy() for v in value]
+                v_len = len(value)
+                for i in range(v_len):
+                    feature[feature_name + "_{}".format(i)] = tf.train.Feature(
+                        bytes_list=tf.train.FloatList(value=[value[i]]))
+                feature[feature_name + "_length"] = tf.train.Feature(
+                    int64_list=tf.train.Int64List(value=[v_len])
+                )
+            else:
+                value = [value.numpy()]
+                feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
+        return tf.train.Example(features=tf.train.Features(feature=feature))
 
-    def _partition_tfrecord(self):
-        filepath = self.valid_args['analyse_dir']
+    def _write_analyse_to_tfrecord(self):
+
+        if self.valid_args['analyse']['format']=='tensor':
+            example = self._during_train_vars_tensor_example()
+        else:
+            example = self._during_train_vars_numpy_example()
+
+        self.writer.write(example.SerializeToString())
