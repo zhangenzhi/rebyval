@@ -192,7 +192,7 @@ class BaseTrainer:
         if os.path.exists(model_path + '.data-00000-of-00001') and os.path.exists(model_path + '.index'):
             model.load_weights(model_path)
         else:
-            print_error("model weights not exist, train from begining.")
+            print_error("model weights not exist, {} ,train from begining.".format(model_path))
         return model
 
     def model_save_by_name(self, name):
