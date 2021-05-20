@@ -126,6 +126,7 @@ class DnnWeightsLoader(BaseDataLoader):
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
 
         if self.dataloader_args.get('sample_of_curves'):
+            filelist = filelist.sort()
             total_curves = len(filelist)
             filelist = filelist[int(total_curves-self.dataloader_args['sample_of_curves']):]
             if filelist == []:

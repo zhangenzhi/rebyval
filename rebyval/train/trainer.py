@@ -70,7 +70,7 @@ class TargetTrainer(BaseTrainer):
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
                 v_loss = self.surrogate_model(v_inputs)
 
-                loss = t_loss + v_loss * 0.01
+                loss = t_loss + v_loss * 0.001
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
