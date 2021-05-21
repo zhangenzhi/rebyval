@@ -59,7 +59,7 @@ class TargetTrainer(BaseTrainer):
         except:
             self.test_flag = False
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_rebyval(self, inputs, labels):
         try:
             v_inputs = {'inputs': None}
@@ -81,6 +81,8 @@ class TargetTrainer(BaseTrainer):
                 zip(gradients, self.model.trainable_variables))
 
             self.metrics['train_loss'](loss)
+            import pdb
+            pdb.set_trace()
             self.extra_metrics['t_loss'].assign(t_loss)
             self.extra_metrics['v_loss'].assign(v_loss)
         except:
