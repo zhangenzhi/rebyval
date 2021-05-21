@@ -80,7 +80,7 @@ class TargetTrainer(BaseTrainer):
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
 
-            self.metrics['train_loss'].assign(loss)
+            self.metrics['train_loss'](loss)
             self.extra_metrics['t_loss'].assign(t_loss)
             self.extra_metrics['v_loss'].assign(v_loss)
         except:
@@ -213,7 +213,7 @@ class SurrogateTrainer(BaseTrainer):
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
-            self.metrics['train_loss'].assign(loss)
+            self.metrics['train_loss'](loss)
         except:
             print_error("train step error")
             raise
