@@ -9,8 +9,8 @@ class TargetTrainer(BaseTrainer):
         self.surrogate_model = surrogate_model
         self.extra_metrics = {}
         if self.surrogate_model is not None:
-            self.extra_metrics['v_loss'] = tf.constant(0.0)
-            self.extra_metrics['t_loss'] = tf.constant(0.0)
+            self.extra_metrics['v_loss'] = tf.Variable(0.0)
+            self.extra_metrics['t_loss'] = tf.Variable(0.0)
 
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'cifar10':
@@ -81,8 +81,8 @@ class TargetTrainer(BaseTrainer):
                 zip(gradients, self.model.trainable_variables))
 
             self.metrics['train_loss'](loss)
-            self.extra_metrics['t_loss'] = t_loss
-            self.extra_metrics['v_loss'] = v_loss
+            self.extra_metrics['t_loss'].assign(t_loss)
+            self.extra_metrics['v_loss'].assign(v_loss)
         except:
             print_error("rebyval train step error")
             raise
