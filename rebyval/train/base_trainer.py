@@ -331,9 +331,6 @@ class BaseTrainer:
 
     # Train
     def check_should_train(self):
-        print(self.train_args['check_should_train'])
-        import pdb
-        pdb.set_trace()
         if 'check_should_train' in self.train_args:
             return self.train_args['check_should_train']
         else:
