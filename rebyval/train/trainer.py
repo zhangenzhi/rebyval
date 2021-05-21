@@ -80,8 +80,8 @@ class TargetTrainer(BaseTrainer):
                 zip(gradients, self.model.trainable_variables))
 
             self.metrics['train_loss'](loss)
-            self.extra_metrics['t_loss'](t_loss)
-            self.extra_metrics['v_loss'](v_loss)
+            self.extra_metrics['t_loss'] = t_loss
+            self.extra_metrics['v_loss'] = v_loss
         except:
             print_error("rebyval train step error")
             raise
