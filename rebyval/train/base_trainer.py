@@ -38,6 +38,9 @@ class BaseTrainer:
         # create during value collection
         self.during_value_dict = {}
 
+        # create distribute strategy
+        self.strategy = tf.distribute.MirroredStrategy()
+
     @classmethod
     def timer(cls, func):
         @wraps(func)
