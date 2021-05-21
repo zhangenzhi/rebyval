@@ -299,6 +299,7 @@ class BaseTrainer:
 
         # global step
         self.global_step = 0
+        self.global_step_list = []
 
         # dataset train, valid
         self.epoch = 0
@@ -488,7 +489,7 @@ class BaseTrainer:
 
         test_auc_numpy = self.metrics['test_accuracy'].result().numpy()
         self.test_auc_list.append(test_auc_numpy)
-        self.step_list.append(self.global_step)
+        self.global_step_list.append(self.global_step)
 
         # print_green(self.valid_args['log_file'])
         write_log(self.valid_args['log_file'], test_msg)
@@ -513,7 +514,7 @@ class BaseTrainer:
         tf.keras.backend.clear_session()
         return_dict = {
             'valid_auc_list': self.valid_auc_list,
-            'step_list': self.step_list,
+            'global_step_list': self.global_step_list,
             'test_auc': self.metrics['test_accuracy'].result().numpy()
         }
 
