@@ -96,11 +96,11 @@ class BaseTrainer:
             loss_name = self.args['loss']['name']
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
 
-        metrics['train_loss'] = tf.keras.metrics.Mean(name='train_loss')
+        metrics['train_loss'] = tf.Variable(0.0, name='train_loss')
         metrics['train_accuracy'] = tf.keras.metrics.AUC(name='train_auc')
-        metrics['valid_loss'] = tf.keras.metrics.Mean(name='valid_loss')
+        metrics['valid_loss'] = tf.Variable(0.0, name='valid_loss')
         metrics['valid_accuracy'] = tf.keras.metrics.AUC(name='valid_auc')
-        metrics['test_loss'] = tf.keras.metrics.Mean(name='test_loss')
+        metrics['test_loss'] = tf.Variable(0.0, name='test_loss')
         metrics['test_accuracy'] = tf.keras.metrics.AUC(name='test_auc')
 
         return metrics
@@ -221,7 +221,7 @@ class BaseTrainer:
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
-            self.metrics['train_loss'](loss)
+            self.metrics['train_loss'].assign(loss)
         except:
             print_error("train step error")
             raise
@@ -232,7 +232,7 @@ class BaseTrainer:
             predictions = self.model(inputs, training=False)
             v_loss = self.metrics['loss_fn'](labels, predictions)
 
-            self.metrics['valid_loss'](v_loss)
+            self.metrics['valid_loss'].assign(v_loss)
             return predictions
         except:
             print_error("valid step error")
@@ -308,7 +308,7 @@ class BaseTrainer:
         self.test_iter = iter(self.test_dataset)
 
         # numerical reset
-        self.metrics['train_loss'].reset_states()
+        self.metrics['train_loss'].assign(0.0)
         self.metrics['train_accuracy'].reset_states()
 
         # log collection flags
@@ -361,7 +361,7 @@ class BaseTrainer:
         # message print
 
         iter_msg = '[Training Status]: step={:08d}, train loss={:.4f}' \
-                       .format(self.train_step, self.metrics['train_loss'].result()
+                       .format(self.train_step, self.metrics['train_loss'].numpy()
                                ) + ', traning_current_time={:.4f}s, training_cumulative_time={:.4f}h' \
                        .format(self.timer_dict['during_train'], self.timer_dict['cumulate_during_train'] / 3600)
         print(iter_msg)
@@ -386,7 +386,7 @@ class BaseTrainer:
             # numerical reset
             self.valid_auc_list = []
             self.valid_metrics_list = []
-            self.metrics['valid_loss'].reset_states()
+            self.metrics['valid_loss'].assign(0.0)
             self.metrics['valid_accuracy'].reset_states()
 
         except:
@@ -417,7 +417,7 @@ class BaseTrainer:
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: AUC :{:.6f}: ' \
             .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch,
-                    self.metrics['valid_loss'].result(),
+                    self.metrics['valid_loss'].numpy(),
                     valid_auc)
         print(valid_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
@@ -435,8 +435,8 @@ class BaseTrainer:
         # collect analyse data
         if self.valid_args.get('analyse'):
             self.during_value_dict['vars'] = self.model.trainable_variables
-            self.during_value_dict['train_loss'] = self.metrics['train_loss'].result()
-            self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result()
+            self.during_value_dict['train_loss'] = self.metrics['train_loss'].numpy()
+            self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].numpy()
             self._write_analyse_to_tfrecord()
 
         write_log(self.valid_args['log_file'], valid_msg)
@@ -458,7 +458,7 @@ class BaseTrainer:
 
             # numerical reset
             self.test_auc_list = []
-            self.metrics['test_loss'].reset_states()
+            self.metrics['test_loss'].assign(0.0)
             self.metrics['test_accuracy'].reset_states()
         except:
             raise ValueError
@@ -478,7 +478,7 @@ class BaseTrainer:
 
         # test log collection
         test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: AUC :{:.6f}' \
-            .format(self.global_step, self.metrics['test_loss'].result(), self.metrics['test_accuracy'].result())
+            .format(self.global_step, self.metrics['test_loss'].numpy(), self.metrics['test_accuracy'].result())
         print(test_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
