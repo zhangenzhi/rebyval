@@ -24,9 +24,10 @@ class TargetTrainer(BaseTrainer):
             y = x.pop('label')
             if self.surrogate_model is not None:
                 self._train_step_rebyval(x, y)
-                extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
-                       .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
-                print_green(extra_train_msg)
+                print(self.extra_metrics)
+                # extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
+                #        .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
+                # print_green(extra_train_msg)
             else:
                 self._train_step(x, y)
         except:
