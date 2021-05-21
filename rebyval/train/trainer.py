@@ -101,8 +101,10 @@ class SurrogateTrainer(BaseTrainer):
 
 
     def reset_dataset(self):
+        dataset_args = self.args['dataloader']
         if self.args['dataloader']['name'] == 'dnn_weights':
-            train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
+            train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset(format=dataset_args['format'])
+            test_dataset = valid_dataset
             return train_dataset, valid_dataset, test_dataset
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
