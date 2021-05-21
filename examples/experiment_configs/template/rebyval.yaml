@@ -8,8 +8,8 @@ experiment:
   main_loop_control:
     warmup_stage:
       target_model_samples: 0 # train 10 taget model and collect validation weight.
-    target_samples_per_iter: 1
-    main_loop_times: 5
+    target_samples_per_iter: 0
+    main_loop_times: 0
 
   target_trainer:
     dataloader:
@@ -63,11 +63,11 @@ experiment:
       name: dnn # default dnn
       deep_dims: 128,64,64,32,1
       activations_for_all: relu,relu,relu,relu,relu
-      restore_model:
-        restore_model_dir: surroagte/001
-        restore_from: model_best # or best, default None
+#      restore_model:
+#        restore_model_dir: surroagte/001
+#        restore_from: model_best # or best, default None
     optimizer:
-      name: SGD
+      name: Adam
       learning_rate: 0.01
       scheduler:
         name: linear_scaling_with_warmup # default None
@@ -77,7 +77,7 @@ experiment:
       metric: MeanSquaredLogarithmicError
     train_loop_control:
       train:
-        rebyval: False
+        rebyval: True
         check_should_train: False
         max_training_steps: 1000 # default inf
         max_training_epochs: 100 # default inf
