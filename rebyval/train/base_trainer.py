@@ -340,10 +340,10 @@ class BaseTrainer:
 
         try:
             # numerical reset
-            self.auc_list = []
             self.step_list = []
 
             # model restore
+            self.train_auc_list = []
             self.train_step = 0
 
         except:
@@ -383,6 +383,7 @@ class BaseTrainer:
             self.valid_flag = True
 
             # numerical reset
+            self.valid_auc_list = []
             self.valid_metrics_list = []
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
@@ -410,7 +411,7 @@ class BaseTrainer:
 
         # record valid metric
         valid_auc = sum(self.valid_metrics_list) / len(self.valid_metrics_list)
-        self.auc_list.append(valid_auc)
+        self.valid_auc_list.append(valid_auc)
 
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: AUC :{:.6f}: ' \
@@ -427,7 +428,7 @@ class BaseTrainer:
 
         # save model best
         if self.valid_args['save_model']:
-            if valid_auc >= max(self.auc_list):
+            if valid_auc >= max(self.valid_auc_list):
                 self.model_save_by_name(name="best")
 
         # collect analyse data
@@ -455,6 +456,7 @@ class BaseTrainer:
             self.test_flag = True
 
             # numerical reset
+            self.test_auc_list = []
             self.metrics['test_loss'].reset_states()
             self.metrics['test_accuracy'].reset_states()
         except:
@@ -485,7 +487,7 @@ class BaseTrainer:
         print(time_msg)
 
         test_auc_numpy = self.metrics['test_accuracy'].result().numpy()
-        self.auc_list.append(test_auc_numpy)
+        self.test_auc_list.append(test_auc_numpy)
         self.step_list.append(self.global_step)
 
         # print_green(self.valid_args['log_file'])
@@ -510,7 +512,7 @@ class BaseTrainer:
 
         tf.keras.backend.clear_session()
         return_dict = {
-            'auc_list': self.auc_list,
+            'valid_auc_list': self.valid_auc_list,
             'step_list': self.step_list,
             'test_auc': self.metrics['test_accuracy'].result().numpy()
         }
