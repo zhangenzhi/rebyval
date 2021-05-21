@@ -59,7 +59,7 @@ class BaseTrainer:
 
         if dataset_args['name'] == 'cifar10':
             dataloader = Cifar10DataLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(format=dataset_args['format'])
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
             train_dataset, valid_dataset = dataloader.load_dataset(format=dataset_args['format'])
@@ -330,6 +330,11 @@ class BaseTrainer:
             self.writer = tf.io.TFRecordWriter(record_file)
 
     # Train
+    def check_should_train(self):
+        if self.train_args.get('check_should_train'):
+            return self.train_args['check_should_train']
+        else:
+            return True
     def before_train(self):
 
         try:
@@ -518,11 +523,12 @@ class BaseTrainer:
         while not self.exp_stop_condition():
 
             # Train
-            self.before_train()
-            while not self.train_stop_condition():
-                self.during_train()
-                self.after_train_step()
-            self.after_train()
+            if self.check_should_train():
+                self.before_train()
+                while not self.train_stop_condition():
+                    self.during_train()
+                    self.after_train_step()
+                self.after_train()
 
             # Valid
             if self.check_should_valid():
