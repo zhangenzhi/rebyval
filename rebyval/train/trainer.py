@@ -9,8 +9,8 @@ class TargetTrainer(BaseTrainer):
         self.surrogate_model = surrogate_model
         self.extra_metrics = {}
         if self.surrogate_model is not None:
-            self.extra_metrics['v_loss'] = tf.keras.metrics.Mean(name='surrogate_loss')
-            self.extra_metrics['t_loss'] = tf.keras.metrics.Mean(name='target_loss')
+            self.extra_metrics['v_loss'] = tf.constant(0.0)
+            self.extra_metrics['t_loss'] = tf.constant(0.0)
 
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'cifar10':
@@ -25,7 +25,7 @@ class TargetTrainer(BaseTrainer):
             if self.surrogate_model is not None:
                 self._train_step_rebyval(x, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
-                       .format(self.extra_metrics['v_loss'].result().numpy(), self.extra_metrics['t_loss'].result().numpy())
+                       .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
                 print_green(extra_train_msg)
             else:
                 self._train_step(x, y)
@@ -70,7 +70,9 @@ class TargetTrainer(BaseTrainer):
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
                 v_loss = self.surrogate_model(v_inputs)
 
-                loss = t_loss + v_loss * 0.001
+                # verify v net
+                loss = t_loss
+                # loss = t_loss + v_loss * 0.001
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
