@@ -70,6 +70,7 @@ class TargetTrainer(BaseTrainer):
                 weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
                 v_loss = self.surrogate_model(v_inputs)
+                v_loss = tf.reshape(v_loss,shape=())
 
                 # verify v net
                 loss = t_loss
@@ -81,8 +82,6 @@ class TargetTrainer(BaseTrainer):
                 zip(gradients, self.model.trainable_variables))
 
             self.metrics['train_loss'](loss)
-            import pdb
-            pdb.set_trace()
             self.extra_metrics['t_loss'].assign(t_loss)
             self.extra_metrics['v_loss'].assign(v_loss)
         except:
