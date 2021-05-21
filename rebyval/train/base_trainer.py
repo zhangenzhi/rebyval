@@ -59,7 +59,7 @@ class BaseTrainer:
 
         if dataset_args['name'] == 'cifar10':
             dataloader = Cifar10DataLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(format=dataset_args['format'])
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
             train_dataset, valid_dataset = dataloader.load_dataset(format=dataset_args['format'])
@@ -182,7 +182,8 @@ class BaseTrainer:
         return optimzier
 
     def reset_dataset(self):
-        dataset = self.dataloader.load_dataset()
+        dataset_args = self.args['dataloader']
+        dataset = self.dataloader.load_dataset(format=dataset_args['format'])
         return dataset
 
     def model_restore(self, model):
