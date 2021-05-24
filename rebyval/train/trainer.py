@@ -217,7 +217,7 @@ class SurrogateTrainer(BaseTrainer):
             print_error("train step error")
             raise
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_surrogate_sum_reduce(self, inputs, labels):
         flat_vars = []
         # import pdb
