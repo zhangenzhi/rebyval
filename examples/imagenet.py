@@ -9,7 +9,6 @@ import tensorflow_datasets.public_api as tfds
 dataset_name = "imagenet2012"
 manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
 
-imagenet_builder = tfds.builder(dataset_name)
 _LABELS_FNAME = './imagenet/imagenet2012_labels.txt'
 
 # This file contains the validation labels, in the alphabetic order of
@@ -182,4 +181,5 @@ def _add_split_if_exists(split_list, split, split_path, dl_manager, **kwargs):
             ), )
 
 
-
+if __name__ == '__main__':
+    imagenet_ds = ImageNet2012()
