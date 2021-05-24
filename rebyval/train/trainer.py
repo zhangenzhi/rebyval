@@ -138,8 +138,10 @@ class SurrogateTrainer(BaseTrainer):
         x.pop('train_loss')
 
         try:
-            # self._train_step_surrogate(x, y)
-            self._train_step_surrogate_sum_reduce(x, y)
+            if self.preprocess['name'] == 'sum_reduce':
+                self._train_step_surrogate_sum_reduce(x, y)
+            else:
+                self._train_step_surrogate(x, y)
         except:
             print_error("during traning train_step exception")
             raise
@@ -161,12 +163,21 @@ class SurrogateTrainer(BaseTrainer):
         y_valid = x_valid.pop('valid_loss')
         x_valid.pop('train_loss')
         x_valid.pop('vars_length')
-        flat_vars = []
-        for feat, tensor in x_valid.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
 
+        if self.preprocess['name'] == 'sum_reduce':
+            flat_vars = []
+            for feat, tensor in x_valid.items():
+                axis = tensor.shape.rank - 1
+                compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+                flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
+            flat_vars = tf.concat(flat_vars, axis=1)
+            flat_input = {'inputs': flat_vars}
+        else:
+            flat_vars = []
+            for feat, tensor in x_valid.items():
+                flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+            flat_vars = tf.concat(flat_vars, axis=1)
+            flat_input = {'inputs': flat_vars}
         try:
             self._valid_step(flat_input, y_valid)
         except:
@@ -183,11 +194,20 @@ class SurrogateTrainer(BaseTrainer):
             y_test = x_test.pop('valid_loss')
             x_test.pop('train_loss')
             x_test.pop('vars_length')
-            flat_vars = []
-            for feat, tensor in x_test.items():
-                flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-            flat_vars = tf.concat(flat_vars, axis=1)
-            flat_input = {'inputs': flat_vars}
+            if self.preprocess['name'] == 'sum_reduce':
+                flat_vars = []
+                for feat, tensor in x_test.items():
+                    axis = tensor.shape.rank - 1
+                    compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+                    flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
+                flat_vars = tf.concat(flat_vars, axis=1)
+                flat_input = {'inputs': flat_vars}
+            else:
+                flat_vars = []
+                for feat, tensor in x_test.items():
+                    flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+                flat_vars = tf.concat(flat_vars, axis=1)
+                flat_input = {'inputs': flat_vars}
 
             self._test_step(flat_input, y_test)
         except:

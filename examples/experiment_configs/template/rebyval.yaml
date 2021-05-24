@@ -76,6 +76,8 @@ experiment:
       name: MeanSquaredError
       metric: MeanSquaredLogarithmicError
     train_loop_control:
+      preprocess:
+        name: sum_reduce
       train:
         check_should_train: True
         max_training_steps: 100000 # default inf

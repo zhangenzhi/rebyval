@@ -296,10 +296,11 @@ class BaseTrainer:
         # which means all the elements should be ready here.
 
         # parse train loop control args
-        train_loop_control_args = self.args['train_loop_control']
-        self.train_args = train_loop_control_args['train']
-        self.valid_args = train_loop_control_args['valid']
-        self.test_args = train_loop_control_args['test']
+        self.train_loop_control_args = self.args['train_loop_control']
+        self.preprocess = self.train_loop_control_args['preprocess']
+        self.train_args = self.train_loop_control_args['train']
+        self.valid_args = self.train_loop_control_args['valid']
+        self.test_args = self.train_loop_control_args['test']
 
         # global step
         self.global_step = 0
