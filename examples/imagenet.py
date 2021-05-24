@@ -1,5 +1,6 @@
 import io
 import os
+import tarfile
 import logging
 
 import tensorflow as tf
@@ -9,6 +10,12 @@ dataset_name = "imagenet2012"
 manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
 
 imagenet_builder = tfds.builder(dataset_name)
+_LABELS_FNAME = './imagenet/imagenet2012_labels.txt'
+
+# This file contains the validation labels, in the alphabetic order of
+# corresponding image names (and not in the order they have been added to the
+# tar file).
+_VALIDATION_LABELS_FNAME = './imagenet/imagenet2012_validation_labels.txt'
 
 # From https://github.com/cytsai/ilsvrc-cmyk-image-list
 CMYK_IMAGES = [
@@ -70,7 +77,7 @@ class ImageNet2012:
     def _split_generators(self,dl_manager):
         train_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_train.tar')
         val_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
-        test_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_test.tar')
+        test_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
 
         splits = []
         _add_split_if_exists(

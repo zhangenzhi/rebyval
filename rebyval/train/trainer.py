@@ -139,7 +139,8 @@ class SurrogateTrainer(BaseTrainer):
         x.pop('train_loss')
 
         try:
-            self._train_step_surrogate(x, y)
+            # self._train_step_surrogate(x, y)
+            self._train_step_surrogate_sum_reduce(x,y)
         except:
             print_error("during traning train_step exception")
             raise
@@ -199,6 +200,32 @@ class SurrogateTrainer(BaseTrainer):
         flat_vars = []
         for feat, tensor in inputs.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+        flat_vars = tf.concat(flat_vars, axis=1)
+        flat_input = {'inputs': flat_vars}
+
+        try:
+            with tf.GradientTape() as tape:
+                # import pdb
+                # pdb.set_trace()
+                predictions = self.model(flat_input, training=True)
+                loss = self.metrics['loss_fn'](labels, predictions)
+
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("train step error")
+            raise
+
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step_surrogate_sum_reduce(self,inputs,labels):
+        flat_vars = []
+        import pdb
+        pdb.set_trace()
+        for feat, tensor in inputs.items():
+            flat_vars.append(tf.math.reduce_sum(tensor, axis=2))
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
 
