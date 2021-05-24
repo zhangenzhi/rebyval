@@ -39,7 +39,7 @@ class BaseTrainer:
         self.during_value_dict = {}
 
         # create distribute strategy
-        self.strategy = tf.distribute.MirroredStrategy()
+        # self.strategy = tf.distribute.MirroredStrategy()
 
     @classmethod
     def timer(cls, func):
@@ -110,7 +110,7 @@ class BaseTrainer:
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
-        print(gpus)
+        print_green(gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
