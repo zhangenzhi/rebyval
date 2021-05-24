@@ -57,12 +57,12 @@ experiment:
       datapath: ./log/analyse
       sample_of_curves: 30
       format: tensor
-      batch_size: 1024
+      batch_size: 256
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 512,256,128,64,64,32,1
-      activations_for_all: relu,relu,relu,relu,relu,relu,softplus
+      deep_dims: 128,128,64,32,1
+      activations_for_all: relu,relu,relu,relu,softplus
 #      restore_model:
 #        restore_model_dir: surroagte/001
 #        restore_from: model_best # or best, default None
@@ -80,13 +80,13 @@ experiment:
         name: sum_reduce
       train:
         check_should_train: True
-        max_training_steps: 100000 # default inf
+        max_training_steps: 1000000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/SR_layer7_bz512_sgd001
+        log_path: ./log/surrogate/SR_layer5_bz256_sgd001_100w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
