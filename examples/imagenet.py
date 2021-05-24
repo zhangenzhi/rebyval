@@ -14,6 +14,7 @@ if __name__ == '__main__':
     manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
     # builder = tfds.builder(dataset_name, data_dir=manual_dataset_dir)
     # tfds.list_builders()
+    tfds.load('mnist')
     # def load_ImageNet(ds_type, BASEDIR, batch_size):
     #     [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
     #                                              data_dir=BASEDIR, download=True, shuffle_files=True,
