@@ -25,7 +25,7 @@ class TargetTrainer(BaseTrainer):
             if self.surrogate_model is not None:
                 self._train_step_rebyval(x, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
-                       .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
+                    .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
                 print_green(extra_train_msg)
             else:
                 self._train_step(x, y)
@@ -69,7 +69,7 @@ class TargetTrainer(BaseTrainer):
                 weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
                 v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
                 v_loss = self.surrogate_model(v_inputs)
-                v_loss = tf.reshape(v_loss,shape=())
+                v_loss = tf.reshape(v_loss, shape=())
 
                 # verify v net
                 loss = t_loss
@@ -99,7 +99,6 @@ class SurrogateTrainer(BaseTrainer):
     def __init__(self, trainer_args):
         super(SurrogateTrainer, self).__init__(trainer_args=trainer_args)
 
-
     def reset_dataset(self):
         dataset_args = self.args['dataloader']
         if self.args['dataloader']['name'] == 'dnn_weights':
@@ -113,8 +112,8 @@ class SurrogateTrainer(BaseTrainer):
         for feat, tensor in x.items():
             batch_serilized_tensor = []
             for i in range(256):
-                batch_serilized_tensor.append(tf.io.parse_tensor(tensor[i],tf.float32))
-            parsed_tensors = tf.concat(batch_serilized_tensor,axis=0)
+                batch_serilized_tensor.append(tf.io.parse_tensor(tensor[i], tf.float32))
+            parsed_tensors = tf.concat(batch_serilized_tensor, axis=0)
         return parsed_tensors
 
     @BaseTrainer.timer
@@ -140,7 +139,7 @@ class SurrogateTrainer(BaseTrainer):
 
         try:
             # self._train_step_surrogate(x, y)
-            self._train_step_surrogate_sum_reduce(x,y)
+            self._train_step_surrogate_sum_reduce(x, y)
         except:
             print_error("during traning train_step exception")
             raise
@@ -174,7 +173,6 @@ class SurrogateTrainer(BaseTrainer):
             print_error("during validation valid_step exception")
             raise
 
-
     @BaseTrainer.timer
     def during_test(self):
 
@@ -196,7 +194,7 @@ class SurrogateTrainer(BaseTrainer):
             self.test_flag = False
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step_surrogate(self,inputs,labels):
+    def _train_step_surrogate(self, inputs, labels):
         flat_vars = []
         for feat, tensor in inputs.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
@@ -220,12 +218,14 @@ class SurrogateTrainer(BaseTrainer):
             raise
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step_surrogate_sum_reduce(self,inputs,labels):
+    def _train_step_surrogate_sum_reduce(self, inputs, labels):
         flat_vars = []
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         for feat, tensor in inputs.items():
-            flat_vars.append(tf.math.reduce_sum(tensor, axis=2))
+            axis = tensor.shape.rank - 1
+            compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+            flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
 
