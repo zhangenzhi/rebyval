@@ -44,6 +44,7 @@ CMYK_IMAGES = [
 
 PNG_IMAGES = ['n02105855_2933.JPEG']
 
+
 class Imagenet2012(tfds.core.GeneratorBasedBuilder):
 
     @staticmethod
@@ -64,7 +65,7 @@ class Imagenet2012(tfds.core.GeneratorBasedBuilder):
             images = sorted(tar.getnames())
         return dict(zip(images, labels))
 
-    def _fix_image(self,image_fname,image):
+    def _fix_image(self, image_fname, image):
         """Fix image color system and format starting from v 3.0.0."""
         if self.version < '3.0.0':
             return image
@@ -74,7 +75,7 @@ class Imagenet2012(tfds.core.GeneratorBasedBuilder):
             image = io.BytesIO(tfds.core.utils.png_to_jpeg(image.read()))
         return image
 
-    def _split_generators(self,dl_manager):
+    def _split_generators(self, dl_manager):
         train_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_train.tar')
         val_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
         test_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
@@ -161,6 +162,7 @@ class Imagenet2012(tfds.core.GeneratorBasedBuilder):
             }
             yield fname, record
 
+
 def _add_split_if_exists(split_list, split, split_path, dl_manager, **kwargs):
     """Add split to given list of splits only if the file exists."""
     if not tf.io.gfile.exists(split_path):
@@ -186,4 +188,6 @@ if __name__ == '__main__':
     # imagenet_ds = ImageNet2012()
     dataset_name = "imagenet2012"
     manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
-    builder = tfds.builder(dataset_name, data_dir=manual_dataset_dir)
+    # builder = tfds.builder(dataset_name, data_dir=manual_dataset_dir)
+    tfds.list_builders()
+    ds = tfds.load(dataset_name, data_dir=manual_dataset_dir)
