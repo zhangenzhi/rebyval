@@ -44,8 +44,9 @@ CMYK_IMAGES = [
 
 PNG_IMAGES = ['n02105855_2933.JPEG']
 
-class ImageNet2012:
+class Imagenet2012(tfds.core.GeneratorBasedBuilder):
 
+    @staticmethod
     def _get_validation_labels(self, val_path):
         """Returns labels for validation.
         Args:
@@ -182,4 +183,7 @@ def _add_split_if_exists(split_list, split, split_path, dl_manager, **kwargs):
 
 
 if __name__ == '__main__':
-    imagenet_ds = ImageNet2012()
+    # imagenet_ds = ImageNet2012()
+    dataset_name = "imagenet2012"
+    manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
+    builder = tfds.builder(dataset_name, data_dir=manual_dataset_dir)
