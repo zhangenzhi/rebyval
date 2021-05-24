@@ -190,4 +190,4 @@ if __name__ == '__main__':
     manual_dataset_dir = "/home/work/dataset/ILSVRC2012"
     # builder = tfds.builder(dataset_name, data_dir=manual_dataset_dir)
     tfds.list_builders()
-    ds = tfds.load(dataset_name, data_dir=manual_dataset_dir,download=False)
+    ds = tfds.load(dataset_name, data_dir=manual_dataset_dir, split='validation',download=False)
