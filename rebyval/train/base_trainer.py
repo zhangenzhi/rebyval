@@ -297,6 +297,8 @@ class BaseTrainer:
 
         # parse train loop control args
         self.train_loop_control_args = self.args['train_loop_control']
+        import pdb
+        pdb.set_trace()
         self.preprocess = self.train_loop_control_args['preprocess']
         self.train_args = self.train_loop_control_args['train']
         self.valid_args = self.train_loop_control_args['valid']
