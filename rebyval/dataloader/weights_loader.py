@@ -133,7 +133,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
         print(len(filelist),filelist)
 
-        train_dataset_size = int(len(filelist) * 1000 * 0.75 / self.dataloader_args['batch_size'])
+        train_dataset_size = int(len(filelist) * 1000 * 0.80 / self.dataloader_args['batch_size'])
 
         if format == 'tensor':
             fulldataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
