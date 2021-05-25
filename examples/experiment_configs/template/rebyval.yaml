@@ -55,7 +55,7 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      sample_of_curves: 60
+      sample_of_curves: 30
       format: tensor
       batch_size: 256
       num_trainable_variables: 10
@@ -84,7 +84,7 @@ experiment:
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
+        valid_gap: 100 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         log_path: ./log/surrogate/SR_layer5_nbz256_sgd001_100w
         save_model:
