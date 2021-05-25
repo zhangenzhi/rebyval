@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # tfds.list_builders()
     # tfds.load('mnist')
     def load_ImageNet(ds_type, BASEDIR, batch_size):
-        [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
+        [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['validation'],
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
                                                  as_supervised=True, with_info=True,
                                                  download_and_prepare_kwargs={'download_dir': BASEDIR})
