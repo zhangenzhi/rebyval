@@ -120,8 +120,8 @@ class SurrogateTrainer(BaseTrainer):
     def during_train(self):
 
         try:
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
 
             x = self.train_iter.get_next()
 
