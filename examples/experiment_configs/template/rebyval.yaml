@@ -77,14 +77,14 @@ experiment:
       metric: MeanSquaredLogarithmicError
     train_loop_control:
       preprocess:
-        name: sum_reduce
+        name: normal
       train:
         check_should_train: True
         max_training_steps: 1000000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 100 # default 1000 training steps
+        valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         log_path: ./log/surrogate/SR_layer5_nbz256_sgd001_100w
         save_model:
