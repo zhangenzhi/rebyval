@@ -122,6 +122,9 @@ class SurrogateTrainer(BaseTrainer):
         try:
             x = self.train_iter.get_next()
 
+            import pdb
+            pdb.set_trace()
+
         except:
             print_warning("during training dataset exception")
             try:
