@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      target_model_samples: 5 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 0
     main_loop_times: 0
 

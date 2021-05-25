@@ -482,7 +482,7 @@ class BaseTrainer:
 
         # test log collection
         test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: AUC :{:.6f}' \
-            .format(self.global_step, self.metrics['test_loss'].numpy(), self.metrics['test_accuracy'].result())
+            .format(self.global_step, self.metrics['test_loss'].result(), self.metrics['test_accuracy'].result())
         print(test_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
