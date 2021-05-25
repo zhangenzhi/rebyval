@@ -57,7 +57,7 @@ experiment:
       datapath: ./log/analyse
       sample_of_curves: 30
       format: tensor
-      batch_size: 64
+      batch_size: 256
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
