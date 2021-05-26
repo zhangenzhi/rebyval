@@ -585,7 +585,7 @@ class BaseTrainer:
                 v_len = len(value)
                 for i in range(v_len):
                     feature[feature_name + "_{}".format(i)] = tf.train.Feature(
-                        bytes_list=tf.train.FloatList(value=[value[i]]))
+                        float_list=tf.train.FloatList(value=[value[i]]))
                 feature[feature_name + "_length"] = tf.train.Feature(
                     int64_list=tf.train.Int64List(value=[v_len])
                 )
