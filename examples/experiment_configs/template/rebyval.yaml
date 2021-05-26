@@ -61,8 +61,10 @@ experiment:
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 128,64,32,1
-      activations_for_all: relu,relu,relu,softplus
+      deep_dims: 1
+      activations_for_all: softplus
+#      deep_dims: 128,64,32,1
+#      activations_for_all: relu,relu,relu,softplus
 #      restore_model:
 #        restore_model_dir: surroagte/001
 #        restore_from: model_best # or best, default None
@@ -86,7 +88,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/SR_layer4_nbz256ds50_sgd001_10w
+        log_path: ./log/surrogate/SR_layer1_nbz256ds30_sgd001_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
