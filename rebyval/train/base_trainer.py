@@ -297,7 +297,8 @@ class BaseTrainer:
 
         # parse train loop control args
         self.train_loop_control_args = self.args['train_loop_control']
-        self.preprocess = self.train_loop_control_args['preprocess']
+        if self.train_loop_control_args.get('preprocess'):
+            self.preprocess = self.train_loop_control_args['preprocess']
         self.train_args = self.train_loop_control_args['train']
         self.valid_args = self.train_loop_control_args['valid']
         self.test_args = self.train_loop_control_args['test']
