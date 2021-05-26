@@ -61,7 +61,7 @@ experiment:
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 1
+      deep_dims: '1'
       activations_for_all: softplus
 #      deep_dims: 128,64,32,1
 #      activations_for_all: relu,relu,relu,softplus
