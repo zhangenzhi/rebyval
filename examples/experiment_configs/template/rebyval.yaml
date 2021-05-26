@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      target_model_samples: 5 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 0
     main_loop_times: 0
 
@@ -41,7 +41,7 @@ experiment:
         valid_gap: 100 # default 1000 training steps
         valid_steps: 10 # default valid for 100 steps
         analyse:
-            format: tensor
+            format: numpy #tensor
         partition: 5
         log_path: ./log
         save_model:
@@ -55,7 +55,7 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      sample_of_curves: 30
+      sample_of_curves: 50
       format: tensor
       batch_size: 256
       num_trainable_variables: 10
@@ -77,7 +77,7 @@ experiment:
       metric: MeanSquaredLogarithmicError
     train_loop_control:
       preprocess:
-        name: normal
+        name: sum_reduce
       train:
         check_should_train: True
         max_training_steps: 100000 # default inf
@@ -86,7 +86,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/layer7_nbz256ds30_sgd001_10w
+        log_path: ./log/surrogate/SR_layer7_nbz256ds50_sgd001_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps

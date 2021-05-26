@@ -75,7 +75,7 @@ class BaseController:
             print_error("No weights in the pool")
             raise
 
-        self.surrogate_trainer.run()
+        # self.surrogate_trainer.run()
 
     def main_loop_for_experiment(self):
         main_loop_args = self.args['main_loop_control']
