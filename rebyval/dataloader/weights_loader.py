@@ -159,6 +159,6 @@ class DnnWeightsLoader(BaseDataLoader):
 
         train_dataset = fulldataset.take(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
         valid_dataset = fulldataset.skip(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
-        test_dataset = extra_dataset()
+        test_dataset = extra_dataset
 
         return train_dataset.repeat(-1), valid_dataset.repeat(-1), test_dataset
