@@ -273,8 +273,6 @@ class SurrogateTrainer(BaseTrainer):
         flat_vars = []
         for feat, tensor in inputs.items():
             axis = tensor.shape.rank - 1
-            import pdb
-            pdb.set_trace()
             if feat in ['vars_0', 'vars_1']:
                 axis = list(range(axis))
                 axis = [i+1 for i in axis]
@@ -288,10 +286,11 @@ class SurrogateTrainer(BaseTrainer):
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
 
+        import pdb
+        pdb.set_trace()
+
         try:
             with tf.GradientTape() as tape:
-                # import pdb
-                # pdb.set_trace()
                 predictions = self.model(flat_input, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
 
