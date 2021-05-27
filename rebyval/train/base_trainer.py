@@ -65,8 +65,8 @@ class BaseTrainer:
             train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
-            train_dataset, valid_dataset = dataloader.load_dataset(format=dataset_args['format'])
-            test_dataset = valid_dataset
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(format=dataset_args['format'])
+            # test_dataset = valid_dataset
         else:
             print_error("no such dataset:{}".format(dataset_args['name']))
             raise ("no such dataset")
