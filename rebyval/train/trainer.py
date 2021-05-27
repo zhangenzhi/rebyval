@@ -276,6 +276,8 @@ class SurrogateTrainer(BaseTrainer):
             import pdb
             pdb.set_trace()
             if feat in ['vars_0', 'vars_1']:
+                axis = list(range(axis))
+                axis = [i+1 for i in axis]
                 compressed_tensor = tf.norm(tensor, axis=axis)
             else:
                 compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
