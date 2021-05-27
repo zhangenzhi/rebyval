@@ -278,7 +278,10 @@ class SurrogateTrainer(BaseTrainer):
             if feat in ['vars_0', 'vars_1']:
                 axis = list(range(axis))
                 axis = [i+1 for i in axis]
-                compressed_tensor = tf.norm(tensor, axis=axis)
+                if len(axis) == 2:
+                    compressed_tensor = tf.norm(tensor, axis=axis)
+                else:
+                    compressed_tensor = tf.norm(tensor,axis=axis[0])
             else:
                 compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
             flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
