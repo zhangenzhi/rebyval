@@ -143,6 +143,8 @@ class SurrogateTrainer(BaseTrainer):
         try:
             if self.preprocess['name'] == 'sum_reduce':
                 self._train_step_surrogate_sum_reduce(x, y)
+            elif self.preprocess['name'] == 'l2_sum_reduce':
+                self._train_step_surrogate_l2_sum_reduce(x, y)
             else:
                 self._train_step_surrogate(x, y)
         except:
@@ -273,8 +275,8 @@ class SurrogateTrainer(BaseTrainer):
             axis = tensor.shape.rank - 1
             import pdb
             pdb.set_trace()
-            if feat in ['vars_0','vars_1']:
-                compressed_tensor = tf.norm(tensor,axis=axis)
+            if feat in ['vars_0', 'vars_1']:
+                compressed_tensor = tf.norm(tensor, axis=axis)
             else:
                 compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
             flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
