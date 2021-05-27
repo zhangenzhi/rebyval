@@ -120,9 +120,6 @@ class SurrogateTrainer(BaseTrainer):
     def during_train(self):
 
         try:
-            # import pdb
-            # pdb.set_trace()
-
             x = self.train_iter.get_next()
 
         except:
@@ -177,6 +174,22 @@ class SurrogateTrainer(BaseTrainer):
                 flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
             flat_vars = tf.concat(flat_vars, axis=1)
             flat_input = {'inputs': flat_vars}
+        elif self.preprocess['name'] == 'l2_sum_reduce':
+            flat_vars = []
+            for feat, tensor in x_valid.items():
+                axis = tensor.shape.rank - 1
+                if feat in ['vars_0', 'vars_1']:
+                    axis = list(range(axis))
+                    axis = [i + 1 for i in axis]
+                    if len(axis) == 2:
+                        compressed_tensor = tf.norm(tensor, axis=axis)
+                    else:
+                        compressed_tensor = tf.norm(tensor, axis=axis[0])
+                else:
+                    compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+                flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
+            flat_vars = tf.concat(flat_vars, axis=1)
+            flat_input = {'inputs': flat_vars}
         else:
             flat_vars = []
             for feat, tensor in x_valid.items():
@@ -204,6 +217,22 @@ class SurrogateTrainer(BaseTrainer):
                 for feat, tensor in x_test.items():
                     axis = tensor.shape.rank - 1
                     compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+                    flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
+                flat_vars = tf.concat(flat_vars, axis=1)
+                flat_input = {'inputs': flat_vars}
+            elif self.preprocess['name'] == 'l2_sum_reduce':
+                flat_vars = []
+                for feat, tensor in x_test.items():
+                    axis = tensor.shape.rank - 1
+                    if feat in ['vars_0', 'vars_1']:
+                        axis = list(range(axis))
+                        axis = [i + 1 for i in axis]
+                        if len(axis) == 2:
+                            compressed_tensor = tf.norm(tensor, axis=axis)
+                        else:
+                            compressed_tensor = tf.norm(tensor, axis=axis[0])
+                    else:
+                        compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
                     flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
                 flat_vars = tf.concat(flat_vars, axis=1)
                 flat_input = {'inputs': flat_vars}
@@ -268,7 +297,7 @@ class SurrogateTrainer(BaseTrainer):
             print_error("train step error")
             raise
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_surrogate_l2_sum_reduce(self, inputs, labels):
         flat_vars = []
         for feat, tensor in inputs.items():
