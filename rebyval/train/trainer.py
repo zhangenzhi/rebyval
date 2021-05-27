@@ -243,11 +243,40 @@ class SurrogateTrainer(BaseTrainer):
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_surrogate_sum_reduce(self, inputs, labels):
         flat_vars = []
-        # import pdb
-        # pdb.set_trace()
         for feat, tensor in inputs.items():
             axis = tensor.shape.rank - 1
             compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+            flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
+        flat_vars = tf.concat(flat_vars, axis=1)
+        flat_input = {'inputs': flat_vars}
+
+        try:
+            with tf.GradientTape() as tape:
+                # import pdb
+                # pdb.set_trace()
+                predictions = self.model(flat_input, training=True)
+                loss = self.metrics['loss_fn'](labels, predictions)
+
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+            self.metrics['train_loss'](loss)
+        except:
+            print_error("train step error")
+            raise
+
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step_surrogate_l2_sum_reduce(self, inputs, labels):
+        flat_vars = []
+        for feat, tensor in inputs.items():
+            axis = tensor.shape.rank - 1
+            import pdb
+            pdb.set_trace()
+            if feat in ['vars_0','vars_1']:
+                compressed_tensor = tf.norm(tensor,axis=axis)
+            else:
+                compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
             flat_vars.append(tf.reshape(compressed_tensor, shape=(tensor.shape[0], -1)))
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
