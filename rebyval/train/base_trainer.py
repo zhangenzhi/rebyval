@@ -448,8 +448,8 @@ class BaseTrainer:
         # collect analyse data
         if self.valid_args.get('analyse'):
             self.during_value_dict['vars'] = self.model.trainable_variables
-            self.during_value_dict['train_loss'] = self.metrics['train_loss'].result().numpy()
-            self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result().numpy()
+            self.during_value_dict['train_loss'] = self.metrics['train_loss'].result()
+            self.during_value_dict['valid_loss'] = self.metrics['valid_loss'].result()
             self._write_analyse_to_tfrecord()
 
         write_log(self.valid_args['log_file'], valid_msg)
