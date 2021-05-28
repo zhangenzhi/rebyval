@@ -79,7 +79,7 @@ experiment:
       metric: MeanSquaredLogarithmicError
     train_loop_control:
       preprocess:
-        name: sum_reduce # l2_sum_reduce,sum_reduce,normal
+        name: normal # l2_sum_reduce, sum_reduce, normal
       train:
         check_should_train: True
         max_training_steps: 100000 # default inf

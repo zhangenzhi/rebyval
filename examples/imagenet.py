@@ -25,6 +25,6 @@ if __name__ == '__main__':
         return [ds_train, ds_test], ds_info
 
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=1024)
-    import pdb
-    pdb.set_trace()
-    ds_train.take(10)
+    # import pdb
+    # pdb.set_trace()
+    # ds_train.take(10)
