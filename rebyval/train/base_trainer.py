@@ -448,7 +448,10 @@ class BaseTrainer:
         write_log(self.valid_args['log_file'], time_msg)
 
     def check_should_valid(self) -> bool:
-        return self.test_args['check_should_test']
+        if 'check_should_valid' in self.valid_args:
+            return self.train_args['check_should_valid']
+        else:
+            return True
 
     def valid_stop_condition(self):
         return self.valid_step >= self.valid_args['valid_steps']
