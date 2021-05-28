@@ -598,8 +598,6 @@ class BaseTrainer:
                     compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
                     model_vars.append(tf.reshape(compressed_tensor, shape=(-1)))
                 model_vars = tf.concat(model_vars, axis=0)
-                import pdb
-                pdb.set_trace()
                 value = tf.io.serialize_tensor(model_vars).numpy()
                 feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
