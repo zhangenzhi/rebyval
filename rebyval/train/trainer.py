@@ -291,7 +291,7 @@ class SurrogateTrainer(BaseTrainer):
                 pdb.set_trace()
                 if self.args['model'].get('regularizer'):
                     re_loss = tf.constant(0.0)
-                    for layer in self.model.deep_layers:
+                    for layer in self.model.dnn_layer:
                         re_loss += tf.math.reduce_sum(layer.losses)
                     loss += re_loss
 
