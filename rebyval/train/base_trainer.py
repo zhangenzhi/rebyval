@@ -309,9 +309,15 @@ class BaseTrainer:
 
         # dataset train, valid
         self.epoch = 0
-        self.train_iter = iter(self.train_dataset)
-        self.valid_iter = iter(self.valid_dataset)
-        self.test_iter = iter(self.test_dataset)
+        if 'check_should_train' in self.train_args :
+            if self.train_args['check_should_train'] ==True:
+                self.train_iter = iter(self.train_dataset)
+        if 'check_should_valid' in self.valid_args :
+            if self.valid_args['check_should_valid'] ==True:
+                self.valid_iter = iter(self.valid_dataset)
+        if 'check_should_test' in self.test_args :
+            if self.test_args['check_should_test'] ==True:
+                self.test_iter = iter(self.test_dataset)
 
         # log collection flags
         self.init_step = self.global_step
