@@ -134,6 +134,7 @@ class DnnWeightsLoader(BaseDataLoader):
                 raise ('no files included.')
 
         print(len(train_filelist), train_filelist)
+        print(len(test_filelist), test_filelist)
 
         train_dataset_size = int(len(train_filelist) * 1000 * 0.80 / self.dataloader_args['batch_size'])
 
