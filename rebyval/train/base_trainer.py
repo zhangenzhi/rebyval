@@ -224,6 +224,8 @@ class BaseTrainer:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
+                import pdb
+                pdb.set_trace()
                 if self.args['model'].get('regularizer'):
                     import pdb
                     pdb.set_trace()
