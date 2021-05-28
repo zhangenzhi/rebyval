@@ -65,9 +65,9 @@ experiment:
       activations_for_all: relu,relu,relu,relu,softplus
 #      deep_dims: '1'
 #      activations_for_all: softplus
-      restore_model:
-        restore_model_dir: surroagte/001
-        restore_from: model_best # or best, default None
+#      restore_model:
+#        restore_model_dir: surroagte/001
+#        restore_from: model_best # or best, default None
     optimizer:
       name: SGD
       learning_rate: 0.01
@@ -81,11 +81,11 @@ experiment:
       preprocess:
         name: sum_reduce # l2_sum_reduce,sum_reduce,normal
       train:
-        check_should_train: False
+        check_should_train: True
         max_training_steps: 100000 # default inf
         max_training_epochs: 100 # default inf
       valid:
-        check_should_valid: False # default False for no validation step
+        check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         log_path: ./log/surrogate/SR_layer5_nbz1024ds50_sgd001_10w
