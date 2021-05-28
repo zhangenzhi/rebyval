@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 1 # train 10 taget model and collect validation weight.
+      target_model_samples: 99 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 0
     main_loop_times: 0
 
@@ -49,7 +49,7 @@ experiment:
           save_after_step: 1000 # save latest and best model per 1000 steps
       test:
         test_steps: 50
-        check_should_test: True # default False for no test step
+        check_should_test: False # default False for no test step
 
   surrogate_trainer:
     dataloader:
