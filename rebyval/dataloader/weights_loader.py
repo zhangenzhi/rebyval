@@ -1,3 +1,4 @@
+import random
 import tensorflow as tf
 from rebyval.dataloader.utils import glob_tfrecords
 from rebyval.dataloader.base_dataloader import BaseDataLoader
@@ -125,10 +126,10 @@ class DnnWeightsLoader(BaseDataLoader):
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
 
-        train_filelist = []
+        train_filelist = test_filelist = []
         if self.dataloader_args.get('sample_of_curves'):
-            total_curves = len(filelist)
-            train_filelist = filelist[int(total_curves - self.dataloader_args['sample_of_curves']):]
+            train_filelist = random.sample(filelist, self.dataloader_args['sample_of_curves'])
+            test_filelist = [f for f in filelist if f not in train_filelist]
             if train_filelist == []:
                 raise ('no files included.')
 
@@ -141,17 +142,18 @@ class DnnWeightsLoader(BaseDataLoader):
                                                                   num_trainable_variables=self.dataloader_args[
                                                                       'num_trainable_variables'])
 
-            extra_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
-                                                                    num_trainable_variables=self.dataloader_args[
-                                                                        'num_trainable_variables'])
+            test_dataset = self._load_analyse_tensor_from_tfrecord(filelist=test_filelist,
+                                                                   num_trainable_variables=self.dataloader_args[
+                                                                       'num_trainable_variables'])
 
         elif format == 'numpy':
             fulldataset = self._load_analyse_numpy_from_tfrecord(filelist=train_filelist,
                                                                  num_trainable_variables=self.dataloader_args[
                                                                      'num_trainable_variables'])
-            extra_dataset = self._load_analyse_numpy_from_tfrecord(filelist=filelist,
-                                                                   num_trainable_variables=self.dataloader_args[
-                                                                       'num_trainable_variables'])
+
+            test_dataset = self._load_analyse_numpy_from_tfrecord(filelist=test_filelist,
+                                                                  num_trainable_variables=self.dataloader_args[
+                                                                      'num_trainable_variables'])
         else:
             raise ("no such data format")
 
@@ -159,6 +161,5 @@ class DnnWeightsLoader(BaseDataLoader):
 
         train_dataset = fulldataset.take(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
         valid_dataset = fulldataset.skip(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
-        test_dataset = extra_dataset
 
         return train_dataset.repeat(-1), valid_dataset.repeat(-1), test_dataset
