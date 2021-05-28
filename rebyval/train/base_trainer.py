@@ -242,7 +242,7 @@ class BaseTrainer:
             print_error("valid step error")
             raise
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=False)

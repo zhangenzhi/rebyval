@@ -126,32 +126,42 @@ class DnnWeightsLoader(BaseDataLoader):
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
 
-        train_filelist = test_filelist = []
+        train_filelist = valid_filelist = test_filelist = []
         if self.dataloader_args.get('sample_of_curves'):
-            # train_filelist = random.sample(filelist, self.dataloader_args['sample_of_curves'])
-            train_filelist = filelist[(len(filelist)-self.dataloader_args['sample_of_curves']):]
+
+            train_filelist = filelist[(len(filelist) - self.dataloader_args['sample_of_curves']):]
             test_filelist = [f for f in filelist if f not in train_filelist]
+            valid_filelist = random.sample(test_filelist, int(self.dataloader_args['sample_of_curves'] * 0.2))
+
             if train_filelist == []:
                 raise ('no files included.')
 
         print(len(train_filelist), train_filelist)
+        print(len(valid_filelist), valid_filelist)
         print(len(test_filelist), test_filelist)
 
-        train_dataset_size = int(len(train_filelist) * 1000 * 0.80 / self.dataloader_args['batch_size'])
 
         if format == 'tensor':
-            fulldataset = self._load_analyse_tensor_from_tfrecord(filelist=train_filelist,
+            train_dataset = self._load_analyse_tensor_from_tfrecord(filelist=train_filelist,
                                                                   num_trainable_variables=self.dataloader_args[
                                                                       'num_trainable_variables'])
+
+            valid_dataset = self._load_analyse_tensor_from_tfrecord(filelist=valid_filelist,
+                                                                   num_trainable_variables=self.dataloader_args[
+                                                                       'num_trainable_variables'])
 
             test_dataset = self._load_analyse_tensor_from_tfrecord(filelist=test_filelist,
                                                                    num_trainable_variables=self.dataloader_args[
                                                                        'num_trainable_variables'])
 
         elif format == 'numpy':
-            fulldataset = self._load_analyse_numpy_from_tfrecord(filelist=train_filelist,
+            train_dataset = self._load_analyse_numpy_from_tfrecord(filelist=train_filelist,
                                                                  num_trainable_variables=self.dataloader_args[
                                                                      'num_trainable_variables'])
+
+            valid_dataset = self._load_analyse_numpy_from_tfrecord(filelist=valid_filelist,
+                                                                  num_trainable_variables=self.dataloader_args[
+                                                                      'num_trainable_variables'])
 
             test_dataset = self._load_analyse_numpy_from_tfrecord(filelist=test_filelist,
                                                                   num_trainable_variables=self.dataloader_args[
@@ -159,9 +169,7 @@ class DnnWeightsLoader(BaseDataLoader):
         else:
             raise ("no such data format")
 
-        # fulldataset = fulldataset.shuffle(len(filelist) * 10)
+        train_dataset = train_dataset.shuffle(len(train_filelist) * 10).cache().repeat(-1)
+        valid_dataset = valid_dataset.cache().repeat(-1)
 
-        train_dataset = fulldataset.take(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
-        valid_dataset = fulldataset.skip(train_dataset_size).shuffle(len(train_filelist) * 10).cache()
-
-        return train_dataset.repeat(-1), valid_dataset.repeat(-1), test_dataset
+        return train_dataset, valid_dataset, test_dataset
