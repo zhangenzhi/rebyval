@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      target_model_samples: 1 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 0
     main_loop_times: 0
 
@@ -38,10 +38,10 @@ experiment:
         max_training_epochs: 100 # default 10
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 100 # default 1000 training steps
+        valid_gap: 10 # default 1000 training steps
         valid_steps: 10 # default valid for 100 steps
         analyse:
-            format: tensor #tensor
+            format: tensor_sum_reduce #tensor,numpy,tensor_sum_reduce
         partition: 5
         log_path: ./log
         save_model:
