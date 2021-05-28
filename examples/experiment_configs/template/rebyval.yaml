@@ -57,12 +57,12 @@ experiment:
       datapath: ./log/analyse
       sample_of_curves: 50
       format: tensor
-      batch_size: 2048
+      batch_size: 1024
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 256,128,64,32,1
-      activations_for_all: relu,relu,relu,relu,softplus
+      deep_dims: 64,32,1
+      activations_for_all: relu,relu,softplus
 #      deep_dims: '1'
 #      activations_for_all: softplus
 #      restore_model:
@@ -79,7 +79,7 @@ experiment:
       metric: MeanSquaredLogarithmicError
     train_loop_control:
       preprocess:
-        name: normal # l2_sum_reduce, sum_reduce, normal
+        name: sum_reduce # l2_sum_reduce, sum_reduce, normal
       train:
         check_should_train: True
         max_training_steps: 100000 # default inf
@@ -88,7 +88,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 100 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/layer5_nbz1024ds50_sgd001_10w
+        log_path: ./log/surrogate/SR_layer3_nbz1024ds50_sgd001_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
