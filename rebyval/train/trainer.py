@@ -287,8 +287,8 @@ class SurrogateTrainer(BaseTrainer):
                 # pdb.set_trace()
                 predictions = self.model(flat_input, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
-                import pdb
-                pdb.set_trace()
+                # import pdb
+                # pdb.set_trace()
                 if self.args['model'].get('regularizer'):
                     re_loss = tf.constant(0.0)
                     for layer in self.model.dnn_layer:
