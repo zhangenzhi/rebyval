@@ -247,6 +247,7 @@ class BaseTrainer:
         try:
             predictions = self.model(inputs, training=False)
             t_loss = self.metrics['loss_fn'](labels, predictions)
+            print(t_loss.numpy())
             self.metrics['test_loss'](t_loss)
             return predictions
         except:

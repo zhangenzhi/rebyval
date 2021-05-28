@@ -128,7 +128,8 @@ class DnnWeightsLoader(BaseDataLoader):
 
         train_filelist = test_filelist = []
         if self.dataloader_args.get('sample_of_curves'):
-            train_filelist = random.sample(filelist, self.dataloader_args['sample_of_curves'])
+            # train_filelist = random.sample(filelist, self.dataloader_args['sample_of_curves'])
+            train_filelist = filelist[(len(filelist)-self.dataloader_args['sample_of_curves']):]
             test_filelist = [f for f in filelist if f not in train_filelist]
             if train_filelist == []:
                 raise ('no files included.')
