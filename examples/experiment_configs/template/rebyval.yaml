@@ -63,6 +63,7 @@ experiment:
       name: dnn # default dnn
       deep_dims: 64,32,1
       activations_for_all: sigmoid,sigmoid,softplus
+      regularizer: 'l2'
 #      deep_dims: '1'
 #      activations_for_all: softplus
 #      restore_model:

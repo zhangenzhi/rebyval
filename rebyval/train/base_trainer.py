@@ -83,7 +83,11 @@ class BaseTrainer:
         if model_args['name'] == 'dnn':
             deep_dims = list(map(lambda x: float(x), model_args['deep_dims'].split(',')))
             activations = list(map(lambda x: str(x), model_args['activations_for_all'].split(',')))
-            model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations)
+            if model_args.get('regularizer'):
+                regularizer = model_args['regularizer']
+            else:
+                regularizer = None
+            model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations, regularizer=regularizer)
         else:
             print_error("no such model: {}".format(model_args['name']))
             raise ("no such model")
@@ -214,13 +218,19 @@ class BaseTrainer:
                                 overwrite=True,
                                 save_format='tf')
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
-
+                if self.args['model'].get('regularizer'):
+                    import pdb
+                    pdb.set_trace()
+                    re_loss = tf.constant(0.0)
+                    for layer in self.model.deep_layers:
+                        re_loss += tf.math.reduce_sum(layer.losses)
+                    loss += re_loss
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
@@ -308,14 +318,14 @@ class BaseTrainer:
 
         # dataset train, valid
         self.epoch = 0
-        if 'check_should_train' in self.train_args :
-            if self.train_args['check_should_train'] ==True:
+        if 'check_should_train' in self.train_args:
+            if self.train_args['check_should_train'] == True:
                 self.train_iter = iter(self.train_dataset)
-        if 'check_should_valid' in self.valid_args :
-            if self.valid_args['check_should_valid'] ==True:
+        if 'check_should_valid' in self.valid_args:
+            if self.valid_args['check_should_valid'] == True:
                 self.valid_iter = iter(self.valid_dataset)
-        if 'check_should_test' in self.test_args :
-            if self.test_args['check_should_test'] ==True:
+        if 'check_should_test' in self.test_args:
+            if self.test_args['check_should_test'] == True:
                 self.test_iter = iter(self.test_dataset)
 
         # log collection flags
