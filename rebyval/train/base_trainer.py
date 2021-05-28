@@ -630,7 +630,7 @@ class BaseTrainer:
         if self.valid_args['analyse']['format'] == 'tensor':
             example = self._during_train_vars_tensor_example()
         elif self.valid_args['analyse']['format'] == 'tensor_sum_reduce':
-            example = self._during_train_vars_tensor_example()
+            example = self._during_train_vars_tensor_sum_reduce_example()
         else:
             example = self._during_train_vars_numpy_example()
 
