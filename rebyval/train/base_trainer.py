@@ -218,21 +218,12 @@ class BaseTrainer:
                                 overwrite=True,
                                 save_format='tf')
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
-                import pdb
-                pdb.set_trace()
-                if self.args['model'].get('regularizer'):
-                    import pdb
-                    pdb.set_trace()
-                    re_loss = tf.constant(0.0)
-                    for layer in self.model.deep_layers:
-                        re_loss += tf.math.reduce_sum(layer.losses)
-                    loss += re_loss
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
