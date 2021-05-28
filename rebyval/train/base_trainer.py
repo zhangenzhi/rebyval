@@ -449,7 +449,7 @@ class BaseTrainer:
 
     def check_should_valid(self) -> bool:
         if 'check_should_valid' in self.valid_args:
-            return self.train_args['check_should_valid']
+            return self.valid_args['check_should_valid']
         else:
             return True
 
