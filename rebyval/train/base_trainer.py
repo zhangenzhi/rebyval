@@ -602,6 +602,8 @@ class BaseTrainer:
                 feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
             else:
+                import pdb
+                pdb.set_trace()
                 value = [value.numpy()]
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
         return tf.train.Example(features=tf.train.Features(feature=feature))
