@@ -57,7 +57,7 @@ experiment:
       datapath: ./log/analyse
       sample_of_curves: 70
       format: tensor_sum_reduce
-      batch_size: 1024
+      batch_size: 2048
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
@@ -74,7 +74,7 @@ experiment:
       learning_rate: 0.01
       scheduler:
         name: linear_scaling_with_warmup # default None
-        scaling_factor: 1
+        scaling_factor: 4
     loss:
       name: MeanSquaredError
       metric: MeanSquaredLogarithmicError
