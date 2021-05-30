@@ -61,11 +61,11 @@ experiment:
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-#      deep_dims: 8,4,1
-#      activations_for_all: sigmoid,sigmoid,softplus
+      deep_dims: 8,4,1
+      activations_for_all: sigmoid,sigmoid,softplus
 #      regularizer: 'l2'
-      deep_dims: '1'
-      activations_for_all: softplus
+#      deep_dims: '1'
+#      activations_for_all: softplus
 #      restore_model:
 #        restore_model_dir: surroagte/001
 #        restore_from: model_best # or best, default None
