@@ -55,13 +55,13 @@ experiment:
     dataloader:
       name: dnn_weights
       datapath: ./log/analyse
-      sample_of_curves: 70
+      sample_of_curves: 90
       format: tensor_sum_reduce
-      batch_size: 2048
+      batch_size: 1024
       num_trainable_variables: 10
     model:
       name: dnn # default dnn
-      deep_dims: 128,64,32,1
+      deep_dims: 64,32,1
       activations_for_all: sigmoid,sigmoid,sigmoid,softplus
 #      regularizer: 'l2'
 #      deep_dims: '1'
@@ -89,7 +89,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/nSR_layer4_nbz2048ds70_sgd001ls4_10w
+        log_path: ./log/surrogate/nSR_layer3_nbz1024ds90_sgd001ls4_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
