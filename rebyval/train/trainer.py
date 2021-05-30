@@ -134,7 +134,8 @@ class SurrogateTrainer(BaseTrainer):
                 raise
 
         y = x.pop('valid_loss')
-        x.pop('vars_length')
+        if x.get('vars_length'):
+            x.pop('vars_length')
         x.pop('train_loss')
 
         try:
@@ -164,7 +165,8 @@ class SurrogateTrainer(BaseTrainer):
 
         y_valid = x_valid.pop('valid_loss')
         x_valid.pop('train_loss')
-        x_valid.pop('vars_length')
+        if x_valid.get('vars_length'):
+            x_valid.pop('vars_length')
 
         if self.preprocess['name'] == 'sum_reduce':
             flat_vars = []
@@ -211,7 +213,8 @@ class SurrogateTrainer(BaseTrainer):
             x_test = self.test_iter.get_next()
             y_test = x_test.pop('valid_loss')
             x_test.pop('train_loss')
-            x_test.pop('vars_length')
+            if x_test.get('vars_length'):
+                x_test.pop('vars_length')
             if self.preprocess['name'] == 'sum_reduce':
                 flat_vars = []
                 for feat, tensor in x_test.items():
