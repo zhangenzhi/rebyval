@@ -181,7 +181,7 @@ class DnnWeightsLoader(BaseDataLoader):
 
             train_filelist = filelist[(len(filelist) - self.dataloader_args['sample_of_curves']):]
             test_filelist = [f for f in filelist if f not in train_filelist]
-            valid_filelist = random.sample(test_filelist, int(self.dataloader_args['sample_of_curves'] * 0.2))
+            valid_filelist = random.sample(test_filelist, 5)
             test_filelist = valid_filelist
 
             if train_filelist == []:
