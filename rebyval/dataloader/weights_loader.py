@@ -174,6 +174,9 @@ class DnnWeightsLoader(BaseDataLoader):
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
 
+        import pdb
+        pdb.set_trace()
+
         train_filelist = valid_filelist = test_filelist = []
         if self.dataloader_args.get('sample_of_curves'):
 
