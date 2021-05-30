@@ -105,7 +105,9 @@ class DnnWeightsLoader(BaseDataLoader):
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:
-                    parsed_single_example = tf.io.parse_tensor(example[feat], out_type=tf.float32)
+                    parsed_single_example = []
+                    for i in range(self.dataloader_args['batch_size']):
+                        parsed_single_example.append(tf.io.parse_tensor(example[feat][i], out_type=tf.float32))
                     parsed_example[feat] = parsed_single_example
                 else:
                     parsed_example[feat] = example[feat]
@@ -174,9 +176,6 @@ class DnnWeightsLoader(BaseDataLoader):
         filelist = glob_tfrecords(
             self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
 
-        import pdb
-        pdb.set_trace()
-
         train_filelist = valid_filelist = test_filelist = []
         if self.dataloader_args.get('sample_of_curves'):
 
@@ -228,5 +227,8 @@ class DnnWeightsLoader(BaseDataLoader):
 
         train_dataset = train_dataset.shuffle(len(train_filelist) * 10).cache().repeat(-1)
         valid_dataset = valid_dataset.cache().repeat(-1)
+
+        import pdb
+        pdb.set_trace()
 
         return train_dataset, valid_dataset, test_dataset
