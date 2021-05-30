@@ -69,11 +69,11 @@ class BaseController:
             target_trainer.run_with_weights_collect()
 
         # TODO: add validation for training surrogate model
-        # try:
-        #     valid_weights_pool(self.surrogate_trainer.args)
-        # except:
-        #     print_error("No weights in the pool")
-        #     raise
+        try:
+            valid_weights_pool(self.surrogate_trainer.args)
+        except:
+            print_error("No weights in the pool")
+            raise
 
         self.surrogate_trainer.run()
 
