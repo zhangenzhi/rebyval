@@ -71,7 +71,7 @@ experiment:
 #        restore_from: model_best # or best, default None
     optimizer:
       name: SGD
-      learning_rate: 0.01
+      learning_rate: 0.001
       scheduler:
         name: linear_scaling_with_warmup # default None
         scaling_factor: 1
@@ -87,7 +87,7 @@ experiment:
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
-        valid_gap: 100 # default 1000 training steps
+        valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
         log_path: ./log/surrogate/nSR_layer6_nbz1024ds90_sgd001_10w
         save_model:
