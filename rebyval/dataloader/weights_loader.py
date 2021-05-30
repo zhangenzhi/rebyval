@@ -228,7 +228,5 @@ class DnnWeightsLoader(BaseDataLoader):
         train_dataset = train_dataset.shuffle(len(train_filelist) * 10).cache().repeat(-1)
         valid_dataset = valid_dataset.cache().repeat(-1)
 
-        import pdb
-        pdb.set_trace()
 
         return train_dataset, valid_dataset, test_dataset

@@ -247,13 +247,17 @@ class SurrogateTrainer(BaseTrainer):
         except:
             self.test_flag = False
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step_surrogate(self, inputs, labels):
         flat_vars = []
         for feat, tensor in inputs.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
+
+        import pdb
+        pdb.set_trace()
+
 
         try:
             with tf.GradientTape() as tape:
