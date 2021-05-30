@@ -62,7 +62,7 @@ experiment:
     model:
       name: dnn # default dnn
       deep_dims: 1024,512,256,64,1
-      activations_for_all: sigmoid,sigmoid,sigmoid,sigmoid,softplus
+      activations_for_all: relu,relu,relu,relu,softplus
 #      regularizer: 'l2'
 #      deep_dims: '1'
 #      activations_for_all: softplus
@@ -83,7 +83,7 @@ experiment:
         name: normal # l2_sum_reduce, sum_reduce, normal,normal_sr
       train:
         check_should_train: True
-        max_training_steps: 100000 # default inf
+        max_training_steps: 1000000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
