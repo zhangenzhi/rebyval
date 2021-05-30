@@ -76,7 +76,7 @@ class DnnWeightsLoader(BaseDataLoader):
             analyse_feature = {
                 'train_loss': {"type": 'value', "length": 1, "dtype": tf.float32},
                 'valid_loss': {"type": 'value', "length": 1, "dtype": tf.float32},
-                'model_vars': {"type": 'string', "length": 1, "dtype": tf.string},
+                'vars': {"type": 'string', "length": 1, "dtype": tf.string},
             }
         analyse_feature_describs = {}
         for feature, info in analyse_feature.items():
