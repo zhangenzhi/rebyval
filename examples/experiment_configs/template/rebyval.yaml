@@ -71,7 +71,7 @@ experiment:
 #        restore_from: model_best # or best, default None
     optimizer:
       name: SGD
-      learning_rate: 0.1
+      learning_rate: 0.01
       scheduler:
         name: linear_scaling_with_warmup # default None
         scaling_factor: 1
