@@ -21,7 +21,7 @@ def get_conv_target_net():
         tf.keras.layers.Dense(1000, activation='softmax')
     ])
 
-    optimizer = tf.keras.optimizers.Adam(0.001)
+    optimizer = tf.keras.optimizers.SGD(0.001)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
@@ -40,19 +40,17 @@ if __name__ == '__main__':
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
                                                  batch_size = batch_size, as_supervised=True, with_info=True)
 
-        # ds_train = prepare_training(ds_train, batch_size)
-        # ds_test = prepare_test(ds_test, batch_size)
-        def normaliz_img(image,label):
-            return tf.cast(image,tf.float32)/255.,label
-
         resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256,256),
                                                   layers.experimental.preprocessing.Rescaling(1./255.)])
 
         ds_train = ds_train.map(lambda x,y: (resize_and_rescale(x),y),num_parallel_calls=tf.data.AUTOTUNE)
+        ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
+
         ds_test = ds_test.map(lambda x,y: (resize_and_rescale(x),y),num_parallel_calls=tf.data.AUTOTUNE)
+        ds_test = ds_test.prefetch(tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=32)
+    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=256)
 
 
     model = get_conv_target_net()
