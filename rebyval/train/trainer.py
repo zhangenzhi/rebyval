@@ -165,7 +165,7 @@ class SurrogateTrainer(BaseTrainer):
 
         y_valid = x_valid.pop('valid_loss')
         x_valid.pop('train_loss')
-        if x_valid.get('vars_length'):
+        if 'vars_length' in x_valid.keys():
             x_valid.pop('vars_length')
 
         if self.preprocess['name'] == 'sum_reduce':
@@ -213,7 +213,7 @@ class SurrogateTrainer(BaseTrainer):
             x_test = self.test_iter.get_next()
             y_test = x_test.pop('valid_loss')
             x_test.pop('train_loss')
-            if x_test.get('vars_length'):
+            if 'vars_length' in x_test.keys():
                 x_test.pop('vars_length')
             if self.preprocess['name'] == 'sum_reduce':
                 flat_vars = []
