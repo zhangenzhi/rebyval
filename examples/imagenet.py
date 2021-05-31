@@ -48,7 +48,6 @@ if __name__ == '__main__':
         resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256, 256),
                                                   layers.experimental.preprocessing.Rescaling(1. / 255.)])
 
-        ds_train = ds_train.interleave()
         ds_train = ds_train.map(lambda x, y: (resize_and_rescale(x), y), num_parallel_calls=tf.data.AUTOTUNE)
         ds_train = ds_train.cache()
         ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
