@@ -31,11 +31,14 @@ if __name__ == '__main__':
 
     # ds_train.take(10)
 
+
+    # model = tf.keras.model.S
+    # ResNet50
     net = ResNet50()
     train_iter = iter(ds_train)
     for _ in range(10):
         import pdb
         pdb.set_trace()
         x = train_iter.get_next()
-
-    net(x)
+    #
+    # net(x)
