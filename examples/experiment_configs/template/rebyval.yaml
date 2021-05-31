@@ -39,7 +39,7 @@ experiment:
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 10 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
+        valid_steps: 10 # default valid for 100 steps
         analyse:
             format: tensor_sum_reduce_l2 #tensor,numpy,tensor_sum_reduce
         partition: 5
