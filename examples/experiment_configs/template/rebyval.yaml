@@ -63,7 +63,7 @@ experiment:
       name: dnn # default dnn
       deep_dims: 1024,1024,1024,512,256,64,1
       activations_for_all: relu,relu,relu,relu,relu,relu,softplus
-#      regularizer: 'l2'
+      regularizer: 'l2'
 #      deep_dims: '1'
 #      activations_for_all: softplus
 #      restore_model:
@@ -83,13 +83,13 @@ experiment:
         name: normal # l2_sum_reduce, sum_reduce, normal, normal_sr
       train:
         check_should_train: True
-        max_training_steps: 1000000 # default inf
+        max_training_steps: 100000 # default inf
         max_training_epochs: 100 # default inf
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/surrogate/nSR_layer7relu_nbz1024ds150_sgd001_10w
+        log_path: ./log/surrogate/nSR_layer7relu_nbz1024ds150_sgd001l2_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
           save_after_step: 1000 # save latest and best model per 1000 steps
