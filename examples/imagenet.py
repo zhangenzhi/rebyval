@@ -30,8 +30,9 @@ if __name__ == '__main__':
 
     net = ResNet50()
     train_iter = iter(ds_train)
-    x = train_iter.get_next()
-    import pdb
-    pdb.set_trace()
+    for _ in range(10):
+        import pdb
+        pdb.set_trace()
+        x = train_iter.get_next()
 
     net(x)
