@@ -88,7 +88,7 @@ experiment:
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
+        valid_steps: 300 # default valid for 100 steps
         log_path: ./log/surrogate/nSR_layer6relu_nbz256ds150_sgd001_10w
         save_model:
           save_in: surroagte/001 # or name as your wish, default None
