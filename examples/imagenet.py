@@ -5,6 +5,7 @@ import logging
 
 import tensorflow as tf
 import tensorflow_datasets as tfds
+from tensorflow.keras import layers
 from rebyval.model.resnet import ResNet50
 
 def get_conv_target_net():
@@ -43,8 +44,12 @@ if __name__ == '__main__':
         # ds_test = prepare_test(ds_test, batch_size)
         def normaliz_img(image,label):
             return tf.cast(image,tf.float32)/255.,label
-        ds_train = ds_train.map(normaliz_img,num_parallel_calls=tf.data.AUTOTUNE)
-        ds_test = ds_test.map(normaliz_img, num_parallel_calls=tf.data.AUTOTUNE)
+
+        resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256,256),
+                                                  layers.experimental.preprocessing.Rescaling(1./255.)])
+
+        ds_train = ds_train.map(lambda x,y: (resize_and_rescale(x),y),num_parallel_calls=tf.data.AUTOTUNE)
+        ds_test = ds_test.map(lambda x,y: (resize_and_rescale(x),y),num_parallel_calls=tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=32)
