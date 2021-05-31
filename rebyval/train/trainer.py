@@ -134,6 +134,8 @@ class SurrogateTrainer(BaseTrainer):
                 raise
 
         y = x.pop('valid_loss')
+        import pdb
+        pdb.set_trace()
         if x.get('vars_length'):
             x.pop('vars_length')
         x.pop('train_loss')
