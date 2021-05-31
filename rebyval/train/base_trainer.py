@@ -606,6 +606,28 @@ class BaseTrainer:
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
+    def _during_train_tensor_sum_reduce_with_l2_example(self):
+        feature = {}
+        for feature_name, value in self.during_value_dict.items():
+            if isinstance(value, list):
+                model_vars = []
+
+                # drop weights of first layer
+                value = value[2:]
+
+                for tensor in value:
+                    axis = tensor.shape.rank - 1
+                    compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
+                    model_vars.append(tf.reshape(compressed_tensor, shape=(-1)))
+                model_vars = tf.concat(model_vars, axis=0)
+                value = tf.io.serialize_tensor(model_vars).numpy()
+                feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+            else:
+                value = [value.numpy()]
+                feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
+        return tf.train.Example(features=tf.train.Features(feature=feature))
+
     def _during_train_vars_numpy_example(self):
         feature = {}
         for feature_name, value in self.during_value_dict.items():
@@ -629,6 +651,8 @@ class BaseTrainer:
             example = self._during_train_vars_tensor_example()
         elif self.valid_args['analyse']['format'] == 'tensor_sum_reduce':
             example = self._during_train_vars_tensor_sum_reduce_example()
+        elif self.valid_args['analyse']['format'] == 'tensor_sum_reduce_l2':
+            example = self._during_train_tensor_sum_reduce_with_l2_example()
         else:
             example = self._during_train_vars_numpy_example()
 

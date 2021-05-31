@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_stage:
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      target_model_samples: 100 # train 10 taget model and collect validation weight.
     target_samples_per_iter: 0
     main_loop_times: 0
 
@@ -39,9 +39,9 @@ experiment:
       valid:
         check_should_valid: True # default False for no validation step
         valid_gap: 10 # default 1000 training steps
-        valid_steps: 10 # default valid for 100 steps
+        valid_steps: 100 # default valid for 100 steps
         analyse:
-            format: tensor_sum_reduce #tensor,numpy,tensor_sum_reduce
+            format: tensor_sum_reduce_l2 #tensor,numpy,tensor_sum_reduce
         partition: 5
         log_path: ./log
         save_model:
@@ -63,7 +63,7 @@ experiment:
       name: dnn # default dnn
       deep_dims: 1024,1024,1024,512,256,64,1
       activations_for_all: relu,relu,relu,relu,relu,relu,softplus
-      regularizer: 'l2'
+#      regularizer: 'l2'
 #      deep_dims: '1'
 #      activations_for_all: softplus
 #      restore_model:
