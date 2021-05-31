@@ -42,7 +42,7 @@ if __name__ == '__main__':
         [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
                                                  batch_size=batch_size, as_supervised=True, with_info=True)
-        ds_train = ds_train.interleave(lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=16),
+        ds_train = ds_train.interleave(lambda x,y: (x,y),
                                        block_length=256,
                                        cycle_length=16,
                                        num_parallel_calls=16,
