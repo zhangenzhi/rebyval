@@ -27,7 +27,7 @@ if __name__ == '__main__':
         ds_train = ds_train.map(normaliz_img,num_parallel_calls=tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=1024)
+    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=256)
 
     # ds_train.take(10)
 
