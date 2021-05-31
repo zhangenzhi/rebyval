@@ -203,7 +203,7 @@ class DnnWeightsLoader(BaseDataLoader):
             test_dataset = self._load_analyse_tensor_from_tfrecord(filelist=test_filelist,
                                                                    num_trainable_variables=self.dataloader_args[
                                                                        'num_trainable_variables'])
-        elif format == 'tensor_sum_reduce':
+        elif format == 'tensor_sum_reduce' or format == 'tensor_sum_reduce_l2':
             train_dataset = self._load_analyse_tensor_sum_reduce_from_tfrecord(filelist=train_filelist)
 
             valid_dataset = self._load_analyse_tensor_sum_reduce_from_tfrecord(filelist=valid_filelist)
