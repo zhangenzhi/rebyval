@@ -18,10 +18,13 @@ if __name__ == '__main__':
     def load_ImageNet(ds_type, BASEDIR, batch_size):
         [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train','validation'],
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
-                                                 as_supervised=True, with_info=True)
+                                                 batch_size = batch_size, as_supervised=True, with_info=True)
 
         # ds_train = prepare_training(ds_train, batch_size)
         # ds_test = prepare_test(ds_test, batch_size)
+        def normaliz_img(image,label):
+            return tf.cast(image,tf.float32)/255.,label
+        ds_train = ds_train.map(normaliz_img,num_parallel_call=tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=1024)
