@@ -57,7 +57,7 @@ if __name__ == '__main__':
         return [ds_train, ds_test], ds_info
 
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=256)
+    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=64)
 
     model = get_conv_target_net()
     model.fit(ds_train, epochs=1, validation_data=ds_test)
