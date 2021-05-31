@@ -10,14 +10,14 @@ from rebyval.model.resnet import ResNet50
 def get_conv_target_net():
 
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu',input_shape=(None, None, 3)),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu',input_shape=(256, 256, 3)),
         tf.keras.layers.MaxPooling2D((2, 2)),
         tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
         tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(100, activation='softmax')
+        tf.keras.layers.Dense(1000, activation='softmax')
     ])
 
     optimizer = tf.keras.optimizers.Adam(0.001)
@@ -48,8 +48,6 @@ if __name__ == '__main__':
         return [ds_train, ds_test], ds_info
 
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name,BASEDIR=manual_dataset_dir,batch_size=32)
-
-    # ds_train.take(10)
 
 
     model = get_conv_target_net()
