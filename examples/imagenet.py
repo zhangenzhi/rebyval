@@ -39,14 +39,16 @@ if __name__ == '__main__':
     # tfds.list_builders()
     # tfds.load('mnist')
     def load_ImageNet(ds_type, BASEDIR, batch_size):
+        read_config = tfds.ReadConfig()
         [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
+                                                 read_config=read_config,
                                                  batch_size=batch_size, as_supervised=True, with_info=True)
-        ds_train = ds_train.interleave(lambda x,y: (x,y),
-                                       block_length=256,
-                                       cycle_length=16,
-                                       num_parallel_calls=16,
-                                       deterministic=False)
+        # ds_train = ds_train.interleave(lambda x,y: tf.data.TFRecordDataset(x),
+        #                                block_length=256,
+        #                                cycle_length=16,
+        #                                num_parallel_calls=16,
+        #                                deterministic=False)
 
         resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256, 256),
                                                   layers.experimental.preprocessing.Rescaling(1. / 255.)])
