@@ -225,7 +225,7 @@ class DnnWeightsLoader(BaseDataLoader):
         else:
             raise ("no such data format")
 
-        train_dataset = train_dataset.shuffle(len(train_filelist) * 10).cache().repeat(-1)
+        train_dataset = train_dataset.shuffle(len(train_filelist) * 100).cache().repeat(-1)
         valid_dataset = valid_dataset.cache().repeat(-1)
 
 
