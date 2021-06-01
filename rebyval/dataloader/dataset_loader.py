@@ -38,7 +38,7 @@ class ImageNetDataLoader(BaseDataLoader):
                 'width': {"type": 'value', "length": 1, "dtype": tf.int64},
                 'depth': {"type": 'value', "length": 1, "dtype": tf.int64},
                 'label': {"type": 'value', "length": 1, "dtype": tf.int64},
-                'image_raw': {"type": 'value', "length": 1, "dtype": tf.string},
+                'image_raw': {"type": 'var_value', "length": 1, "dtype": tf.string},
             }
 
         analyse_feature_describs = {}
@@ -52,6 +52,9 @@ class ImageNetDataLoader(BaseDataLoader):
                 analyse_feature_describs[feature + "_length"] = info_type
             elif info['type'] == 'value':
                 feature_type = tf.io.FixedLenFeature([], info["dtype"])
+                analyse_feature_describs[feature] = feature_type
+            elif info['type'] == 'var_value':
+                feature_type = tf.io.VarLenFeature(info["dtype"])
                 analyse_feature_describs[feature] = feature_type
             else:
                 raise ("no such type to describe")
