@@ -72,7 +72,7 @@ if __name__ == '__main__':
         x = train_iter.get_next()
         et = time.time()
         mean(et-st)
-        print("cost time: {},avg time: {}".format(et-st),mean.result())
+        print("cost time: {},avg time: {}".format(et-st,mean.result()))
     # model = get_conv_target_net()
     # model.fit(ds_train, epochs=1, validation_data=ds_test)
 
