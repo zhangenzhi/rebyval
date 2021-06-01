@@ -40,8 +40,8 @@ if __name__ == '__main__':
     # tfds.list_builders()
     # tfds.load('mnist')
     def load_ImageNet(ds_type, BASEDIR, batch_size):
-        read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=16,
-                                      num_parallel_calls_for_decode=16)
+        read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=32,
+                                      num_parallel_calls_for_decode=32)
         [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
                                                  read_config=read_config,
