@@ -45,8 +45,7 @@ def unpack_tarfile(input_dirs):
 
 
 def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
-    import pdb
-    pdb.set_trace()
+
 
     # generate label from meta data
     metadata = scipy_io.loadmat('./examples/dataset/imagenet/meta.mat')
@@ -55,6 +54,9 @@ def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
     for item in synsets_info:
         set_info = item[0]
         feature_dict[set_info[1][0]] = set_info[0][0][0]
+
+    import pdb
+    pdb.set_trace()
 
     # open imge.jpeg and save as tfrecord by 5000 a group
     synsets_file = os.listdir(input_dirs)
