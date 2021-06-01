@@ -49,7 +49,7 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
 def decode_image(image_raw, batch_size):
     decoded_image = []
     for i in range(batch_size):
-        decoded_image.append(tf.io.decode_image(image_raw[i], channel=3))
+        decoded_image.append(tf.io.decode_image(image_raw[i], channels=3))
     return decoded_image
 
 
