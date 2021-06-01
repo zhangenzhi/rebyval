@@ -50,6 +50,7 @@ def decode_image(image_raw, batch_size):
     decoded_image = []
     for i in range(batch_size):
         decoded_image.append(tf.io.decode_image(image_raw[i], channel=3))
+    return decoded_image
 
 
 if __name__ == '__main__':
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     for i in range(200):
         st = time.time()
         x = iter_train.get_next()
-        decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
+        decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
         et = time.time()
         if i != 0:
             mean_t(et - st)
