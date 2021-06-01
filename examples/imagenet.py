@@ -56,3 +56,10 @@ if __name__ == '__main__':
     dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
     train_dataset, _, _ = dataloader.load_dataset()
 
+    iter_train = iter(train_dataset)
+    mean_t = tf.keras.metrics.Mean(name="test_avg_time")
+    for _ in range(200):
+        st = time.time()
+        x, y = iter_train.get_next()
+        et = time.time()
+        print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
