@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
     # metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
-    dataloader_args = {'batch_size': 64,
+    dataloader_args = {'batch_size': 1024,
                        'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
                        'sample_of_curves': 250}
     dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
