@@ -60,6 +60,6 @@ if __name__ == '__main__':
     mean_t = tf.keras.metrics.Mean(name="test_avg_time")
     for _ in range(200):
         st = time.time()
-        x, y = iter_train.get_next()
+        x = iter_train.get_next()
         et = time.time()
         print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
