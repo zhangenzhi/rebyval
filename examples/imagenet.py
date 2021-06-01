@@ -11,6 +11,7 @@ from tensorflow.keras import layers
 from rebyval.model.resnet import ResNet50
 from rebyval.dataloader.utils import *
 
+
 def get_conv_target_net():
     model = tf.keras.models.Sequential([
         tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256, 3)),
@@ -30,6 +31,7 @@ def get_conv_target_net():
 
     return model
 
+
 def load_ImageNet(ds_type, BASEDIR, batch_size):
     read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=16,
                                   num_parallel_calls_for_decode=16)
@@ -45,6 +47,6 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
 if __name__ == '__main__':
     input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
     output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
-    metadata = convert_imagenet_to_tfrecords('../')
+    metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
     print(metadata)
