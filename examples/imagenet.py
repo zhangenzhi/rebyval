@@ -40,12 +40,12 @@ if __name__ == '__main__':
     # tfds.list_builders()
     # tfds.load('mnist')
     def load_ImageNet(ds_type, BASEDIR, batch_size):
-        read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=32,
-                                      num_parallel_calls_for_decode=32)
+        read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=16,
+                                      num_parallel_calls_for_decode=16)
         [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
-                                                 data_dir=BASEDIR, download=True, shuffle_files=True,
+                                                 data_dir=BASEDIR, download=False, shuffle_files=True,
                                                  read_config=read_config,
-                                                 batch_size=batch_size, as_supervised=True, with_info=True)
+                                                 batch_size=batch_size, as_supervised=False, with_info=True)
 
         resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256, 256),
                                                   layers.experimental.preprocessing.Rescaling(1. / 255.)])
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         return [ds_train, ds_test], ds_info
 
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=16)
+    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=32)
 
     train_iter = iter(ds_train)
     mean = tf.keras.metrics.Mean(name="avg_time")
