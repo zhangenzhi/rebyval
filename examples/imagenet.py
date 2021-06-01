@@ -8,7 +8,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras import layers
 from rebyval.model.resnet import ResNet50
-
+from rebyval.dataloader.utils import *
 
 def get_conv_target_net():
     model = tf.keras.models.Sequential([
@@ -58,17 +58,18 @@ if __name__ == '__main__':
         # ds_test = ds_test.prefetch(tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
+    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
+    unpack_tarfile(input_dirs)
+    # [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=32)
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=32)
-
-    train_iter = iter(ds_train)
-    mean = tf.keras.metrics.Mean(name="avg_time")
-    for _ in range(200):
-        st = time.time()
-        x = train_iter.get_next()
-        et = time.time()
-        mean(et - st)
-        print("cost time: {},avg time: {}".format(et - st, mean.result()))
+    # train_iter = iter(ds_train)
+    # mean = tf.keras.metrics.Mean(name="avg_time")
+    # for _ in range(200):
+    #     st = time.time()
+    #     x = train_iter.get_next()
+    #     et = time.time()
+    #     mean(et - st)
+    #     print("cost time: {},avg time: {}".format(et - st, mean.result()))
     # model = get_conv_target_net()
     # model.fit(ds_train, epochs=1, validation_data=ds_test)
 
