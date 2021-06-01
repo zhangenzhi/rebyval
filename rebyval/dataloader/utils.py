@@ -98,7 +98,7 @@ def _float_feature(value):
 
 
 def _int64_feature(value):
-    return tf.train.Feature(bytes_list=tf.train.Int64List(value=[value]))
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 
 def _image_example(image_string, label):
