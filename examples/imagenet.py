@@ -62,4 +62,5 @@ if __name__ == '__main__':
         st = time.time()
         x = iter_train.get_next()
         et = time.time()
+        mean_t(et-st)
         print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
