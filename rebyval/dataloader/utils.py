@@ -79,6 +79,8 @@ def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
         num_tfrecords = len(os.listdir(output_dirs))
         record_file = "{}.tfrecords".format(num_tfrecords)
         record_file = os.path.join(output_dirs, record_file)
+        import pdb
+        pdb.set_trace()
         with tf.io.TFRecordWriter(record_file) as writer:
             for image_string, label in image_strings_buffer:
                 tf_example = _image_example(image_string=image_string, label=label)
