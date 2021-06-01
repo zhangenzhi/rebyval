@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                                   layers.experimental.preprocessing.Rescaling(1. / 255.)])
 
         ds_train = ds_train.map(lambda x, y: (resize_and_rescale(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-        ds_train = ds_train.cache()
+        # ds_train = ds_train.cache()
         ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
 
         ds_test = ds_test.map(lambda x, y: (resize_and_rescale(x), y), num_parallel_calls=tf.data.AUTOTUNE)
@@ -66,11 +66,13 @@ if __name__ == '__main__':
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=64)
 
     train_iter = iter(ds_train)
-    while True:
+    mean = tf.keras.metrics.Mean(name="avg_time")
+    for _ in range(200):
         st = time.time()
         x = train_iter.get_next()
         et = time.time()
-        print("cost time: {}".format(et-st))
+        mean(et-st)
+        print("cost time: {},avg time: {}".format(et-st),mean.result())
     # model = get_conv_target_net()
     # model.fit(ds_train, epochs=1, validation_data=ds_test)
 
