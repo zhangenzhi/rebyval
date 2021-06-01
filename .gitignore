@@ -7,7 +7,6 @@
 .DS_Store
 __pycache__
 rebyval.egg-info
-dataset/
 data/
 build/
 dist/
