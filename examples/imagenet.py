@@ -59,7 +59,7 @@ if __name__ == '__main__':
         return [ds_train, ds_test], ds_info
 
 
-    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=64)
+    [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=16)
 
     train_iter = iter(ds_train)
     mean = tf.keras.metrics.Mean(name="avg_time")
