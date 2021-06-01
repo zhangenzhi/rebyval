@@ -45,21 +45,16 @@ if __name__ == '__main__':
                                                  data_dir=BASEDIR, download=True, shuffle_files=True,
                                                  read_config=read_config,
                                                  batch_size=batch_size, as_supervised=True, with_info=True)
-        # ds_train = ds_train.interleave(lambda x,y: tf.data.TFRecordDataset(x),
-        #                                block_length=256,
-        #                                cycle_length=16,
-        #                                num_parallel_calls=16,
-        #                                deterministic=False)
 
         resize_and_rescale = tf.keras.Sequential([layers.experimental.preprocessing.Resizing(256, 256),
                                                   layers.experimental.preprocessing.Rescaling(1. / 255.)])
 
         # ds_train = ds_train.map(lambda x, y: (resize_and_rescale(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-        # ds_train = ds_train.cache()
+        ds_train = ds_train.cache()
         ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
 
         # ds_test = ds_test.map(lambda x, y: (resize_and_rescale(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-        ds_test = ds_test.prefetch(tf.data.AUTOTUNE)
+        # ds_test = ds_test.prefetch(tf.data.AUTOTUNE)
         return [ds_train, ds_test], ds_info
 
 
