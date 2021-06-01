@@ -67,8 +67,6 @@ def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
             image_strings_buffer.append((open(img_path, 'rb').read(), feature_dict[synset]))
 
             if len(image_strings_buffer) == 5000:
-                import pdb
-                pdb.set_trace()
                 num_tfrecords = len(os.listdir(output_dirs))
                 record_file = "{}.tfrecords".format(num_tfrecords)
                 with tf.io.TFRecordWriter(record_file) as writer:
