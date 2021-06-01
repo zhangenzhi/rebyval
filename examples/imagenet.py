@@ -9,6 +9,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras import layers
 from rebyval.model.resnet import ResNet50
+from rebyval.dataloader.dataset_loader import ImageNetDataLoader
 from rebyval.dataloader.utils import *
 
 
@@ -45,8 +46,13 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
 
 
 if __name__ == '__main__':
-    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
-    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
-    metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
+    # input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
+    # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
+    # metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
-    print(metadata)
+    dataloader_args = {'batch_size': 64,
+                       'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
+                       'sample_of_curves': 250}
+    dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
+    train_dataset, _, _ = dataloader.load_dataset()
+
