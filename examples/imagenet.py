@@ -45,6 +45,13 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
     return [ds_train, ds_test], ds_info
 
 
+@tf.function(experimental_relax_shapes=True, experimental_compile=None)
+def decode_image(image_raw, batch_size):
+    decoded_image = []
+    for i in range(batch_size):
+        decoded_image.append(tf.io.decode_image(image_raw[i], channel=3))
+
+
 if __name__ == '__main__':
     # input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
     # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
@@ -61,9 +68,8 @@ if __name__ == '__main__':
     for i in range(200):
         st = time.time()
         x = iter_train.get_next()
-        import pdb
-        pdb.set_trace()
+        decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
         et = time.time()
-        if i!=0:
-            mean_t(et-st)
+        if i != 0:
+            mean_t(et - st)
         print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
