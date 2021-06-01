@@ -72,6 +72,8 @@ class ImageNetDataLoader(BaseDataLoader):
 
         def _parse_analyse_function(example_proto):
             example = tf.io.parse_example(example_proto, analyse_feature_describ)
+            for i in range(self.dataloader_args['batch_size']):
+                example['image_raw'][i] = tf.io.decode_image(example['image_raw'][i])
             return example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
