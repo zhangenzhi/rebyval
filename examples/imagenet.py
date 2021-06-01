@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
     # metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
-    dataloader_args = {'batch_size': 1024,
+    dataloader_args = {'batch_size': 256,
                        'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
                        'sample_of_curves': 250}
     dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
@@ -61,6 +61,8 @@ if __name__ == '__main__':
     for i in range(200):
         st = time.time()
         x = iter_train.get_next()
+        import pdb
+        pdb.set_trace()
         et = time.time()
         if i!=0:
             mean_t(et-st)
