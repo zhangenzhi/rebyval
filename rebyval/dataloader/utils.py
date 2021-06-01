@@ -45,10 +45,11 @@ def unpack_tarfile(input_dirs):
 
 
 def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
-    # generate label from meta data
-    metadata = scipy_io.loadmat('./examples/dataset/imagenet/meta.mat')
     import pdb
     pdb.set_trace()
+
+    # generate label from meta data
+    metadata = scipy_io.loadmat('./examples/dataset/imagenet/meta.mat')
     synsets_info = metadata['synsets']
     feature_dict = {}
     for item in synsets_info:
