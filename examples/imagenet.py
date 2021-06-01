@@ -1,5 +1,6 @@
 import io
 import os
+import time
 import tarfile
 import logging
 
@@ -64,8 +65,14 @@ if __name__ == '__main__':
 
     [ds_train, ds_test], ds_info = load_ImageNet(dataset_name, BASEDIR=manual_dataset_dir, batch_size=64)
 
-    model = get_conv_target_net()
-    model.fit(ds_train, epochs=1, validation_data=ds_test)
+    train_iter = iter(ds_train)
+    while True:
+        st = time.time()
+        x = train_iter.get_next()
+        et = time.time()
+        print("cost time: {}".format(et-st))
+    # model = get_conv_target_net()
+    # model.fit(ds_train, epochs=1, validation_data=ds_test)
 
     # ResNet50
     # net = ResNet50()
