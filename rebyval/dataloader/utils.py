@@ -45,8 +45,6 @@ def unpack_tarfile(input_dirs):
 
 
 def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
-
-
     # generate label from meta data
     metadata = scipy_io.loadmat('./examples/dataset/imagenet/meta.mat')
     synsets_info = metadata['synsets']
@@ -80,6 +78,7 @@ def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
     if len(image_strings_buffer) != 0:
         num_tfrecords = len(os.listdir(output_dirs))
         record_file = "{}.tfrecords".format(num_tfrecords)
+        record_file = os.path.join(output_dirs, record_file)
         with tf.io.TFRecordWriter(record_file) as writer:
             for image_string, label in image_strings_buffer:
                 tf_example = _image_example(image_string=image_string, label=label)
