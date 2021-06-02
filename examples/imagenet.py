@@ -47,16 +47,16 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
 
 @tf.function(experimental_relax_shapes=True, experimental_compile=None)
 def decode_image(image_raw, batch_size):
-    decoded_image = []
+    decoded_image_batch = []
     for i in range(batch_size):
-        decoded_image.append(tf.io.decode_image(image_raw[i], channels=3))
+        decoded_image = tf.io.decode_image(image_raw[i], channels=3)
+        resized_image = tf.image.resize(decoded_image)
+        decoded_image_batch.append(resized_image)
+    decoded_image = tf.concat(decoded_image_batch, axis=0)
     return decoded_image
 
 
 if __name__ == '__main__':
-    # input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
-    # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
-    # metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
     dataloader_args = {'batch_size': 256,
                        'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
@@ -64,17 +64,16 @@ if __name__ == '__main__':
     dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
     train_dataset, _, _ = dataloader.load_dataset()
 
-    model = get_conv_target_net()
-    model.fit(train_dataset)
-
-    # iter_train = iter(train_dataset)
-    # mean_t = tf.keras.metrics.Mean(name="test_avg_time")
-    # for i in range(200):
-    #     st = time.time()
-    #     x = iter_train.get_next()
-    #     decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
-    #     et = time.time()
-    #     if i != 0:
-    #         mean_t(et - st)
-    #     print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
+    iter_train = iter(train_dataset)
+    mean_t = tf.keras.metrics.Mean(name="test_avg_time")
+    for i in range(200):
+        st = time.time()
+        x = iter_train.get_next()
+        decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
+        import pdb
+        pdb.set_trace()
+        et = time.time()
+        if i != 0:
+            mean_t(et - st)
+        print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
 

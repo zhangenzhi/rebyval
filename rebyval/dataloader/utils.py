@@ -111,3 +111,8 @@ def _image_example(image_string, label):
         'image_raw': _bytes_feature(image_string)
     }
     return tf.train.Example(features=tf.train.Features(feature=feature))
+
+if __name__ == '__main__':
+    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
+    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
+    metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
