@@ -58,19 +58,23 @@ if __name__ == '__main__':
     # output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
     # metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
 
-    dataloader_args = {'batch_size': 1024,
+    dataloader_args = {'batch_size': 256,
                        'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
                        'sample_of_curves': 250}
     dataloader = ImageNetDataLoader(dataloader_args=dataloader_args)
     train_dataset, _, _ = dataloader.load_dataset()
 
-    iter_train = iter(train_dataset)
-    mean_t = tf.keras.metrics.Mean(name="test_avg_time")
-    for i in range(200):
-        st = time.time()
-        x = iter_train.get_next()
-        decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
-        et = time.time()
-        if i != 0:
-            mean_t(et - st)
-        print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
+    model = get_conv_target_net()
+    model.fit(train_dataset)
+
+    # iter_train = iter(train_dataset)
+    # mean_t = tf.keras.metrics.Mean(name="test_avg_time")
+    # for i in range(200):
+    #     st = time.time()
+    #     x = iter_train.get_next()
+    #     decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
+    #     et = time.time()
+    #     if i != 0:
+    #         mean_t(et - st)
+    #     print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
+
