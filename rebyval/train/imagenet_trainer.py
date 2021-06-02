@@ -3,7 +3,6 @@ from rebyval.tools.utils import *
 from rebyval.train.base_trainer import BaseTrainer
 
 
-
 class ImageNetTrainer(BaseTrainer):
     def __init__(self, trainer_args, surrogate_model=None):
         super(ImageNetTrainer, self).__init__(trainer_args=trainer_args)
@@ -38,7 +37,7 @@ class ImageNetTrainer(BaseTrainer):
             pdb.set_trace()
 
             y = x.pop('label')
-            input = self.decode_image(x['image_raw'])
+            input = self.decode_image(x['image_raw'], x['image_raw'].shape[0])
             if self.surrogate_model is not None:
                 self._train_step_rebyval(input, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
