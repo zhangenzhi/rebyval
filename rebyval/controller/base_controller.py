@@ -106,14 +106,13 @@ class BaseController:
         context_args = self.args['context']
 
         print_green("Start to run!")
-        if context_args['train_target_model']:
+        if context_args['experiment_type'] == 'train_target_model':
             self.main_loop_for_train_target()
 
-        elif context_args['rebyval']:
+        elif context_args['experiment_type'] == 'rebyval':
             print_green("build from surrogate trainer")
             self.surrogate_trainer = self._build_surrogate_trainer()
             self.main_loop_for_experiment()
-
 
         print_green('[Task Status]: Task done! Time cost: {:}')
 
