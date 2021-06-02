@@ -63,9 +63,7 @@ class ResNet(Model):
         x = self.stack_fn(x)
 
         x = layers.GlobalAveragePooling2D(name='avg_pool')(x)
-        import pdb
-        pdb.set_trace()
-        x = layers.Dense(self.classes, activations='softmax', name='prediction')(x)
+        x = layers.Dense(self.classes, activation='softmax', name='prediction')(x)
 
         return x
 
