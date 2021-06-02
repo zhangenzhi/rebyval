@@ -56,7 +56,7 @@ experiment:
       name: dnn_weights
       datapath: ./log/analyse
       sample_of_curves: 50
-      format: tensor_sum_recude_l2
+      format: tensor_sum_reduce_l2
       batch_size: 256
       num_trainable_variables: 10
     model:
