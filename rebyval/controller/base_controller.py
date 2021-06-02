@@ -19,6 +19,8 @@ class BaseController:
 
         print_dict(self.yaml_configs)
 
+        self._build_enviroment()
+
     def _args_parser(self):
         parser = argparse.ArgumentParser('autosparsedl_config')
         parser.add_argument(
@@ -102,8 +104,6 @@ class BaseController:
 
     def run(self):
         context_args = self.args['context']
-
-        self._build_enviroment()
 
         print_green("Start to run!")
         if context_args['train_target_model']:
