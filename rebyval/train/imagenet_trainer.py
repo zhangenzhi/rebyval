@@ -32,8 +32,21 @@ class ImageNetTrainer(BaseTrainer):
     def during_train(self):
         try:
             x = self.train_iter.get_next()
-            y = x.pop('label')
-            input = self.decode_image(x['image_raw'], x['image_raw'].shape[0])
+        except:
+            print_warning("during training dataset exception")
+            try:
+                self.epoch += 1
+                self.train_dataset, _, _ = self.reset_dataset()
+                self.train_iter = iter(self.train_dataset)
+                x = self.train_iter.get_next()
+            except:
+                print_error("reset train iter failed")
+                raise
+
+        y = x.pop('label')
+        input = self.decode_image(x['image_raw'], x['image_raw'].shape[0])
+
+        try:
             if self.surrogate_model is not None:
                 self._train_step_rebyval(input, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
@@ -42,10 +55,9 @@ class ImageNetTrainer(BaseTrainer):
             else:
                 self._train_step(input, y)
         except:
-            print_warning("during traning exception")
-            self.epoch += 1
-            self.train_dataset, _, _ = self.reset_dataset()
-            self.train_iter = iter(self.train_dataset)
+            print_error("during traning train_step exception")
+            raise
+
 
     @BaseTrainer.timer
     def during_valid(self):
