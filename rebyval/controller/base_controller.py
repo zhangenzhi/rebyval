@@ -96,15 +96,24 @@ class BaseController:
                 raise
             self.surrogate_trainer.run_with_refreshed_dataset()
 
+    def main_loop_for_train_target(self):
+        target_trainer = self._build_target_trainer()
+        target_trainer.run()
+
     def run(self):
+        context_args = self.args['context']
 
         self._build_enviroment()
 
-        print_green("build trainer from surrogate nets")
-        self.surrogate_trainer = self._build_surrogate_trainer()
-
         print_green("Start to run!")
-        self.main_loop_for_experiment()
+        if context_args['train_target_model']:
+            self.main_loop_for_train_target()
+
+        elif context_args['rebyval']:
+            print_green("build from surrogate trainer")
+            self.surrogate_trainer = self._build_surrogate_trainer()
+            self.main_loop_for_experiment()
+
 
         print_green('[Task Status]: Task done! Time cost: {:}')
 

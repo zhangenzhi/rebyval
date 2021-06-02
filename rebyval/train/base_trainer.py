@@ -9,6 +9,7 @@ from rebyval.dataloader.weights_loader import DnnWeightsLoader
 
 # model
 from rebyval.model.dnn import DenseNeuralNetwork
+from rebyval.model.resnet import ResNet50
 
 # optimizer
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
@@ -88,6 +89,8 @@ class BaseTrainer:
             else:
                 regularizer = None
             model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations, regularizer=regularizer)
+        elif model_args['name'] == 'resnet50':
+            model = ResNet50()
         else:
             print_error("no such model: {}".format(model_args['name']))
             raise ("no such model")

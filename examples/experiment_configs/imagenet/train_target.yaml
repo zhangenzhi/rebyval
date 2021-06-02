@@ -10,6 +10,7 @@ experiment:
       name: imagenet # default cifar10
       trainer_dataset_path: /home/work/dataset/ILSVRC2012/downloads/manual/train_records
       batch_size: 256
+      sample_of_curves: 250
     model:
       name: resnet50 # default dnn
     loss:
