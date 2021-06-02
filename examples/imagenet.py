@@ -45,12 +45,14 @@ def load_ImageNet(ds_type, BASEDIR, batch_size):
     return [ds_train, ds_test], ds_info
 
 
-@tf.function(experimental_relax_shapes=True, experimental_compile=None)
+# @tf.function(experimental_relax_shapes=True, experimental_compile=None)
 def decode_image(image_raw, batch_size):
     decoded_image_batch = []
+    import pdb
+    pdb.set_trace()
     for i in range(batch_size):
         decoded_image = tf.io.decode_image(image_raw[i], channels=3)
-        resized_image = tf.image.resize(decoded_image)
+        resized_image = tf.image.resize(decoded_image,[256,256])
         decoded_image_batch.append(resized_image)
     decoded_image = tf.concat(decoded_image_batch, axis=0)
     return decoded_image
@@ -70,8 +72,6 @@ if __name__ == '__main__':
         st = time.time()
         x = iter_train.get_next()
         decoded_x = decode_image(x['image_raw'], batch_size=dataloader_args['batch_size'])
-        import pdb
-        pdb.set_trace()
         et = time.time()
         if i != 0:
             mean_t(et - st)
