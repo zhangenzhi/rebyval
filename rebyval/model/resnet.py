@@ -53,12 +53,19 @@ class ResNet(Model):
         return x
 
     def call(self, inputs):
+
         x = inputs
 
         x = layers.ZeroPadding2D(
             padding=((3, 3), (3, 3)), name='conv1_pad')(x)
         x = layers.Conv2D(64, 7, strides=2, use_bias=self.use_bias, name='conv1_conv')(x)
-        return self.stack_fn(x)
+
+        x = self.stack_fn(x)
+
+        x = layers.GlobalAveragePooling(name='avg_pool')(x)
+        x = layers.Dense(self.classes, activations='softmax', name='prediction')(x)
+
+        return x
 
 
 class ResNet50(ResNet):

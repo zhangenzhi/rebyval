@@ -224,7 +224,7 @@ class BaseTrainer:
                                 overwrite=True,
                                 save_format='tf')
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
