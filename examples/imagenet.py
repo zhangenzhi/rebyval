@@ -50,7 +50,8 @@ def decode_image(image_raw, batch_size):
     decoded_image_batch = []
     for i in range(batch_size):
         decoded_image = tf.io.decode_image(image_raw[i], channels=3)
-        resized_image = tf.image.resize(decoded_image,[256,256])
+        resized_image = tf.image.resize(decoded_image, [256, 256])
+        resized_image = tf.expand_dims(resized_image, axis=0)
         decoded_image_batch.append(resized_image)
     decoded_image = tf.concat(decoded_image_batch, axis=0)
     import pdb
@@ -76,4 +77,3 @@ if __name__ == '__main__':
         if i != 0:
             mean_t(et - st)
         print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
-
