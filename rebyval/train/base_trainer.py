@@ -4,7 +4,7 @@ import tensorflow as tf
 from functools import wraps
 
 # dataloader
-from rebyval.dataloader.dataset_loader import Cifar10DataLoader
+from rebyval.dataloader.dataset_loader import Cifar10DataLoader,ImageNetDataLoader
 from rebyval.dataloader.weights_loader import DnnWeightsLoader
 
 # model
@@ -63,6 +63,9 @@ class BaseTrainer:
 
         if dataset_args['name'] == 'cifar10':
             dataloader = Cifar10DataLoader(dataset_args)
+            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+        elif dataset_args['name'] == 'imagenet':
+            dataloader = ImageNetDataLoader(dataset_args)
             train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
