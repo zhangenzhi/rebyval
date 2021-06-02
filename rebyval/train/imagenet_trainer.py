@@ -38,14 +38,14 @@ class ImageNetTargetTrainer(BaseTrainer):
             pdb.set_trace()
 
             y = x.pop('label')
-            x = self.decode_image(x['image_raw'])
+            input = self.decode_image(x['image_raw'])
             if self.surrogate_model is not None:
-                self._train_step_rebyval(x, y)
+                self._train_step_rebyval(input, y)
                 extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
                     .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
                 print_green(extra_train_msg)
             else:
-                self._train_step(x, y)
+                self._train_step(input, y)
         except:
             print_warning("during traning exception")
             self.epoch += 1
@@ -57,8 +57,8 @@ class ImageNetTargetTrainer(BaseTrainer):
         try:
             x_valid = self.valid_iter.get_next()
             y_valid = x_valid.pop('label')
-            x_valid = self.decode_image(x_valid['image_raw'])
-            self._valid_step(x_valid, y_valid)
+            input = self.decode_image(x_valid['image_raw'])
+            self._valid_step(input, y_valid)
 
         except:
             print_warning("during validation exception")
@@ -72,8 +72,8 @@ class ImageNetTargetTrainer(BaseTrainer):
         try:
             x_test = self.test_iter.get_next()
             y_test = x_test.pop('label')
-            x_test = self.decode_image(x_test['image_raw'])
-            self._test_step(x_test, y_test)
+            input = self.decode_image(x_test['image_raw'])
+            self._test_step(input, y_test)
         except:
             self.test_flag = False
 
