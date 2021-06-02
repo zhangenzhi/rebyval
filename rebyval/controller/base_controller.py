@@ -3,7 +3,8 @@ import argparse
 
 from rebyval.tools.utils import *
 from rebyval.controller.utils import *
-from rebyval.train.trainer import *
+from rebyval.train.trainer import TargetTrainer, SurrogateTrainer
+from rebyval.train.imagenet_trainer import ImageNetTrainer
 
 
 class BaseController:
@@ -39,12 +40,17 @@ class BaseController:
     def _build_target_trainer(self, rebyval=False):
         target_trainer_args = self.args["target_trainer"]
 
+        if target_trainer_args['name'] == 'ImageNetTrainer':
+            Trainer = ImageNetTrainer
+        else:
+            Trainer = TargetTrainer
+
         try:
             if rebyval:
-                target_trainer = TargetTrainer(trainer_args=target_trainer_args,
-                                               surrogate_model=self.surrogate_trainer.model)
+                target_trainer = Trainer(trainer_args=target_trainer_args,
+                                         surrogate_model=self.surrogate_trainer.model)
             else:
-                target_trainer = TargetTrainer(trainer_args=target_trainer_args)
+                target_trainer = Trainer(trainer_args=target_trainer_args)
         except:
             print_error("build target trainer failed.")
             raise

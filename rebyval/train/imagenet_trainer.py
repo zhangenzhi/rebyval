@@ -4,9 +4,9 @@ from rebyval.train.base_trainer import BaseTrainer
 
 
 
-class ImageNetTargetTrainer(BaseTrainer):
+class ImageNetTrainer(BaseTrainer):
     def __init__(self, trainer_args, surrogate_model=None):
-        super(ImageNetTargetTrainer, self).__init__(trainer_args=trainer_args)
+        super(ImageNetTrainer, self).__init__(trainer_args=trainer_args)
         self.surrogate_model = surrogate_model
         self.extra_metrics = {}
         if self.surrogate_model is not None:
