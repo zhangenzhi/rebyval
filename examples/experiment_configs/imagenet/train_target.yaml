@@ -11,7 +11,7 @@ experiment:
       name: imagenet # default cifar10
       datapath: /home/work/dataset/ILSVRC2012/downloads/manual/train_records
       batch_size: 32
-      sample_of_curves: 250
+      sample_of_curves: 25
     model:
       name: resnet50 # default dnn
     loss:
@@ -26,8 +26,8 @@ experiment:
         max_training_steps: 1000 # default 10000
         max_training_epochs: 10 # default 10
       valid:
-        check_should_valid: True # default False for no validation step
+        check_should_valid: False # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
       test:
-        check_should_test: True # default False for no test step
+        check_should_test: False # default False for no test step

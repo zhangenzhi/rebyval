@@ -226,18 +226,18 @@ class BaseTrainer:
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
-            gradients = tape.gradient(loss, self.model.trainable_variables)
+        # try:
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            loss = self.metrics['loss_fn'](labels, predictions)
+        gradients = tape.gradient(loss, self.model.trainable_variables)
 
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-            self.metrics['train_loss'](loss)
-        except:
-            print_error("train step error")
-            raise
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
+        self.metrics['train_loss'](loss)
+        # except:
+        #     print_error("train step error")
+        #     raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels):
