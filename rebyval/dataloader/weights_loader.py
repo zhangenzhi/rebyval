@@ -107,7 +107,8 @@ class DnnWeightsLoader(BaseDataLoader):
                 if example[feat].dtype == tf.string:
                     parsed_single_example = []
                     for i in range(self.dataloader_args['batch_size']):
-                        parsed_single_example.append(tf.io.parse_tensor(example[feat][i], out_type=tf.float32))
+                        pasrsed_tensor = tf.io.parse_tensor(example[feat][i], out_type=tf.float32)
+                        parsed_single_example.append(pasrsed_tensor[:32])
                     parsed_example[feat] = parsed_single_example
                 else:
                     parsed_example[feat] = example[feat]
