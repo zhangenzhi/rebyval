@@ -33,6 +33,10 @@ class ImageNetTargetTrainer(BaseTrainer):
     def during_train(self):
         try:
             x = self.train_iter.get_next()
+
+            import pdb
+            pdb.set_trace()
+
             y = x.pop('label')
             x = self.decode_image(x['image_raw'])
             if self.surrogate_model is not None:
