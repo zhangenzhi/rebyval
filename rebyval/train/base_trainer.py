@@ -260,8 +260,8 @@ class BaseTrainer:
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
-                # loss = self._compute_loss_for_dist(labels, predictions)
+                # loss = self.metrics['loss_fn'](labels, predictions)
+                loss = self._compute_loss_for_dist(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
