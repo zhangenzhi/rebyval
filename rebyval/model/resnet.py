@@ -67,7 +67,7 @@ class ResNet(Model):
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         else:
-            seq_layer_shortcut.append(layers.Identity())
+            seq_layer_shortcut.append(layers.Lambda(lambda  x:x))
 
         seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv'))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
