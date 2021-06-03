@@ -30,4 +30,5 @@ experiment:
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
       test:
+        test_steps: 500
         check_should_test: False # default False for no test step
