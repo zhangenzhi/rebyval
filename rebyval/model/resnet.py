@@ -113,7 +113,7 @@ class ResNet50(ResNet):
     def __init__(self, use_bias=False, pooling=None, classes=1000):
         super(ResNet50, self).__init__(use_bias, pooling, classes)
 
-    def _build_stack_fn(self, name=None):
+    def _build_stack_fn(self, name='resnet50'):
         seq_layer_stacks = []
 
         seq_layer_stacks.append(self._build_stack1(64, 3, stride1=1, name=name + '_conv2'))
