@@ -260,7 +260,8 @@ class BaseTrainer:
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
-                loss = self._compute_loss_for_dist(labels, predictions)
+                loss = self.metrics['loss_fn'](labels, predictions)
+                # loss = self._compute_loss_for_dist(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
@@ -274,7 +275,7 @@ class BaseTrainer:
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def distributed_train_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label))
-        return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
