@@ -74,6 +74,7 @@ class BaseTrainer:
 
         if self.args['distribute']:
             dataset_args['batch_size'] = dataset_args['batch_size'] * len(self.gpus)
+            self.global_batch_size = dataset_args['batch_size']
 
         if dataset_args['name'] == 'cifar10':
             dataloader = Cifar10DataLoader(dataset_args)
@@ -251,11 +252,15 @@ class BaseTrainer:
                                 overwrite=True,
                                 save_format='tf')
 
+    def _compute_loss_for_dist(self, labels, predictions):
+        per_example_loss = self.metrics['loss_fn'](labels, predictions)
+        return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
+
     def _train_step_for_dist(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
+                loss = self._compute_loss_for_dist(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
