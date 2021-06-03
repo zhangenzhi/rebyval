@@ -12,7 +12,7 @@ class ImageNetTrainer(BaseTrainer):
             self.extra_metrics['v_loss'] = tf.Variable(0.0)
             self.extra_metrics['t_loss'] = tf.Variable(0.0)
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def decode_image(self, image_raw, batch_size):
         decoded_image_batch = []
         for i in range(batch_size):
