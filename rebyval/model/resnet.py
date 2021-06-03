@@ -11,44 +11,88 @@ class ResNet(Model):
         self.pooling = pooling
         self.classes = classes
 
-    def stack_fn(self, x):
+        self.preprocess_layers = self._build_preprocess()
+        self.stack_fn_stacks = self._build_stack_fn()
+        self.dense_inference_layers = self._build_dense_inference()
+
+    def _build_stack_fn(self, name=None):
         raise NotImplementedError
 
-    def stack1(self, x, filters, blocks, stride1=2, name=None):
-        x = self.block1(x, filters, stride=stride1, name=name + '_block1')
-        for i in range(2, blocks + 1):
-            x = self.block1(x, filters, conv_shortcut=False, name=name + '_block' + str(i))
+    def stack_fn(self, x, stack1s):
+        raise NotImplementedError
+
+    def _build_preprocess(self):
+        preprocess_layers = []
+        preprocess_layers.append(layers.ZeroPadding2D(padding=((3, 3), (3, 3)), name='conv1_pad'))
+        preprocess_layers.append(layers.Conv2D(64, 7, strides=2, use_bias=self.use_bias, name='conv1_conv'))
+        return preprocess_layers
+
+    def _preprocess(self, x, process_layers):
+        for layer in process_layers:
+            x = layer(x)
         return x
 
-    def block1(self, x, filters, kernel_size=3, stride=1, conv_shortcut=True, name=None):
+    def _build_dense_inference(self):
+        inference_layer = []
+        inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
+        inference_layer.append(layers.Dense(self.classes, activation='softmax', name='prediction'))
+        return inference_layer
 
+    def _dense_inference(self, x, dense_inference_layers):
+        for layer in dense_inference_layers:
+            x = layer(x)
+        return x
+
+    def _build_stack1(self, filters, blocks, stride1=2, name=None):
+        seq_layers_stack1 = []
+        seq_layers_stack1.append(self._build_block1(filters, stride=stride1, name=name + '_block1'))
+        for i in range(2, blocks + 1):
+            seq_layers_stack1.append(
+                self._build_block1(filters, conv_shortcut=False, name=name + '_block' + str(i)))
+        return seq_layers_stack1
+
+    def stack1(self, x, seq_layers_stack1):
+        for block, shortcut in seq_layers_stack1:
+            x = self.block1(x, block, shortcut)
+        return x
+
+    def _build_block1(self, filters, kernel_size=3, stride=1, conv_shortcut=True, name=None):
+        seq_layers_block = []
+        seq_layer_shortcut = []
         bn_axis = 3
 
         if conv_shortcut:
-            shortcut = layers.Conv2D(
-                4 * filters, 1, strides=stride, name=name + '_0_conv')(x)
-            shortcut = layers.BatchNormalization(
-                axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn')(shortcut)
+            seq_layer_shortcut.append(layers.Conv2D(
+                4 * filters, 1, strides=stride, name=name + '_0_conv'))
+            seq_layer_shortcut.append(layers.BatchNormalization(
+                axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         else:
-            shortcut = x
+            seq_layer_shortcut.append(layers.Identity())
 
-        x = layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv')(x)
-        x = layers.BatchNormalization(
-            axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn')(x)
-        x = layers.Activation('relu', name=name + '_1_relu')(x)
+        seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv'))
+        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        x = layers.Conv2D(
-            filters, kernel_size, padding='SAME', name=name + '_2_conv')(x)
-        x = layers.BatchNormalization(
-            axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn')(x)
-        x = layers.Activation('relu', name=name + '_2_relu')(x)
+        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv'))
+        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
-        x = layers.Conv2D(4 * filters, 1, name=name + '_3_conv')(x)
-        x = layers.BatchNormalization(
-            axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn')(x)
+        seq_layers_block.append(layers.Conv2D(4 * filters, 1, name=name + '_3_conv'))
+        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn'))
 
-        x = layers.Add(name=name + '_add')([shortcut, x])
-        x = layers.Activation('relu', name=name + '_out')(x)
+        seq_layers_block.append(layers.Add(name=name + '_add'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
+
+        return seq_layers_block, seq_layer_shortcut
+
+    def block1(self, x, seq_layers_block, seq_layer_shortcut):
+
+        shortcut = x
+        for layer in seq_layer_shortcut:
+            shortcut = layer(shortcut)
+
+        for layer in seq_layers_block:
+            x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
 
         return x
 
@@ -56,14 +100,11 @@ class ResNet(Model):
 
         x = inputs
 
-        x = layers.ZeroPadding2D(
-            padding=((3, 3), (3, 3)), name='conv1_pad')(x)
-        x = layers.Conv2D(64, 7, strides=2, use_bias=self.use_bias, name='conv1_conv')(x)
+        x = self._preprocess(x, self.preprocess_layers)
 
-        x = self.stack_fn(x)
+        x = self.stack_fn(x, self.stack_fn_stacks)
 
-        x = layers.GlobalAveragePooling2D(name='avg_pool')(x)
-        x = layers.Dense(self.classes, activation='softmax', name='prediction')(x)
+        x = self._dense_inference(x, self.dense_inference_layers)
 
         return x
 
@@ -72,8 +113,17 @@ class ResNet50(ResNet):
     def __init__(self, use_bias=False, pooling=None, classes=1000):
         super(ResNet50, self).__init__(use_bias, pooling, classes)
 
-    def stack_fn(self, x):
-        x = self.stack1(x, 64, 3, stride1=1, name='conv2')
-        x = self.stack1(x, 128, 4, name='conv3')
-        x = self.stack1(x, 256, 6, name='conv4')
-        return self.stack1(x, 512, 3, name='conv5')
+    def _build_stack_fn(self, name=None):
+        seq_layer_stacks = []
+
+        seq_layer_stacks.append(self._build_stack1(64, 3, stride1=1, name=name + '_conv2'))
+        seq_layer_stacks.append(self._build_stack1(128, 4, name=name + '_conv3'))
+        seq_layer_stacks.append(self._build_stack1(256, 6, name=name + '_conv4'))
+        seq_layer_stacks.append(self._build_stack1(512, 3, name=name + '_conv5'))
+
+        return seq_layer_stacks
+
+    def stack_fn(self, x, stack_fn_stacks):
+        for stack in stack_fn_stacks:
+            x = self.stack1(x, stack)
+        return x
