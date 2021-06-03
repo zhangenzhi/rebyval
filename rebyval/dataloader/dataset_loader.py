@@ -75,7 +75,6 @@ class ImageNetDataLoader(BaseDataLoader):
 
         def _parse_analyse_function(example_proto):
             example = tf.io.parse_example(example_proto, analyse_feature_describ)
-            # return example
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:

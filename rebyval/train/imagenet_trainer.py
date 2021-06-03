@@ -46,7 +46,7 @@ class ImageNetTrainer(BaseTrainer):
         y = x.pop('label')
         import pdb
         pdb.set_trace()
-        input = self.decode_image(x['image_raw'], 64)
+        input = x['image_raw']
 
         try:
             if self.args['distribute']:
