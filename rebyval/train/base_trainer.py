@@ -258,6 +258,10 @@ class BaseTrainer:
 
     def _train_step_for_dist(self, inputs, labels):
         try:
+
+            import pdb
+            pdb.set_trace()
+
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
@@ -272,7 +276,7 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
-    @tf.function
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label))
         return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
