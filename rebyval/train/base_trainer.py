@@ -131,6 +131,8 @@ class BaseTrainer:
 
         if self.args['loss'].get('identifier'):
             metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['identifier'])
+        elif self.args['distribute']:
+            metrics['loss_fn'] = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
         else:
             loss_name = self.args['loss']['name']
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
@@ -252,7 +254,7 @@ class BaseTrainer:
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def distributed_train_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._train_step, args=(dist_inputs, dist_label))
-        return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM,per_replica_losses,axis=None)
+        return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
