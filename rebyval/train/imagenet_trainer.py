@@ -50,7 +50,8 @@ class ImageNetTrainer(BaseTrainer):
 
         try:
             if self.args['distribute']:
-                self._distributed_train_step(input,y)
+                loss = self._distributed_train_step(input,y)
+                print(loss)
             else:
                 self._train_step(input, y)
         except:

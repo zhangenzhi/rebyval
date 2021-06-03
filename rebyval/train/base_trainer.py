@@ -270,7 +270,7 @@ class BaseTrainer:
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
-            self.metrics['train_loss'](loss)
+            # self.metrics['train_loss'](loss)
             return loss
         except:
             print_error("train step error")
