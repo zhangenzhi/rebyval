@@ -192,7 +192,7 @@ class DnnWeightsLoader(BaseDataLoader):
         print(len(valid_filelist), valid_filelist)
         print(len(test_filelist), test_filelist)
 
-        if format == 'tensor':
+        if self.dataloader_args['format'] == 'tensor':
             train_dataset = self._load_analyse_tensor_from_tfrecord(filelist=train_filelist,
                                                                     num_trainable_variables=self.dataloader_args[
                                                                         'num_trainable_variables'])
@@ -204,14 +204,14 @@ class DnnWeightsLoader(BaseDataLoader):
             test_dataset = self._load_analyse_tensor_from_tfrecord(filelist=test_filelist,
                                                                    num_trainable_variables=self.dataloader_args[
                                                                        'num_trainable_variables'])
-        elif format == 'tensor_sum_reduce' or format == 'tensor_sum_reduce_l2':
+        elif self.dataloader_args['format'] == 'tensor_sum_reduce' or self.dataloader_args['format'] == 'tensor_sum_reduce_l2':
             train_dataset = self._load_analyse_tensor_sum_reduce_from_tfrecord(filelist=train_filelist)
 
             valid_dataset = self._load_analyse_tensor_sum_reduce_from_tfrecord(filelist=valid_filelist)
 
             test_dataset = self._load_analyse_tensor_sum_reduce_from_tfrecord(filelist=test_filelist)
 
-        elif format == 'numpy':
+        elif self.dataloader_args['format'] == 'numpy':
             train_dataset = self._load_analyse_numpy_from_tfrecord(filelist=train_filelist,
                                                                    num_trainable_variables=self.dataloader_args[
                                                                        'num_trainable_variables'])

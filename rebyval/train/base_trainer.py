@@ -4,7 +4,7 @@ import tensorflow as tf
 from functools import wraps
 
 # dataloader
-from rebyval.dataloader.dataset_loader import Cifar10DataLoader,ImageNetDataLoader
+from rebyval.dataloader.dataset_loader import Cifar10DataLoader, ImageNetDataLoader
 from rebyval.dataloader.weights_loader import DnnWeightsLoader
 
 # model
@@ -56,24 +56,41 @@ class BaseTrainer:
 
         return wrapper
 
+    def _build_enviroment(self):
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        print_green(gpus)
+
+        if self.args['distribute']:
+            self.mirrored_stragey = tf.distribute.MirroredStrategy()
+            self.gpus = gpus
+        else:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+
     def _build_dataset(self):
 
         dataset_args = self.args['dataloader']
         train_dir = test_dir = valid_dir = ""
 
+        if self.args['distribute']:
+            dataset_args['batch_size'] = dataset_args['batch_size'] * len(self.gpus)
+
         if dataset_args['name'] == 'cifar10':
             dataloader = Cifar10DataLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'imagenet':
             dataloader = ImageNetDataLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         elif dataset_args['name'] == 'dnn_weights':
             dataloader = DnnWeightsLoader(dataset_args)
-            train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(format=dataset_args['format'])
-            # test_dataset = valid_dataset
         else:
             print_error("no such dataset:{}".format(dataset_args['name']))
             raise ("no such dataset")
+
+        train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+
+        if self.args['distribute']:
+            train_dataset = self.mirrored_stragey.experimental_distribute_dataset(train_dataset)
+            valid_dataset = self.mirrored_stragey.experimental_distribute_dataset(valid_dataset)
+            test_dataset = self.mirrored_stragey.experimental_distribute_dataset(test_dataset)
 
         self.dataset_path = {
             "train_dir": train_dir,
@@ -84,7 +101,9 @@ class BaseTrainer:
 
     def _build_model(self):
         model_args = self.args['model']
+
         if model_args['name'] == 'dnn':
+
             deep_dims = list(map(lambda x: float(x), model_args['deep_dims'].split(',')))
             activations = list(map(lambda x: str(x), model_args['activations_for_all'].split(',')))
             if model_args.get('regularizer'):
@@ -92,8 +111,15 @@ class BaseTrainer:
             else:
                 regularizer = None
             model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations, regularizer=regularizer)
+
         elif model_args['name'] == 'resnet50':
-            model = ResNet50()
+
+            if self.args['distribute']:
+                with self.mirrored_stragey.scope():
+                    model = ResNet50()
+            else:
+                model = ResNet50()
+
         else:
             print_error("no such model: {}".format(model_args['name']))
             raise ("no such model")
@@ -118,12 +144,6 @@ class BaseTrainer:
 
         return metrics
 
-    def _build_enviroment(self):
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_green(gpus)
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         learning_rate = float(optimizer_args['learning_rate'])
@@ -143,8 +163,13 @@ class BaseTrainer:
                 else:
                     print_error("No such scheduler")
                     raise ("No such scheduler")
-                optimizer = tf.keras.optimizers.SGD(
-                    learning_rate=scheduler)
+                if self.args['distribue']:
+                    with self.mirrored_stragey.scope():
+                        optimizer = tf.keras.optimizers.SGD(
+                            learning_rate=scheduler)
+                else:
+                    optimizer = tf.keras.optimizers.SGD(
+                        learning_rate=scheduler)
             else:
                 optimizer = tf.keras.optimizers.SGD(
                     learning_rate=learning_rate)
@@ -223,6 +248,11 @@ class BaseTrainer:
         self.model.save_weights(save_path,
                                 overwrite=True,
                                 save_format='tf')
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def distributed_train_step(self, dist_inputs, dist_label):
+        per_replica_losses = self.mirrored_stragey.run(self._train_step, args=(dist_inputs, dist_label))
+        return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM,per_replica_losses,axis=None)
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):

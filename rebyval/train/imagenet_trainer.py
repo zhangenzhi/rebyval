@@ -47,11 +47,8 @@ class ImageNetTrainer(BaseTrainer):
         input = self.decode_image(x['image_raw'], x['image_raw'].shape[0])
 
         try:
-            if self.surrogate_model is not None:
-                self._train_step_rebyval(input, y)
-                extra_train_msg = '[Extra Status]: surrogate loss={:04f}, target loss={:.4f}' \
-                    .format(self.extra_metrics['v_loss'].numpy(), self.extra_metrics['t_loss'].numpy())
-                print_green(extra_train_msg)
+            if self.args['distribute']:
+                self.distributed_train_step(input,y)
             else:
                 self._train_step(input, y)
         except:
@@ -84,34 +81,6 @@ class ImageNetTrainer(BaseTrainer):
         except:
             self.test_flag = False
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step_rebyval(self, inputs, labels):
-        try:
-            v_inputs = {'inputs': None}
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                t_loss = self.metrics['loss_fn'](labels, predictions)
-
-                weights_flat = [tf.reshape(w, (1, -1)) for w in self.model.trainable_variables]
-                v_inputs['inputs'] = tf.concat(weights_flat, axis=1)
-                v_loss = self.surrogate_model(v_inputs)
-                v_loss = tf.reshape(v_loss, shape=())
-
-                # verify v net
-                loss = t_loss
-                # loss = t_loss + v_loss * 0.001
-
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-
-            self.metrics['train_loss'](loss)
-            self.extra_metrics['t_loss'].assign(t_loss)
-            self.extra_metrics['v_loss'].assign(v_loss)
-        except:
-            print_error("rebyval train step error")
-            raise
 
     def run_with_weights_collect(self):
         if self.args['train_loop_control']['valid'].get('analyse'):
