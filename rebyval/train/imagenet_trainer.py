@@ -44,8 +44,8 @@ class ImageNetTrainer(BaseTrainer):
                 raise
 
         y = x.pop('label')
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         input = x['image_raw']
 
         try:
