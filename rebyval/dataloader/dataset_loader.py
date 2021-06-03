@@ -75,17 +75,21 @@ class ImageNetDataLoader(BaseDataLoader):
 
         def _parse_analyse_function(example_proto):
             example = tf.io.parse_example(example_proto, analyse_feature_describ)
-            return example
-            # parsed_example = {}
-            # for feat, tensor in analyse_feature_describ.items():
-            #     if example[feat].dtype == tf.string:
-            #         parsed_single_example = []
-            #         for i in range(self.dataloader_args['batch_size']):
-            #             parsed_single_example.append(tf.io.decode_image(example[feat][i], channels=3))
-            #         parsed_example[feat] = parsed_single_example
-            #     else:
-            #         parsed_example[feat] = example[feat]
-            # return parsed_example
+            # return example
+            parsed_example = {}
+            for feat, tensor in analyse_feature_describ.items():
+                if example[feat].dtype == tf.string:
+                    parsed_single_example = []
+                    for i in range(self.dataloader_args['batch_size']):
+                        parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
+                        resized_image = tf.image.resize(parsed_analyse_image, [256, 256])
+                        resized_image = tf.expand_dims(resized_image, axis=0)
+                        parsed_single_example.append(resized_image)
+                    parsed_single_example = tf.concat(parsed_single_example, axis=0)
+                    parsed_example[feat] = parsed_single_example
+                else:
+                    parsed_example[feat] = example[feat]
+            return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=64, deterministic=False)
