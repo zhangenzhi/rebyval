@@ -272,8 +272,8 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def distributed_train_step(self, dist_inputs, dist_label):
+    @tf.function
+    def _distributed_train_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label))
         return self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
