@@ -132,7 +132,7 @@ class BaseTrainer:
         if self.args['loss'].get('identifier'):
             metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['identifier'])
         elif self.args['distribute']:
-            metrics['loss_fn'] = tf.keras.losses.CategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
+            metrics['loss_fn'] = tf.keras.losses.SparseCategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
         else:
             loss_name = self.args['loss']['name']
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
