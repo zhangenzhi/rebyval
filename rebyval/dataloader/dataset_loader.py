@@ -64,10 +64,10 @@ class ImageNetDataLoader(BaseDataLoader):
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
-            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=16),
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=56),
             block_length=256,
-            cycle_length=16,
-            num_parallel_calls=16,
+            cycle_length=56,
+            num_parallel_calls=56,
             deterministic=False)
 
         raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
