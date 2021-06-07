@@ -57,8 +57,7 @@ def decode_image(image_raw, batch_size):
     return decoded_image
 
 
-if __name__ == '__main__':
-
+def test_imagenet_datalaoder():
     dataloader_args = {'batch_size': 256,
                        'datapath': "/home/work/dataset/ILSVRC2012/downloads/manual/train_records",
                        'sample_of_curves': 250}
@@ -75,3 +74,9 @@ if __name__ == '__main__':
         if i != 0:
             mean_t(et - st)
         print("time cost:{} , avg time cost: {}".format(et - st, mean_t.result()))
+
+
+if __name__ == '__main__':
+    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid"
+    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid_records"
+    convert_imagebet_validset_to_tfrecords(input_dirs=input_dirs, output_dirs=output_dirs)

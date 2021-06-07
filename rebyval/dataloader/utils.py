@@ -43,8 +43,42 @@ def unpack_tarfile(input_dirs):
 
         os.remove(tarfile_path)
 
+def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=None):
+    # validation filepath
+    valid_labels = {}
+    filename = config_path if config_path else './dataset/imagenet/ILSVRC2012_validation_ground_truth.txt'
+    with open(filename,'r') as f:
+        lines = f.readlines()
+        prefix = "ILSVRC2012_val_"
+        for i in range(len(lines)):
+            valid_labels[prefix+'{:08d}.JPEG'.format(i+1)] = int(lines[i])
 
-def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
+
+
+    # open image.jpeg and save as tfrecord by 5000 a group
+    image_jpegs = os.listdir(input_dirs)
+    image_strings_buffer = []
+
+    for img in image_jpegs:
+        img_path = os.path.join(input_dirs, img)
+        image_strings_buffer.append((open(img_path, 'rb').read(), valid_labels[img]))
+
+        import pdb
+        pdb.set_trace()
+
+        if len(image_strings_buffer) == 5000:
+            num_tfrecords = len(os.listdir(output_dirs))
+            record_file = "{}.tfrecords".format(num_tfrecords)
+            record_file = os.path.join(output_dirs, record_file)
+            with tf.io.TFRecordWriter(record_file) as writer:
+                for image_string, label in image_strings_buffer:
+                    tf_example = _image_example(image_string=image_string, label=label)
+                    writer.write(tf_example.SerializeToString())
+            print("{} convert finished.".format(record_file))
+            image_strings_buffer = []
+
+
+def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
     # generate label from meta data
     metadata = scipy_io.loadmat('./examples/dataset/imagenet/meta.mat')
     synsets_info = metadata['synsets']
@@ -53,7 +87,7 @@ def convert_imagenet_to_tfrecords(input_dirs, output_dirs):
         set_info = item[0]
         feature_dict[set_info[1][0]] = set_info[0][0][0]
 
-    # open imge.jpeg and save as tfrecord by 5000 a group
+    # open image.jpeg and save as tfrecord by 5000 a group
     synsets_file = os.listdir(input_dirs)
     image_strings_buffer = []
     for synset in synsets_file:
@@ -113,6 +147,6 @@ def _image_example(image_string, label):
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
 if __name__ == '__main__':
-    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
-    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records"
-    metadata = convert_imagenet_to_tfrecords(input_dirs, output_dirs)
+    input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid"
+    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid_records"
+    metadata = convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs)
