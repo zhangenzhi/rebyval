@@ -120,7 +120,7 @@ class ImageNetDataLoader(BaseDataLoader):
 
         test_dataset = self._load_imagenet_from_tfrecord(filelist=test_filelist)
 
-        train_dataset = train_dataset.shuffle(len(train_filelist) * 4).repeat(-1)
+        train_dataset = train_dataset.shuffle(len(train_filelist)).repeat(-1)
         valid_dataset = valid_dataset.repeat(-1)
 
         return train_dataset, valid_dataset, test_dataset
