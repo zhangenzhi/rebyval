@@ -6,7 +6,6 @@ import logging
 from scipy import io as scipy_io
 
 import tensorflow as tf
-import tensorflow_datasets as tfds
 from tensorflow.keras import layers
 from rebyval.model.resnet import ResNet50
 from rebyval.dataloader.dataset_loader import ImageNetDataLoader
