@@ -46,7 +46,7 @@ def unpack_tarfile(input_dirs):
 def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=None):
     # validation filepath
     valid_labels = {}
-    filename = config_path if config_path else './dataset/imagenet/ILSVRC2012_validation_ground_truth.txt'
+    filename = config_path if config_path else './examples/dataset/imagenet/ILSVRC2012_validation_ground_truth.txt'
     with open(filename,'r') as f:
         lines = f.readlines()
         prefix = "ILSVRC2012_val_"
