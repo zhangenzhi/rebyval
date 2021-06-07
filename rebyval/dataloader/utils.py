@@ -53,8 +53,6 @@ def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=N
         for i in range(len(lines)):
             valid_labels[prefix+'{:08d}.JPEG'.format(i+1)] = int(lines[i])
 
-
-
     # open image.jpeg and save as tfrecord by 5000 a group
     image_jpegs = os.listdir(input_dirs)
     image_strings_buffer = []
@@ -62,9 +60,6 @@ def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=N
     for img in image_jpegs:
         img_path = os.path.join(input_dirs, img)
         image_strings_buffer.append((open(img_path, 'rb').read(), valid_labels[img]))
-
-        import pdb
-        pdb.set_trace()
 
         if len(image_strings_buffer) == 5000:
             num_tfrecords = len(os.listdir(output_dirs))
@@ -76,6 +71,17 @@ def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=N
                     writer.write(tf_example.SerializeToString())
             print("{} convert finished.".format(record_file))
             image_strings_buffer = []
+
+    # last tfrecord
+    if len(image_strings_buffer) != 0:
+        num_tfrecords = len(os.listdir(output_dirs))
+        record_file = "{}.tfrecords".format(num_tfrecords)
+        record_file = os.path.join(output_dirs, record_file)
+        with tf.io.TFRecordWriter(record_file) as writer:
+            for image_string, label in image_strings_buffer:
+                tf_example = _image_example(image_string=image_string, label=label)
+                writer.write(tf_example.SerializeToString())
+        print("{} is the last and convert finished.".format(record_file))
 
 
 def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
