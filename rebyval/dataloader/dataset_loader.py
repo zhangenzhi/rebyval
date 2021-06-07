@@ -1,3 +1,4 @@
+import os
 import random
 import tensorflow as tf
 from rebyval.dataloader.utils import glob_tfrecords
@@ -64,10 +65,10 @@ class ImageNetDataLoader(BaseDataLoader):
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
-            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=56),
-            block_length=256,
-            cycle_length=56,
-            num_parallel_calls=56,
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=28),
+            block_length=56,
+            cycle_length=28,
+            num_parallel_calls=28,
             deterministic=False)
 
         raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
@@ -91,7 +92,7 @@ class ImageNetDataLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
-                                                         num_parallel_calls=64, deterministic=False)
+                                                         num_parallel_calls=28, deterministic=False)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
@@ -99,17 +100,13 @@ class ImageNetDataLoader(BaseDataLoader):
 
     def load_dataset(self, format=None):
 
-        filelist = glob_tfrecords(
-            self.dataloader_args['datapath'], glob_pattern='*.tfrecords')
+        train_dataset_path = os.path.join(self.dataloader_args['datapath'], 'train_record')
+        valid_dataset_path = os.path.join(self.dataloader_args['datapath'], 'valid_record')
 
-        train_filelist = valid_filelist = test_filelist = []
+        train_filelist = glob_tfrecords(train_dataset_path, glob_pattern='*.tfrecords')
+        test_filelist = valid_filelist = glob_tfrecords(valid_dataset_path, glob_pattern='*.tfrecords')
         if self.dataloader_args.get('sample_of_curves'):
-
-            train_filelist = filelist[(len(filelist) - self.dataloader_args['sample_of_curves']):]
-            test_filelist = [f for f in filelist if f not in train_filelist]
-            valid_filelist = random.sample(test_filelist, 5)
-            test_filelist = valid_filelist
-
+            train_filelist = train_filelist[(len(train_filelist) - self.dataloader_args['sample_of_curves']):]
             if train_filelist == []:
                 raise ('no files included.')
 

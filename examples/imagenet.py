@@ -32,16 +32,16 @@ def get_conv_target_net():
     return model
 
 
-def load_ImageNet(ds_type, BASEDIR, batch_size):
-    read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=16,
-                                  num_parallel_calls_for_decode=16)
-    [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
-                                             data_dir=BASEDIR, download=False, shuffle_files=True,
-                                             read_config=read_config,
-                                             batch_size=batch_size, as_supervised=False, with_info=True)
-
-    ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
-    return [ds_train, ds_test], ds_info
+# def load_ImageNet(ds_type, BASEDIR, batch_size):
+#     read_config = tfds.ReadConfig(num_parallel_calls_for_interleave_files=16,
+#                                   num_parallel_calls_for_decode=16)
+#     [ds_train, ds_test], ds_info = tfds.load(ds_type, split=['train', 'validation'],
+#                                              data_dir=BASEDIR, download=False, shuffle_files=True,
+#                                              read_config=read_config,
+#                                              batch_size=batch_size, as_supervised=False, with_info=True)
+#
+#     ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
+#     return [ds_train, ds_test], ds_info
 
 
 @tf.function(experimental_relax_shapes=True, experimental_compile=None)
