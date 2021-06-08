@@ -1,7 +1,8 @@
-import fnmatch, os
 import re
-import tensorflow as tf
 import tarfile
+import random
+import fnmatch, os
+import tensorflow as tf
 from tensorflow.io import gfile
 from scipy import io as scipy_io
 
@@ -94,43 +95,40 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
         set_info = item[0]
         feature_dict[set_info[1][0]] = set_info[0][0][0]
 
-    # open image.jpeg and save as tfrecord by 5000 a group
+    # pre-shuffle images in image path
     synsets_file = os.listdir(input_dirs)
     image_strings_buffer = []
     for synset in synsets_file:
         synset_path = os.path.join(input_dirs, synset)
         image_jpeg = os.listdir(synset_path)
-
         for img in image_jpeg:
             img_path = os.path.join(synset_path, img)
-            img_string = open(img_path, 'rb').read()
-            img_tensor = tf.io.decode_jpeg(img_string, channels=3)
-            img_tensor_resized = tf.image.resize(img_tensor, size=[224, 224])
-            img_tensor_resized_rescaled = img_tensor_resized / 255.0
-            img_string = tf.io.encode_jpeg(img_tensor_resized_rescaled)
-            image_strings_buffer.append((img_string, feature_dict[synset]))
+            image_strings_buffer.append((img_path, feature_dict[synset]))
+    image_strings_buffer = random.shuffle(image_strings_buffer)
 
-            import pdb
-            pdb.set_trace()
+    import pdb
+    pdb.set_trace()
 
-            if len(image_strings_buffer) == 5000:
-                num_tfrecords = len(os.listdir(output_dirs))
-                record_file = "{}.tfrecords".format(num_tfrecords)
-                record_file = os.path.join(output_dirs, record_file)
-                with tf.io.TFRecordWriter(record_file) as writer:
-                    for image_string, label in image_strings_buffer:
-                        tf_example = _image_example(image_string=image_string, label=label)
-                        writer.write(tf_example.SerializeToString())
-                print("{} convert finished.".format(record_file))
-                image_strings_buffer = []
+    # open image.jpeg as string and save into tfrecord by 5000 samples a group
+    tmp_buffer = []
+    for img_path, label in image_strings_buffer:
+        tmp_buffer.append((open(img_path, mode='rb'), label))
+        if len(tmp_buffer) == 5000:
+            num_tfrecords = len(os.listdir(output_dirs))
+            record_file = os.path.join(output_dirs, "{}.tfrecords".format(num_tfrecords))
+            with tf.io.TFRecordWriter(record_file) as writer:
+                for image_string, label in tmp_buffer:
+                    tf_example = _image_example(image_string=image_string, label=label)
+                    writer.write(tf_example.SerializeToString())
+            print("{} convert finished.".format(record_file))
+            tmp_buffer = []
 
     # last tfrecord
-    if len(image_strings_buffer) != 0:
+    if len(tmp_buffer) != 0:
         num_tfrecords = len(os.listdir(output_dirs))
-        record_file = "{}.tfrecords".format(num_tfrecords)
-        record_file = os.path.join(output_dirs, record_file)
+        record_file = os.path.join(output_dirs, "{}.tfrecords".format(num_tfrecords))
         with tf.io.TFRecordWriter(record_file) as writer:
-            for image_string, label in image_strings_buffer:
+            for image_string, label in tmp_buffer:
                 tf_example = _image_example(image_string=image_string, label=label)
                 writer.write(tf_example.SerializeToString())
         print("{} is the last and convert finished.".format(record_file))
