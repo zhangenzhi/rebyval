@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 
 
 class ResNet(Model):
-    def __init__(self, use_bias=False, pooling=None, classes=1000):
+    def __init__(self, use_bias=True, pooling=None, classes=1000):
         super(ResNet, self).__init__()
 
         self.use_bias = use_bias
