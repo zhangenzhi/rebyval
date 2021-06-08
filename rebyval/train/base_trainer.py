@@ -269,7 +269,7 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function
     def _distributed_train_step(self, dist_inputs, dist_label):
 
         # import pdb
