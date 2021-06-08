@@ -82,7 +82,8 @@ class ImageNetDataLoader(BaseDataLoader):
                     parsed_single_example = []
                     for i in range(self.dataloader_args['batch_size']):
                         parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
-                        resized_image = tf.image.resize(parsed_analyse_image, [256, 256])
+                        resized_image = parsed_analyse_image / 255.0
+                        resized_image = tf.image.resize(resized_image, [224, 224])
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
                     parsed_single_example = tf.concat(parsed_single_example, axis=0)
@@ -100,7 +101,7 @@ class ImageNetDataLoader(BaseDataLoader):
 
     def load_dataset(self, format=None):
 
-        train_dataset_path = os.path.join(self.dataloader_args['datapath'], 'train_records')
+        train_dataset_path = os.path.join(self.dataloader_args['datapath'], 'train_shuffled')
         valid_dataset_path = os.path.join(self.dataloader_args['datapath'], 'valid_records')
 
         train_filelist = glob_tfrecords(train_dataset_path, glob_pattern='*.tfrecords')
@@ -120,7 +121,7 @@ class ImageNetDataLoader(BaseDataLoader):
 
         test_dataset = self._load_imagenet_from_tfrecord(filelist=test_filelist)
 
-        train_dataset = train_dataset.shuffle(len(train_filelist)).repeat(-1)
+        train_dataset = train_dataset.repeat(-1)
         valid_dataset = valid_dataset.repeat(-1)
 
         return train_dataset, valid_dataset, test_dataset
