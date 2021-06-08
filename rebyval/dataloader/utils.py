@@ -109,7 +109,7 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
     # open image.jpeg as string and save into tfrecord by 5000 samples a group
     tmp_buffer = []
     for img_path, label in image_strings_buffer:
-        tmp_buffer.append((open(img_path, mode='rb'), label))
+        tmp_buffer.append((open(img_path, mode='rb').read(), label))
         if len(tmp_buffer) == 5000:
             num_tfrecords = len(os.listdir(output_dirs))
             record_file = os.path.join(output_dirs, "{}.tfrecords".format(num_tfrecords))
