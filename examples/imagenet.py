@@ -77,5 +77,5 @@ def test_imagenet_datalaoder():
 
 if __name__ == '__main__':
     input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train"
-    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_records_rescaled"
+    output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/train_shuffled"
     convert_imagenet_trainset_to_tfrecords(input_dirs=input_dirs, output_dirs=output_dirs)
