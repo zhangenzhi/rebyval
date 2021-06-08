@@ -43,15 +43,16 @@ def unpack_tarfile(input_dirs):
 
         os.remove(tarfile_path)
 
-def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs,config_path=None):
+
+def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs, config_path=None):
     # validation filepath
     valid_labels = {}
     filename = config_path if config_path else './examples/dataset/imagenet/ILSVRC2012_validation_ground_truth.txt'
-    with open(filename,'r') as f:
+    with open(filename, 'r') as f:
         lines = f.readlines()
         prefix = "ILSVRC2012_val_"
         for i in range(len(lines)):
-            valid_labels[prefix+'{:08d}.JPEG'.format(i+1)] = int(lines[i])
+            valid_labels[prefix + '{:08d}.JPEG'.format(i + 1)] = int(lines[i])
 
     # open image.jpeg and save as tfrecord by 5000 a group
     image_jpegs = os.listdir(input_dirs)
@@ -102,7 +103,15 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
 
         for img in image_jpeg:
             img_path = os.path.join(synset_path, img)
-            image_strings_buffer.append((open(img_path, 'rb').read(), feature_dict[synset]))
+            img_string = open(img_path, 'rb').read()
+            img_tensor = tf.io.decode_jpeg(img_string, channels=3)
+            img_tensor_resized = tf.image.resize(img_tensor, size=[224, 224])
+            img_tensor_resized_rescaled = img_tensor_resized / 255.0
+            img_string = tf.io.encode_jpeg(img_tensor_resized_rescaled)
+            image_strings_buffer.append((img_string, feature_dict[synset]))
+
+            import pdb
+            pdb.set_trace()
 
             if len(image_strings_buffer) == 5000:
                 num_tfrecords = len(os.listdir(output_dirs))
@@ -151,6 +160,7 @@ def _image_example(image_string, label):
         'image_raw': _bytes_feature(image_string)
     }
     return tf.train.Example(features=tf.train.Features(feature=feature))
+
 
 if __name__ == '__main__':
     input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid"
