@@ -68,7 +68,14 @@ class ImageNetTrainer(BaseTrainer):
             x_valid = self.valid_iter.get_next()
             y_valid = x_valid.pop('label')
             input = x_valid['image_raw']
-            self._valid_step(input, y_valid)
+            try:
+                if self.args['distribute']:
+                    self._distributed_valid_step(input, y_valid)
+                else:
+                    self._valid_step(input, y_valid)
+            except:
+                print_error("during traning train_step exception")
+                raise
 
         except:
             print_warning("during validation exception")
@@ -83,7 +90,10 @@ class ImageNetTrainer(BaseTrainer):
             x_test = self.test_iter.get_next()
             y_test = x_test.pop('label')
             input = x_test['image_raw']
-            self._test_step(input, y_test)
+            if self.args['distribute']:
+                self._distributed_test_step(input, y_test)
+            else:
+                self._valid_step(input, y_test)
         except:
             self.test_flag = False
 

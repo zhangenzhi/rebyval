@@ -291,6 +291,25 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
+    def _valid_step_for_dist(self, inputs, labels):
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(inputs, training=True)
+                # loss = self.metrics['loss_fn'](labels, predictions)
+                loss = self._compute_loss_for_dist(labels, predictions)
+            return loss
+        except:
+            print_error("distribute valid step error")
+            raise
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _distributed_valid_step(self, dist_inputs, dist_label):
+        per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
+        sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        self.metrics['valid_loss'](sum_loss)
+        return sum_loss
+
+
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels):
         try:
