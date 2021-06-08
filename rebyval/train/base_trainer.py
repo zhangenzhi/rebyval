@@ -257,8 +257,6 @@ class BaseTrainer:
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
 
     def _train_step_for_dist(self, inputs, labels):
-        import pdb
-        pdb.set_trace()
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
@@ -273,6 +271,9 @@ class BaseTrainer:
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
+
+        import pdb
+        pdb.set_trace()
 
         per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
