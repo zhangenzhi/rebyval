@@ -26,6 +26,10 @@ class ImageNetTrainer(BaseTrainer):
     def reset_dataset(self):
         if self.args['dataloader']['name'] == 'imagenet':
             train_dataset, valid_dataset, test_dataset = self.dataloader.load_dataset()
+            if self.args['distribute']:
+                train_dataset = self.mirrored_stragey.experimental_distribute_dataset(train_dataset)
+                valid_dataset = self.mirrored_stragey.experimental_distribute_dataset(valid_dataset)
+                test_dataset = self.mirrored_stragey.experimental_distribute_dataset(test_dataset)
             return train_dataset, valid_dataset, test_dataset
 
     @BaseTrainer.timer
@@ -63,7 +67,7 @@ class ImageNetTrainer(BaseTrainer):
         try:
             x_valid = self.valid_iter.get_next()
             y_valid = x_valid.pop('label')
-            input = self.decode_image(x_valid['image_raw'])
+            input = x_valid['image_raw']
             self._valid_step(input, y_valid)
 
         except:
@@ -78,7 +82,7 @@ class ImageNetTrainer(BaseTrainer):
         try:
             x_test = self.test_iter.get_next()
             y_test = x_test.pop('label')
-            input = self.decode_image(x_test['image_raw'])
+            input = x_test['image_raw']
             self._test_step(input, y_test)
         except:
             self.test_flag = False
