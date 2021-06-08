@@ -269,10 +269,15 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
-        per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
-        sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+
+        import pdb
+        pdb.set_trace()
+
+        per_replica_losses_1 = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
+        per_replica_losses_2 = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
+        sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses_1+per_replica_losses_2, axis=None)
         self.metrics['train_loss'](sum_loss)
         return sum_loss
 
@@ -337,7 +342,7 @@ class BaseTrainer:
     def _distributed_test_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._test_step_for_dist, args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
-        self.metrics['valid_loss'](sum_loss)
+        self.metrics['test_loss'](sum_loss)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
