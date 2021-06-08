@@ -104,7 +104,7 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
         for img in image_jpeg:
             img_path = os.path.join(synset_path, img)
             image_strings_buffer.append((img_path, feature_dict[synset]))
-    image_strings_buffer = random.shuffle(image_strings_buffer)
+    random.shuffle(image_strings_buffer)
 
     import pdb
     pdb.set_trace()
