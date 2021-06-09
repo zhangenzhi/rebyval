@@ -290,7 +290,7 @@ class BaseTrainer:
                 loss = self.metrics['loss_fn'](labels, predictions)
                 print(loss)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            gradients_norm = [tf.norm(g,2) for g in gradients]
+            gradients_norm = [tf.norm(g,2).numpy() for g in gradients]
             print(gradients_norm)
             gradients = [tf.clip_by_value(g, -1.0, 1.0) for g in gradients]
 
