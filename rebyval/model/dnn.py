@@ -27,7 +27,7 @@ class DenseNeuralNetwork(Model):
 
     def call(self, x):
 
-        if x.get('inputs'):
+        if isinstance(x, dict):
             x_inputs = x['inputs']
         else:
             x_inputs = tf.reshape(x, shape=(x.shape[0], -1))
