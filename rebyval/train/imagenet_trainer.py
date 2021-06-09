@@ -52,6 +52,9 @@ class ImageNetTrainer(BaseTrainer):
         # pdb.set_trace()
         input = x['image_raw']
 
+        import pdb
+        pdb.set_trace()
+
         try:
             if self.args['distribute']:
                 self._distributed_train_step(input,y)
