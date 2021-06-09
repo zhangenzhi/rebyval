@@ -19,6 +19,10 @@ experiment:
       activations_for_all: relu,relu,relu,relu,softmax
     loss:
       name: SparseCategoricalCrossentropy
+      identifier:
+        class_name: SparseCategoricalCrossentropy
+        config:
+          from_logits: True
       metric: accuracy
     optimizer:
       name: SGD # default SGD
