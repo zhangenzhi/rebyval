@@ -291,11 +291,14 @@ class BaseTrainer:
                 print(loss)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             gradients_norm = [tf.norm(g,2).numpy() for g in gradients]
-            print(gradients_norm)
+            print_green(gradients_norm)
             gradients = [tf.clip_by_value(g, -1.0, 1.0) for g in gradients]
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
+            weights_norm = [tf.norm(w, 2).numpy() for w in self.model.trainable_variables]
+            print_error(weights_norm)
+
             self.metrics['train_loss'](loss)
         except:
             print_error("train step error")
