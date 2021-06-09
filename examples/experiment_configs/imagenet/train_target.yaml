@@ -16,7 +16,7 @@ experiment:
     model:
       name: dnn # default dnn
       deep_dims: 128,128,128,128,1000
-      activations_for_each: relu,relu,relu,relu,relu,softmax
+      activations_for_all: relu,relu,relu,relu,relu,softmax
     loss:
       name: SparseCategoricalCrossentropy
       metric: accuracy
