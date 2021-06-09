@@ -175,7 +175,7 @@ class BaseTrainer:
                         learning_rate=scheduler)
             else:
                 optimizer = tf.keras.optimizers.SGD(
-                    learning_rate=learning_rate)
+                    learning_rate=learning_rate, momentum=0.9, nesterov=True)
 
         elif optimizer_args['name'] == 'Adagrad':
             optimizer = tf.keras.optimizers.Adagrad(
