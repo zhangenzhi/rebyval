@@ -61,7 +61,7 @@ def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs, config_path=
 
     for img in image_jpegs:
         img_path = os.path.join(input_dirs, img)
-        image_strings_buffer.append((open(img_path, 'rb').read(), valid_labels[img]))
+        image_strings_buffer.append((open(img_path, 'rb').read(), valid_labels[img]-1))
 
         if len(image_strings_buffer) == 5000:
             num_tfrecords = len(os.listdir(output_dirs))
