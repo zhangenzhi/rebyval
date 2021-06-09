@@ -102,7 +102,7 @@ class ImageNetDataLoader(BaseDataLoader):
     def load_dataset(self, format=None):
 
         train_dataset_path = os.path.join(self.dataloader_args['datapath'], 'train_shuffled')
-        valid_dataset_path = os.path.join(self.dataloader_args['datapath'], 'valid_records')
+        valid_dataset_path = os.path.join(self.dataloader_args['datapath'], 'valid_shuffled')
 
         train_filelist = glob_tfrecords(train_dataset_path, glob_pattern='*.tfrecords')
         test_filelist = valid_filelist = glob_tfrecords(valid_dataset_path, glob_pattern='*.tfrecords')
