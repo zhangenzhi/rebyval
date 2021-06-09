@@ -12,7 +12,7 @@ experiment:
       name: imagenet # default cifar10
       datapath: /home/work/dataset/ILSVRC2012/downloads/manual/
       batch_size: 32
-      sample_of_curves: 250
+      sample_of_curves: 25
     model:
       name: resnet50 # default dnn
     loss:
@@ -20,7 +20,7 @@ experiment:
       metric: accuracy
     optimizer:
       name: SGD # default SGD
-      learning_rate: 0.1 # default 0.01
+      learning_rate: 0.01 # default 0.01
     train_loop_control:
       train:
         check_should_train: True
