@@ -14,7 +14,7 @@ experiment:
       batch_size: 32
       sample_of_curves: 25
     model:
-      name: resnet50 # default dnn
+      name: dnn # default dnn
     loss:
       name: SparseCategoricalCrossentropy
       metric: accuracy
