@@ -11,7 +11,7 @@ experiment:
     dataloader:
       name: imagenet # default cifar10
       datapath: /home/work/dataset/ILSVRC2012/downloads/manual/
-      batch_size: 1024
+      batch_size: 128
       sample_of_curves: 25
     model:
       name: dnn # default dnn
