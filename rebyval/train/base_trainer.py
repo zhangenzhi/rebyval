@@ -282,12 +282,13 @@ class BaseTrainer:
         self.metrics['train_loss'](sum_loss)
         return sum_loss
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.metrics['loss_fn'](labels, predictions)
+                print(loss)
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
@@ -314,7 +315,6 @@ class BaseTrainer:
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
         self.metrics['valid_loss'](sum_loss)
         return sum_loss
-
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels):
