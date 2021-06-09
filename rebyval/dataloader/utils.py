@@ -103,7 +103,7 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
         image_jpeg = os.listdir(synset_path)
         for img in image_jpeg:
             img_path = os.path.join(synset_path, img)
-            image_strings_buffer.append((img_path, feature_dict[synset]))
+            image_strings_buffer.append((img_path, feature_dict[synset]-1))
     random.shuffle(image_strings_buffer)
 
     # open image.jpeg as string and save into tfrecord by 5000 samples a group
