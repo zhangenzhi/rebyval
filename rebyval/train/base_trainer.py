@@ -139,11 +139,11 @@ class BaseTrainer:
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
 
         metrics['train_loss'] = tf.keras.metrics.Mean(name='train_loss')
-        metrics['train_accuracy'] = tf.keras.metrics.AUC(name='train_auc')
+        metrics['train_accuracy'] = tf.keras.metrics.Mean(name='train_accuracy')
         metrics['valid_loss'] = tf.keras.metrics.Mean(name='valid_loss')
-        metrics['valid_accuracy'] = tf.keras.metrics.AUC(name='valid_auc')
+        metrics['valid_accuracy'] = tf.keras.metrics.Mean(name='valid_accuracy')
         metrics['test_loss'] = tf.keras.metrics.Mean(name='test_loss')
-        metrics['test_accuracy'] = tf.keras.metrics.AUC(name='test_auc')
+        metrics['test_accuracy'] = tf.keras.metrics.Mean(name='test_accuracy')
 
         return metrics
 
@@ -262,18 +262,22 @@ class BaseTrainer:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 loss = self._compute_loss_for_dist(labels, predictions)
+                train_accuracy = tf.keras.metrics.Accuracy()(predictions, labels)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-            return loss
+            return loss, train_accuracy
         except:
             print_error("train step error")
             raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
-        per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
+        per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._train_step_for_dist,
+                                                                             args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['train_loss'](sum_loss)
+        self.metrics['train_accuracy'](sum_accuracy)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -286,16 +290,16 @@ class BaseTrainer:
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
+            self.metrics['train_accuracy'] = tf.keras.metrics.Accuracy()(predictions, labels)
         except:
             print_error("train step error")
             raise
 
     def _valid_step_for_dist(self, inputs, labels):
         try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                # loss = self.metrics['loss_fn'](labels, predictions)
-                loss = self._compute_loss_for_dist(labels, predictions)
+            predictions = self.model(inputs, training=True)
+            # loss = self.metrics['loss_fn'](labels, predictions)
+            loss = self._compute_loss_for_dist(labels, predictions)
             return loss
         except:
             print_error("distribute valid step error")
@@ -303,9 +307,12 @@ class BaseTrainer:
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_valid_step(self, dist_inputs, dist_label):
-        per_replica_losses = self.mirrored_stragey.run(self._valid_step_for_dist, args=(dist_inputs, dist_label,))
+        per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._valid_step_for_dist,
+                                                                             args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['valid_loss'](sum_loss)
+        self.metrics['valid_accuracy'](sum_accuracy)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -315,6 +322,7 @@ class BaseTrainer:
             v_loss = self.metrics['loss_fn'](labels, predictions)
 
             self.metrics['valid_loss'](v_loss)
+            self.metrics['valid_accuracy'](tf.keras.metrics.Accuracy()(predictions, labels))
             return predictions
         except:
             print_error("valid step error")
@@ -322,10 +330,10 @@ class BaseTrainer:
 
     def _test_step_for_dist(self, inputs, labels):
         try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                # loss = self.metrics['loss_fn'](labels, predictions)
-                loss = self._compute_loss_for_dist(labels, predictions)
+
+            predictions = self.model(inputs, training=True)
+            # loss = self.metrics['loss_fn'](labels, predictions)
+            loss = self._compute_loss_for_dist(labels, predictions)
             return loss
         except:
             print_error("distribute valid step error")
@@ -333,9 +341,11 @@ class BaseTrainer:
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_test_step(self, dist_inputs, dist_label):
-        per_replica_losses = self.mirrored_stragey.run(self._test_step_for_dist, args=(dist_inputs, dist_label,))
+        per_replica_losses,per_replica_accuracy = self.mirrored_stragey.run(self._test_step_for_dist, args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['test_loss'](sum_loss)
+        self.metrics['test_accuracy'](sum_accuracy)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -465,8 +475,9 @@ class BaseTrainer:
 
         # message print
 
-        iter_msg = '[Training Status]: step={:08d}, train loss={:.4f}' \
-                       .format(self.train_step, self.metrics['train_loss'].result().numpy()
+        iter_msg = '[Training Status]: step={:08d}, train loss={:.4f}, train accuracy={:.4f}' \
+                       .format(self.train_step, self.metrics['train_loss'].result().numpy(),
+                               self.metrics['train_accuracy'].result().numpy()
                                ) + ', traning_current_time={:.4f}s, training_cumulative_time={:.4f}h' \
                        .format(self.timer_dict['during_train'], self.timer_dict['cumulate_during_train'] / 3600)
         print(iter_msg)
@@ -521,10 +532,9 @@ class BaseTrainer:
         self.valid_auc_list.append(valid_auc)
 
         # valid log collection
-        valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: AUC :{:.6f}: ' \
+        valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: Accuracy :{:.6f}: ' \
             .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch,
-                    self.metrics['valid_loss'].result().numpy(),
-                    valid_auc)
+                    self.metrics['valid_loss'].result().numpy(), valid_auc)
         print(valid_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
