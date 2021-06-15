@@ -32,7 +32,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/target/imagenet/baseline
+        log_path: ./log/target/imagenet/baseline_accuracy
       test:
         test_steps: 500
         check_should_test: False # default False for no test step

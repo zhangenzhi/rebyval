@@ -262,7 +262,8 @@ class BaseTrainer:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 loss = self._compute_loss_for_dist(labels, predictions)
-                train_accuracy = tf.keras.metrics.Accuracy()(predictions, labels)
+                pred_index = tf.argmax(predictions, axis=1)
+                train_accuracy = tf.keras.metrics.Accuracy()(pred_index, labels)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
             return loss, train_accuracy
@@ -290,7 +291,8 @@ class BaseTrainer:
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
-            self.metrics['train_accuracy'] = tf.keras.metrics.Accuracy()(predictions, labels)
+            pred_index = tf.argmax(predictions,axis=1)
+            self.metrics['train_accuracy'] = tf.keras.metrics.Accuracy()(pred_index, labels)
         except:
             print_error("train step error")
             raise
@@ -300,7 +302,9 @@ class BaseTrainer:
             predictions = self.model(inputs, training=True)
             # loss = self.metrics['loss_fn'](labels, predictions)
             loss = self._compute_loss_for_dist(labels, predictions)
-            return loss
+            pred_index = tf.argmax(predictions, axis=1)
+            accuracy = tf.keras.metrics.Accuracy()(pred_index, labels)
+            return loss, accuracy
         except:
             print_error("distribute valid step error")
             raise
