@@ -134,6 +134,7 @@ class BaseTrainer:
             metrics['loss_fn'] = tf.keras.losses.get(self.args['loss']['identifier'])
         elif self.args['distribute']:
             metrics['loss_fn'] = tf.keras.losses.SparseCategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
+            metrics['accuracy_fn'] = tf.keras.metrics.Accuracy()
         else:
             loss_name = self.args['loss']['name']
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
@@ -263,7 +264,7 @@ class BaseTrainer:
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 loss = self._compute_loss_for_dist(labels, predictions)
                 pred_index = tf.argmax(predictions, axis=1)
-                train_accuracy = tf.keras.metrics.Accuracy()(pred_index, labels)
+                train_accuracy = self.metrics['accuracy_fn'](pred_index, labels)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
             return loss, train_accuracy
@@ -292,7 +293,7 @@ class BaseTrainer:
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
             pred_index = tf.argmax(predictions,axis=1)
-            self.metrics['train_accuracy'] = tf.keras.metrics.Accuracy()(pred_index, labels)
+            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'](pred_index, labels)
         except:
             print_error("train step error")
             raise
@@ -303,7 +304,7 @@ class BaseTrainer:
             # loss = self.metrics['loss_fn'](labels, predictions)
             loss = self._compute_loss_for_dist(labels, predictions)
             pred_index = tf.argmax(predictions, axis=1)
-            accuracy = tf.keras.metrics.Accuracy()(pred_index, labels)
+            accuracy = self.metrics['accuracy_fn'](pred_index, labels)
             return loss, accuracy
         except:
             print_error("distribute valid step error")
@@ -326,7 +327,7 @@ class BaseTrainer:
             v_loss = self.metrics['loss_fn'](labels, predictions)
 
             self.metrics['valid_loss'](v_loss)
-            self.metrics['valid_accuracy'](tf.keras.metrics.Accuracy()(predictions, labels))
+            self.metrics['valid_accuracy'](self.metrics['accuracy_fn'](predictions, labels))
             return predictions
         except:
             print_error("valid step error")
