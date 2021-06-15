@@ -162,7 +162,7 @@ RUN pip3 install \
     yapf==0.28.0 \
     cpplint==1.4.4 \
     future==0.18.2 \
-    scipy==1.4.1
+    scipy==1.4.1 \
     numpy==1.18.1 \
     protobuf==3.11.3 \
     pyyaml==5.3.1 \

@@ -1,0 +1,12 @@
+{
+  "cluster": {
+    "worker": [
+      "localhost:1234",
+      "10.38.10.146:1234"
+    ]
+  },
+  "task": {
+    "type": "worker",
+    "index": 0
+  }
+}

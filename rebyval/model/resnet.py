@@ -35,7 +35,8 @@ class ResNet(Model):
     def _build_dense_inference(self):
         inference_layer = []
         inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
-        inference_layer.append(layers.Dense(self.classes, activation='softmax', name='prediction'))
+        inference_layer.append(layers.Dense(self.classes, activation='softmax', name='prediction',
+                                            kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
         return inference_layer
 
     def _dense_inference(self, x, dense_inference_layers):
@@ -63,21 +64,25 @@ class ResNet(Model):
 
         if conv_shortcut:
             seq_layer_shortcut.append(layers.Conv2D(
-                4 * filters, 1, strides=stride, name=name + '_0_conv'))
+                4 * filters, 1, strides=stride, name=name + '_0_conv',
+                kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         else:
-            seq_layer_shortcut.append(layers.Lambda(lambda  x:x))
+            seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
-        seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv'))
+        seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv',
+                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv'))
+        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv',
+                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
-        seq_layers_block.append(layers.Conv2D(4 * filters, 1, name=name + '_3_conv'))
+        seq_layers_block.append(layers.Conv2D(4 * filters, 1, name=name + '_3_conv',
+                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn'))
 
         seq_layers_block.append(layers.Add(name=name + '_add'))
