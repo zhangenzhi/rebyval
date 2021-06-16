@@ -77,7 +77,7 @@ class ImageNetTrainer(BaseTrainer):
                 else:
                     self._valid_step(input, y_valid)
             except:
-                print_error("during traning train_step exception")
+                print_error("during valid valid_step exception")
                 raise
 
         except:

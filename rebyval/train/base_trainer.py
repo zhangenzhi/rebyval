@@ -368,7 +368,6 @@ class BaseTrainer:
         try:
             predictions = self.model(inputs, training=False)
             t_loss = self.metrics['loss_fn'](labels, predictions)
-            print(t_loss.numpy())
             self.metrics['test_loss'](t_loss)
             return predictions
         except:
@@ -515,8 +514,8 @@ class BaseTrainer:
             self.valid_flag = True
 
             # numerical reset
-            self.valid_auc_list = []
-            self.valid_metrics_list = []
+            self.valid_accuracy_list = []
+            self.valid_metrics_list = {}
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
 
@@ -536,20 +535,18 @@ class BaseTrainer:
         valid_msg = '[Validating Status]: Valid Step: {:04d}'.format(self.valid_step)
         print(valid_msg)
 
-        valid_auc_numpy = self.metrics['valid_accuracy'].result().numpy()
-
-        self.valid_metrics_list.append(valid_auc_numpy)
 
     def after_valid(self):
 
         # record valid metric
-        valid_auc = sum(self.valid_metrics_list) / len(self.valid_metrics_list)
-        self.valid_auc_list.append(valid_auc)
+        valid_accuracy = self.metrics['valid_accuracy'].result().numpy()
+        self.valid_accuracy_list.append(valid_accuracy)
+
 
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: Accuracy :{:.6f}: ' \
             .format((self.global_step + 1) * self.valid_args['valid_gap'], self.epoch,
-                    self.metrics['valid_loss'].result().numpy(), valid_auc)
+                    self.metrics['valid_loss'].result().numpy(), valid_accuracy)
         print(valid_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
@@ -560,7 +557,7 @@ class BaseTrainer:
 
         # save model best
         if self.valid_args.get('save_model'):
-            if valid_auc >= max(self.valid_auc_list):
+            if valid_accuracy >= max(self.valid_accuracy_list):
                 self.model_save_by_name(name="best")
 
         # collect analyse data
@@ -611,7 +608,7 @@ class BaseTrainer:
     def after_test(self):
 
         # test log collection
-        test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: AUC :{:.6f}' \
+        test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: Accuracy :{:.6f}' \
             .format(self.global_step, self.metrics['test_loss'].result(), self.metrics['test_accuracy'].result())
         print(test_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
@@ -647,7 +644,7 @@ class BaseTrainer:
 
         tf.keras.backend.clear_session()
         return_dict = {
-            'valid_auc_list': self.valid_auc_list,
+            'valid_auc_list': self.valid_accuracy_list,
             'global_step_list': self.global_step_list,
             'test_auc': self.metrics['test_accuracy'].result().numpy()
         }
