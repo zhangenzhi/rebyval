@@ -36,7 +36,7 @@ class ResNet(Model):
         inference_layer = []
         inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
         inference_layer.append(layers.Dense(self.classes, activation='softmax', name='prediction',
-                                            kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
+                                            kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         return inference_layer
 
     def _dense_inference(self, x, dense_inference_layers):
@@ -72,17 +72,17 @@ class ResNet(Model):
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
         seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv',
-                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
+                                              kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
         seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv',
-                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
+                                              kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
         seq_layers_block.append(layers.Conv2D(4 * filters, 1, name=name + '_3_conv',
-                                              kernel_regularizer=tf.keras.regularizer(l2=0.0001)))
+                                              kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn'))
 
         seq_layers_block.append(layers.Add(name=name + '_add'))
