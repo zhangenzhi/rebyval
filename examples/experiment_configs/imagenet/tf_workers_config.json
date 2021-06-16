@@ -7,6 +7,6 @@
   },
   "task": {
     "type": "worker",
-    "index": 1
+    "index": 0
   }
 }

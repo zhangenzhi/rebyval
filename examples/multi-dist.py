@@ -8,6 +8,7 @@ import pdb
 
 f = open("./examples/experiment_configs/imagenet/tf_workers_config.json")
 tf_config = json.load(f)
+tf_config['task']['index'] = 1
 os.environ['TF_CONFIG'] = json.dumps(tf_config)
 strategy = tf.distribute.MultiWorkerMirroredStrategy()
 num_workers = len(tf_config['cluster']['worker'])
