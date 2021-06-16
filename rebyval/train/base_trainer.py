@@ -164,18 +164,19 @@ class BaseTrainer:
                                                                 base_learning_rate=learning_rate,
                                                                 warmup_steps=3000,
                                                                 gradual_steps=10000)
-                if scheduler_args['name'] == 'polynomial_decay':
+                elif scheduler_args['name'] == 'polynomial_decay':
                     scheduler = tf.keras.optimizers.schedules.PolynomialDecay(learning_rate,
                                                                               decay_steps=24000,
                                                                               end_learning_rate=learning_rate / 1000,
                                                                               power=0.5)
-                if scheduler_args['name'] == 'piecewise_decay':
+                elif scheduler_args['name'] == 'piecewise_decay':
                     boundaries = [20000, 40000]
                     values = [0.1, 0.01, 0.001]
                     scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
                 else:
                     print_error("No such scheduler")
                     raise ("No such scheduler")
+
                 if self.args['distribue']:
                     with self.mirrored_stragey.scope():
                         optimizer = tf.keras.optimizers.SGD(
