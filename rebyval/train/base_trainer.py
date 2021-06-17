@@ -171,7 +171,7 @@ class BaseTrainer:
                                                                               power=0.5)
                 elif scheduler_args['name'] == 'piecewise_decay':
                     boundaries = [20000, 40000]
-                    values = [0.1, 0.01, 0.001]
+                    values = [scale * learning_rate for scale in [1.0, 0.1, 0.01]]
                     scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
                 else:
                     print_error("No such scheduler")
@@ -267,14 +267,19 @@ class BaseTrainer:
         per_example_loss = self.metrics['loss_fn'](labels, predictions)
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
 
+    def _compute_accuracy_for_dist(self, labels, predictions):
+        pred_index = tf.argmax(predictions, axis=1)
+        accuracy = self.metrics['accuracy_fn'](pred_index, labels)
+        return accuracy
+
     def _train_step_for_dist(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 loss = self._compute_loss_for_dist(labels, predictions)
-                pred_index = tf.argmax(predictions, axis=1)
-                train_accuracy = self.metrics['accuracy_fn'](pred_index, labels)
+                train_accuracy = self._compute_accuracy_for_dist(labels, predictions)
+
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
             return loss, train_accuracy
@@ -289,7 +294,7 @@ class BaseTrainer:
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
         sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['train_loss'](sum_loss)
-        self.metrics['train_accuracy'](sum_accuracy)
+        # self.metrics['train_accuracy'](sum_accuracy)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -311,11 +316,9 @@ class BaseTrainer:
     def _valid_step_for_dist(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=False)
-            # loss = self.metrics['loss_fn'](labels, predictions)
-            loss = self._compute_loss_for_dist(labels, predictions)
-            pred_index = tf.argmax(predictions, axis=1)
-            accuracy = self.metrics['accuracy_fn'](pred_index, labels)
-            return loss, accuracy
+            valid_loss = self._compute_loss_for_dist(labels, predictions)
+            valid_accuracy = self._compute_accuracy_for_dist(labels, predictions)
+            return valid_loss, valid_accuracy
         except:
             print_error("distribute valid step error")
             raise
@@ -536,7 +539,6 @@ class BaseTrainer:
         valid_msg = '[Validating Status]: Valid Step: {:04d}'.format(self.valid_step)
         print(valid_msg)
 
-
     def after_valid(self):
 
         # record valid metric
@@ -609,7 +611,8 @@ class BaseTrainer:
 
         # test log collection
         test_msg = 'TestInStep :{:08d}: Loss :{:.6f}: Accuracy :{:.6f}' \
-            .format(self.global_step, self.metrics['test_loss'].result(), self.metrics['test_accuracy'].result())
+            .format(self.global_step, self.metrics['test_loss'].result().numpy(),
+                    self.metrics['test_accuracy'].result().numpy())
         print(test_msg)
         time_msg = 'Timer: CumulativeTraining :{:.4f}h: AvgBatchTraining :{:.4f}s: TotalCost :{:.4f}h' \
             .format(self.timer_dict['cumulate_during_train'] / 3600,
