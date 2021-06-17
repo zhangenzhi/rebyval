@@ -177,7 +177,7 @@ class BaseTrainer:
                     print_error("No such scheduler")
                     raise ("No such scheduler")
 
-                if self.args['distribue']:
+                if self.args['distribute']:
                     with self.mirrored_stragey.scope():
                         optimizer = tf.keras.optimizers.SGD(
                             learning_rate=scheduler)
