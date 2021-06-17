@@ -346,7 +346,7 @@ class BaseTrainer:
     def _test_step_for_dist(self, inputs, labels):
         try:
 
-            predictions = self.model(inputs, training=True)
+            predictions = self.model(inputs, training=False)
             # loss = self.metrics['loss_fn'](labels, predictions)
             loss = self._compute_loss_for_dist(labels, predictions)
             return loss
