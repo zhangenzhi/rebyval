@@ -310,7 +310,7 @@ class BaseTrainer:
 
     def _valid_step_for_dist(self, inputs, labels):
         try:
-            predictions = self.model(inputs, training=True)
+            predictions = self.model(inputs, training=False)
             # loss = self.metrics['loss_fn'](labels, predictions)
             loss = self._compute_loss_for_dist(labels, predictions)
             pred_index = tf.argmax(predictions, axis=1)
@@ -335,9 +335,9 @@ class BaseTrainer:
         try:
             predictions = self.model(inputs, training=False)
             v_loss = self.metrics['loss_fn'](labels, predictions)
-
+            v_accuracy = self.metrics['accuracy_fn'](predictions, labels)
             self.metrics['valid_loss'](v_loss)
-            self.metrics['valid_accuracy'](self.metrics['accuracy_fn'](predictions, labels))
+            self.metrics['valid_accuracy'](v_accuracy)
             return predictions
         except:
             print_error("valid step error")
@@ -542,7 +542,6 @@ class BaseTrainer:
         # record valid metric
         valid_accuracy = self.metrics['valid_accuracy'].result().numpy()
         self.valid_accuracy_list.append(valid_accuracy)
-
 
         # valid log collection
         valid_msg = 'ValidInStep :{:08d}: Epoch:{:03d}: Loss :{:.6f}: Accuracy :{:.6f}: ' \
