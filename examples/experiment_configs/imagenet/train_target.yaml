@@ -23,6 +23,9 @@ experiment:
     optimizer:
       name: SGD # default SGD
       learning_rate: 0.1 # default 0.01
+      scheduler:
+        name: linear_scaling_with_warmup # default None
+        scaling_factor: 4
     train_loop_control:
       train:
         check_should_train: True
