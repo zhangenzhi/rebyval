@@ -269,7 +269,7 @@ class BaseTrainer:
 
     def _compute_accuracy_for_dist(self, labels, predictions):
         pred_index = tf.argmax(predictions, axis=1)
-        accuracy = self.metrics['accuracy_fn'](pred_index, labels)
+        accuracy = self.metrics['accuracy_fn'].update_state(pred_index, labels)
         return accuracy
 
     def _train_step_for_dist(self, inputs, labels):
@@ -308,7 +308,7 @@ class BaseTrainer:
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
             pred_index = tf.argmax(predictions, axis=1)
-            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'](pred_index, labels)
+            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'].update_state(pred_index, labels)
         except:
             print_error("train step error")
             raise
@@ -327,7 +327,7 @@ class BaseTrainer:
             print_error("distribute valid step error")
             raise
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_valid_step(self, dist_inputs, dist_label):
         per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._valid_step_for_dist,
                                                                              args=(dist_inputs, dist_label,))
@@ -342,7 +342,7 @@ class BaseTrainer:
         try:
             predictions = self.model(inputs, training=False)
             v_loss = self.metrics['loss_fn'](labels, predictions)
-            v_accuracy = self.metrics['accuracy_fn'](predictions, labels)
+            v_accuracy = self.metrics['accuracy_fn'].update_state(predictions, labels)
             self.metrics['valid_loss'](v_loss)
             self.metrics['valid_accuracy'](v_accuracy)
             return predictions
@@ -479,6 +479,7 @@ class BaseTrainer:
             self.step_list = []
             self.metrics['train_loss'].reset_states()
             self.metrics['train_accuracy'].reset_states()
+            self.metrics['accuracy_fn'].reset_state()
 
             # model restore
             self.train_auc_list = []
@@ -526,6 +527,7 @@ class BaseTrainer:
             self.valid_metrics_list = {}
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
+            self.metrics['accuracy_fn'].reset_state()
 
         except:
             raise ValueError
