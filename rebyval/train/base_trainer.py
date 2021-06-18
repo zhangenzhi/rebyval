@@ -269,8 +269,7 @@ class BaseTrainer:
 
     def _compute_accuracy_for_dist(self, labels, predictions):
         pred_index = tf.argmax(predictions, axis=1)
-        accuracy = self.metrics['accuracy_fn'].update_state(pred_index, labels)
-        return accuracy
+        self.metrics['accuracy_fn'].update_state(pred_index, labels)
 
     def _train_step_for_dist(self, inputs, labels):
         try:
@@ -278,23 +277,21 @@ class BaseTrainer:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 loss = self._compute_loss_for_dist(labels, predictions)
-                train_accuracy = self._compute_accuracy_for_dist(labels, predictions)
+                self._compute_accuracy_for_dist(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-            return loss, train_accuracy
+            return loss
         except:
             print_error("train step error")
             raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
-        per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._train_step_for_dist,
-                                                                             args=(dist_inputs, dist_label,))
+        per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
-        sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['train_loss'](sum_loss)
-        self.metrics['train_accuracy'](sum_accuracy)
+        self.metrics['train_accuracy'](self.metrics['accuracy_fn'].result())
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -308,7 +305,7 @@ class BaseTrainer:
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
             pred_index = tf.argmax(predictions, axis=1)
-            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'].update_state(pred_index, labels)
+            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'].update_state(pred_index, labels).result()
         except:
             print_error("train step error")
             raise
@@ -320,21 +317,19 @@ class BaseTrainer:
             #     import pdb
             #     pdb.set_trace()
             valid_loss = self._compute_loss_for_dist(labels, predictions)
-            valid_accuracy = self._compute_accuracy_for_dist(labels, predictions)
-            print(valid_accuracy)
-            return valid_loss, valid_accuracy
+            self._compute_accuracy_for_dist(labels, predictions)
+            return valid_loss
         except:
             print_error("distribute valid step error")
             raise
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_valid_step(self, dist_inputs, dist_label):
-        per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._valid_step_for_dist,
+        per_replica_losses = self.mirrored_stragey.run(self._valid_step_for_dist,
                                                                              args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
-        sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['valid_loss'](sum_loss)
-        self.metrics['valid_accuracy'](sum_accuracy)
+        self.metrics['valid_accuracy'](self.metrics['accuracy_fn'].result())
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
