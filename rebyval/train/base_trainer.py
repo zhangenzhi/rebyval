@@ -479,7 +479,7 @@ class BaseTrainer:
             self.step_list = []
             self.metrics['train_loss'].reset_states()
             self.metrics['train_accuracy'].reset_states()
-            self.metrics['accuracy_fn'].reset_state()
+            self.metrics['accuracy_fn'].reset_states()
 
             # model restore
             self.train_auc_list = []
@@ -527,7 +527,7 @@ class BaseTrainer:
             self.valid_metrics_list = {}
             self.metrics['valid_loss'].reset_states()
             self.metrics['valid_accuracy'].reset_states()
-            self.metrics['accuracy_fn'].reset_state()
+            self.metrics['accuracy_fn'].reset_states()
 
         except:
             raise ValueError
