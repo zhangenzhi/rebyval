@@ -294,7 +294,7 @@ class BaseTrainer:
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
         sum_accuracy = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.MEAN, per_replica_accuracy, axis=None)
         self.metrics['train_loss'](sum_loss)
-        # self.metrics['train_accuracy'](sum_accuracy)
+        self.metrics['train_accuracy'](sum_accuracy)
         return sum_loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -316,6 +316,9 @@ class BaseTrainer:
     def _valid_step_for_dist(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=False)
+            if (self.global_step + 1) * self.valid_args['valid_gap'] == 1000:
+                import pdb
+                pdb.set_trace()
             valid_loss = self._compute_loss_for_dist(labels, predictions)
             valid_accuracy = self._compute_accuracy_for_dist(labels, predictions)
             return valid_loss, valid_accuracy
@@ -323,7 +326,7 @@ class BaseTrainer:
             print_error("distribute valid step error")
             raise
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_valid_step(self, dist_inputs, dist_label):
         per_replica_losses, per_replica_accuracy = self.mirrored_stragey.run(self._valid_step_for_dist,
                                                                              args=(dist_inputs, dist_label,))
