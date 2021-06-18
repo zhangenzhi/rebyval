@@ -316,9 +316,9 @@ class BaseTrainer:
     def _valid_step_for_dist(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=False)
-            if (self.global_step + 1) * self.valid_args['valid_gap'] == 100000:
-                import pdb
-                pdb.set_trace()
+            # if (self.global_step + 1) * self.valid_args['valid_gap'] == 100000:
+            #     import pdb
+            #     pdb.set_trace()
             valid_loss = self._compute_loss_for_dist(labels, predictions)
             valid_accuracy = self._compute_accuracy_for_dist(labels, predictions)
             print(valid_accuracy)
