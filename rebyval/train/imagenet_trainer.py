@@ -53,7 +53,6 @@ class ImageNetTrainer(BaseTrainer):
         try:
             if self.args['distribute']:
                 self._distributed_train_step(input,y)
-                print(self.optimizer.learning_rate.numpy())
             else:
                 self._train_step(input, y)
         except:
