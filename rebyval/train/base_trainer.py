@@ -13,6 +13,7 @@ from rebyval.model.resnet import ResNet50
 
 # optimizer
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
+from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 
 # others
 from rebyval.train.utils import get_scheduler, prepare_dirs
@@ -164,6 +165,13 @@ class BaseTrainer:
                                                                 base_learning_rate=learning_rate,
                                                                 warmup_steps=3000,
                                                                 gradual_steps=10000)
+                elif scheduler_args['name'] == 'linear_scaling_with_decay':
+                    linear_scaling = scheduler_args['scaling_factor'] if scheduler_args['scaling_factor'] else 1
+                    scheduler = LinearScalingWithDecaySchedule(linear_scaling=linear_scaling,
+                                                               base_learning_rate=learning_rate,
+                                                               warmup_steps=3000,
+                                                               gradual_steps=10000,
+                                                               decay_steps=100000)
                 elif scheduler_args['name'] == 'polynomial_decay':
                     scheduler = tf.keras.optimizers.schedules.PolynomialDecay(learning_rate,
                                                                               decay_steps=24000,
@@ -323,7 +331,7 @@ class BaseTrainer:
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_valid_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._valid_step_for_dist,
-                                                                             args=(dist_inputs, dist_label,))
+                                                       args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
         self.metrics['valid_loss'](sum_loss)
         self.metrics['valid_accuracy'](self.metrics['accuracy_fn'].result())
