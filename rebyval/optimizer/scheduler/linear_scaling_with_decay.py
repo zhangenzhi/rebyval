@@ -25,7 +25,8 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
 
         def false_fn(): return self.decay_lr
 
-        self.decay_lr = tf.cond(tf.math.mod(step + 1, self.decay_steps) == 0, true_fn, false_fn)
+        self.decay_lr = tf.cond(tf.math.equal(tf.math.mod(step + 1, self.decay_steps), 0), true_fn, false_fn,
+                                name="scale_decay")
         # constant linear scaling
 
         # arg1 = tf.math.sign(step - self.warmup_steps)
