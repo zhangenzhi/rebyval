@@ -17,11 +17,10 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
 
         self.warmup_steps = warmup_steps
         self.gradual_steps = gradual_steps
-        self.decay_steps = tf.cast(decay_steps, tf.float32)
+        self.decay_steps = decay_steps
 
     def __call__(self, step):
         # lr decay
-        step = tf.cast(step, tf.float32)
 
         # decay_arg = tf.math.sign(self.decay_steps - step)
         # self.decay_steps = tf.math.maximum(self.decay_steps, self.decay_steps * (1 - decay_arg))
@@ -37,6 +36,7 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
         # return self.base_learning_rate * tf.math.maximum(arg1, arg2) * arg1
 
         # gradual linear scaling
+        step = tf.cast(step, tf.float32)
         arg1 = tf.math.sign(step - self.warmup_steps)
 
         gradual_factor = arg1 + (self.linear_scaling - 1) * tf.math.minimum(
