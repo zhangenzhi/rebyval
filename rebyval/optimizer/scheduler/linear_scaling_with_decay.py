@@ -45,5 +45,4 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
 
         linear_scaling = tf.math.maximum(arg1, arg2) * arg1
 
-        print(self.base_learning_rate * decay_factor * linear_scaling)
         return self.base_learning_rate * decay_factor * linear_scaling
