@@ -166,7 +166,6 @@ class BaseTrainer:
                                                                 warmup_steps=3000,
                                                                 gradual_steps=10000)
                 elif scheduler_args['name'] == 'linear_scaling_with_decay':
-                    # with self.mirrored_stragey.scope():
                     linear_scaling = scheduler_args['scaling_factor'] if scheduler_args['scaling_factor'] else 1
                     scheduler = LinearScalingWithDecaySchedule(linear_scaling=linear_scaling,
                                                                base_learning_rate=learning_rate,
