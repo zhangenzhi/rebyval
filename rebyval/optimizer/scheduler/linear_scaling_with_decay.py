@@ -23,10 +23,11 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
         # lr decay
         step = tf.cast(step, tf.float32)
 
-        decay_arg = tf.math.sign(self.decay_steps - step)
-        self.decay_steps = tf.math.maximum(self.decay_steps, self.decay_steps - self.decay_steps * decay_arg)
-        decay_factor = tf.math.pow(10.0, decay_arg)
-        self.decay_lr = self.decay_lr * decay_factor
+        # decay_arg = tf.math.sign(self.decay_steps - step)
+        # self.decay_steps = tf.math.maximum(self.decay_steps, self.decay_steps * (1 - decay_arg))
+        decay_arg = tf.math.floor_div(step, self.decay_steps)
+        decay_factor = tf.math.pow(0.1, decay_arg)
+        # self.decay_lr = self.decay_lr * decay_factor
 
         ## constant linear scaling
 
@@ -44,4 +45,4 @@ class LinearScalingWithDecaySchedule(tf.keras.optimizers.schedules.LearningRateS
 
         linear_scaling = tf.math.maximum(arg1, arg2) * arg1
 
-        return self.decay_lr * linear_scaling
+        return self.base_learning_rate * decay_factor * linear_scaling
