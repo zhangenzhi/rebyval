@@ -273,9 +273,7 @@ class BaseTrainer:
 
     def _compute_loss_for_dist(self, labels, predictions):
         per_example_loss = self.metrics['loss_fn'](labels, predictions)
-        # per_example_re_loss = self.model.losses
-        import pdb
-        pdb.set_trace()
+
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
 
     def _compute_accuracy_for_dist(self, labels, predictions):
@@ -287,7 +285,9 @@ class BaseTrainer:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
-                loss = self._compute_loss_for_dist(labels, predictions)
+                t_loss = self._compute_loss_for_dist(labels, predictions)
+                re_loss = tf.math.add_n(self.model.losses)
+                loss = t_loss + re_loss
                 self._compute_accuracy_for_dist(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
