@@ -273,6 +273,9 @@ class BaseTrainer:
 
     def _compute_loss_for_dist(self, labels, predictions):
         per_example_loss = self.metrics['loss_fn'](labels, predictions)
+        # per_example_re_loss = self.model.losses
+        import pdb
+        pdb.set_trace()
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
 
     def _compute_accuracy_for_dist(self, labels, predictions):
@@ -294,7 +297,7 @@ class BaseTrainer:
             print_error("train step error")
             raise
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _distributed_train_step(self, dist_inputs, dist_label):
         per_replica_losses = self.mirrored_stragey.run(self._train_step_for_dist, args=(dist_inputs, dist_label,))
         sum_loss = self.mirrored_stragey.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
