@@ -305,7 +305,7 @@ class BaseTrainer:
         self.metrics['train_accuracy'](self.metrics['accuracy_fn'].result())
         return sum_loss
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
@@ -316,7 +316,8 @@ class BaseTrainer:
                 zip(gradients, self.model.trainable_variables))
             self.metrics['train_loss'](loss)
             pred_index = tf.argmax(predictions, axis=1)
-            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'].update_state(pred_index, labels).result()
+            self.metrics['accuracy_fn'].update_state(pred_index, labels)
+            self.metrics['train_accuracy'] = self.metrics['accuracy_fn'].result()
         except:
             print_error("train step error")
             raise

@@ -49,7 +49,7 @@ class ResNet(Model):
         seq_layers_stack1.append(self._build_block1(filters, strides=strides1, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
-                self._build_block1(filters, conv_shortcut=False,zeropad_shortcut=True, name=name + '_block' + str(i)))
+                self._build_block1(filters, conv_shortcut=False, zeropad_shortcut=True, name=name + '_block' + str(i)))
         return seq_layers_stack1
 
     def stack1(self, x, seq_layers_stack1):
@@ -64,12 +64,17 @@ class ResNet(Model):
 
         if conv_shortcut:
             seq_layer_shortcut.append(layers.Conv2D(
-                4 * filters, 1,strides=strides, name=name + '_0_conv',
+                4 * filters, 1, strides=strides, name=name + '_0_conv',
                 kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         elif zeropad_shortcut:
-            seq_layer_shortcut.append(layers.AveragePooling2D(1,strides=strides, name=name + '_0_pooling'))
+
+            def zeropad(x):
+                y = tf.zeros_like(x)
+                return tf.keras.layer.Concatenate(axis=1)([x,y])
+            seq_layer_shortcut.append(layers.MaxPool2D(1, strides=strides, name=name + '_0_pooling'))
+            seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
@@ -78,8 +83,9 @@ class ResNet(Model):
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        seq_layers_block.append(layers.Conv2D(filters, kernel_size, strides=strides,padding='SAME', name=name + '_2_conv',
-                                              kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+        seq_layers_block.append(
+            layers.Conv2D(filters, kernel_size, strides=strides, padding='SAME', name=name + '_2_conv',
+                          kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
