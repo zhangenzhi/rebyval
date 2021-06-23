@@ -98,8 +98,8 @@ class ResNet(Model):
         for layer in seq_layer_shortcut:
             shortcut = layer(shortcut)
 
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
 
         for layer in seq_layers_block:
             x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
@@ -108,8 +108,8 @@ class ResNet(Model):
 
     def call(self, inputs):
 
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
 
         x = inputs
 

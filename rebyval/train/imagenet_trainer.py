@@ -54,8 +54,6 @@ class ImageNetTrainer(BaseTrainer):
             if self.args['distribute']:
                 self._distributed_train_step(input,y)
             else:
-                import pdb
-                pdb.set_trace()
                 self._train_step(input, y)
         except:
             print_error("during traning train_step exception")
