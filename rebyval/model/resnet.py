@@ -44,9 +44,9 @@ class ResNet(Model):
             x = layer(x)
         return x
 
-    def _build_stack1(self, filters, blocks, stride1=2, name=None):
+    def _build_stack1(self, filters, blocks, strides1=2, name=None):
         seq_layers_stack1 = []
-        seq_layers_stack1.append(self._build_block1(filters, stride=stride1, name=name + '_block1'))
+        seq_layers_stack1.append(self._build_block1(filters, strides=strides1, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
                 self._build_block1(filters, conv_shortcut=False, name=name + '_block' + str(i)))
@@ -57,26 +57,26 @@ class ResNet(Model):
             x = self.block1(x, block, shortcut)
         return x
 
-    def _build_block1(self, filters, kernel_size=3, stride=1, conv_shortcut=True, name=None):
+    def _build_block1(self, filters, kernel_size=3, strides=2, conv_shortcut=True, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3
 
         if conv_shortcut:
             seq_layer_shortcut.append(layers.Conv2D(
-                4 * filters, 1, strides=stride, name=name + '_0_conv',
+                4 * filters, 1, name=name + '_0_conv',
                 kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
-        seq_layers_block.append(layers.Conv2D(filters, 1, strides=stride, name=name + '_1_conv',
+        seq_layers_block.append(layers.Conv2D(filters, 1, name=name + '_1_conv',
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv',
+        seq_layers_block.append(layers.Conv2D(filters, kernel_size, strides=strides,padding='SAME', name=name + '_2_conv',
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
@@ -121,7 +121,7 @@ class ResNet50(ResNet):
     def _build_stack_fn(self, name='resnet50'):
         seq_layer_stacks = []
 
-        seq_layer_stacks.append(self._build_stack1(64, 3, stride1=1, name=name + '_conv2'))
+        seq_layer_stacks.append(self._build_stack1(64, 3, strides1=1, name=name + '_conv2'))
         seq_layer_stacks.append(self._build_stack1(128, 4, name=name + '_conv3'))
         seq_layer_stacks.append(self._build_stack1(256, 6, name=name + '_conv4'))
         seq_layer_stacks.append(self._build_stack1(512, 3, name=name + '_conv5'))
