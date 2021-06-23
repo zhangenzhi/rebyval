@@ -49,7 +49,7 @@ class ResNet(Model):
         seq_layers_stack1.append(self._build_block1(filters, strides=strides1, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
-                self._build_block1(filters, conv_shortcut=False, zeropad_shortcut=True, name=name + '_block' + str(i)))
+                self._build_block1(filters, conv_shortcut=True, zeropad_shortcut=False, name=name + '_block' + str(i)))
         return seq_layers_stack1
 
     def stack1(self, x, seq_layers_stack1):
