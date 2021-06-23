@@ -57,7 +57,7 @@ class ResNet(Model):
             x = self.block1(x, block, shortcut)
         return x
 
-    def _build_block1(self, filters, kernel_size=3, stride=1, conv_shortcut=True, name=None):
+    def _build_block1(self, filters, kernel_size=3, stride=2, conv_shortcut=True, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3

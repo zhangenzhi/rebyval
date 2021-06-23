@@ -273,7 +273,6 @@ class BaseTrainer:
 
     def _compute_loss_for_dist(self, labels, predictions):
         per_example_loss = self.metrics['loss_fn'](labels, predictions)
-
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=self.global_batch_size)
 
     def _compute_accuracy_for_dist(self, labels, predictions):
