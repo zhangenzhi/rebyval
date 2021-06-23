@@ -76,7 +76,7 @@ class ResNet(Model):
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        seq_layers_block.append(layers.Conv2D(filters, kernel_size, strides=2, padding='SAME', name=name + '_2_conv',
+        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv',
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
