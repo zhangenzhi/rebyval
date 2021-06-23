@@ -28,8 +28,8 @@ class ResNet(Model):
         return preprocess_layers
 
     def _preprocess(self, x, process_layers):
-        for layer in process_layers:
-            x = layer(x)
+        for pre_layer in process_layers:
+            x = pre_layer(x)
         return x
 
     def _build_dense_inference(self):
@@ -95,6 +95,9 @@ class ResNet(Model):
         shortcut = x
         for layer in seq_layer_shortcut:
             shortcut = layer(shortcut)
+
+        import pdb
+        pdb.set_trace()
 
         for layer in seq_layers_block:
             x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
