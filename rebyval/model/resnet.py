@@ -49,7 +49,7 @@ class ResNet(Model):
         seq_layers_stack1.append(self._build_block1(filters, strides=strides1, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
-                self._build_block1(filters, conv_shortcut=False, name=name + '_block' + str(i)))
+                self._build_block1(filters, conv_shortcut=False,zeropad_shortcut=True, name=name + '_block' + str(i)))
         return seq_layers_stack1
 
     def stack1(self, x, seq_layers_stack1):
@@ -57,7 +57,7 @@ class ResNet(Model):
             x = self.block1(x, block, shortcut)
         return x
 
-    def _build_block1(self, filters, kernel_size=3, strides=2, conv_shortcut=True, name=None):
+    def _build_block1(self, filters, kernel_size=3, strides=2, conv_shortcut=True, zeropad_shortcut=False, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3
@@ -68,6 +68,8 @@ class ResNet(Model):
                 kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
+        elif zeropad_shortcut:
+            seq_layer_shortcut.append(layers.AveragePooling2D(1,strides=strides, name=name + '_0_pooling'))
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
