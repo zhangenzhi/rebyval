@@ -76,7 +76,7 @@ class ResNet(Model):
             def depth_pad(x):
                 pass
 
-            seq_layer_shortcut.append(layers.MaxPool2D((1,1), strides=strides, name=name + '_0_maxpool'))
+            seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1,1), strides=(strides,strides), name=name + '_0_maxpool'))
             seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
