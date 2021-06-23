@@ -73,11 +73,21 @@ class ResNet(Model):
             def zeropad(x):
                 y = tf.zeros_like(x)
                 return layers.Concatenate(axis=1)([x,y])
-            def depth_pad(x):
-                pass
 
-            seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1,1), strides=(strides,strides), name=name + '_0_maxpool'))
-            seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
+            def depth_pad(x):
+                new_channels = 4*filters
+                output = tf.identity(x)
+                repetitions = new_channels/x.shape.as_list[-1]
+                for _ in range(int(repetitions)):
+                    zeroTensor = tf.zeros_like(x,name='pad_depth1')
+                    output = tf.keras.backend.concatenate([output,zeroTensor])
+                return output
+
+            seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1,1), strides=(strides,strides), padding='same'))
+            # seq_layer_shortcut.append(layers.AveragePooling2D(1, strides=strides, name=name + '_0_avgpool'))
+            # seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
+            seq_layer_shortcut.append(layers.Lambda(lambda x: depth_pad(x)))
+
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
