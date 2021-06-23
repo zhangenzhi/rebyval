@@ -475,20 +475,15 @@ class BaseTrainer:
             return True
 
     def before_train(self):
+        # numerical reset
+        self.step_list = []
+        self.metrics['train_loss'].reset_states()
+        self.metrics['train_accuracy'].reset_states()
+        self.metrics['accuracy_fn'].reset_states()
 
-        try:
-            # numerical reset
-            self.step_list = []
-            self.metrics['train_loss'].reset_states()
-            self.metrics['train_accuracy'].reset_states()
-            self.metrics['accuracy_fn'].reset_states()
-
-            # model restore
-            self.train_auc_list = []
-            self.train_step = 0
-
-        except:
-            raise ValueError
+        # model restore
+        self.train_auc_list = []
+        self.train_step = 0
 
     def during_train(self):
         raise NotImplementedError(
