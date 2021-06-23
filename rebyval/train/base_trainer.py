@@ -304,7 +304,7 @@ class BaseTrainer:
         self.metrics['train_accuracy'](self.metrics['accuracy_fn'].result())
         return sum_loss
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         try:
             with tf.GradientTape() as tape:
