@@ -64,7 +64,7 @@ class ResNet(Model):
 
         if conv_shortcut:
             seq_layer_shortcut.append(layers.Conv2D(
-                4 * filters, 1, name=name + '_0_conv',
+                4 * filters, 1,strides=strides, name=name + '_0_conv',
                 kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
