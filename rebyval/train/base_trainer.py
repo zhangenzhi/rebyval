@@ -139,6 +139,7 @@ class BaseTrainer:
         else:
             loss_name = self.args['loss']['name']
             metrics['loss_fn'] = tf.keras.losses.get(loss_name)
+            metrics['accuracy_fn'] = tf.keras.metrics.Accuracy()
 
         metrics['train_loss'] = tf.keras.metrics.Mean(name='train_loss')
         metrics['train_accuracy'] = tf.keras.metrics.Mean(name='train_accuracy')
