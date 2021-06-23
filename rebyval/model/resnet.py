@@ -57,7 +57,7 @@ class ResNet(Model):
             x = self.block1(x, block, shortcut)
         return x
 
-    def _build_block1(self, filters, kernel_size=3, stride=2, conv_shortcut=True, name=None):
+    def _build_block1(self, filters, kernel_size=3, stride=1, conv_shortcut=True, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3
@@ -76,7 +76,7 @@ class ResNet(Model):
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
-        seq_layers_block.append(layers.Conv2D(filters, kernel_size, padding='SAME', name=name + '_2_conv',
+        seq_layers_block.append(layers.Conv2D(filters, kernel_size, stride=2, padding='SAME', name=name + '_2_conv',
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
