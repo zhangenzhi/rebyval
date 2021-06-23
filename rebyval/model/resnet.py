@@ -72,7 +72,10 @@ class ResNet(Model):
 
             def zeropad(x):
                 y = tf.zeros_like(x)
-                return tf.keras.layer.Concatenate(axis=1)([x,y])
+                return layers.Concatenate(axis=1)([x,y])
+            def depth_pad(x):
+                pass
+
             seq_layer_shortcut.append(layers.MaxPool2D(1, strides=strides, name=name + '_0_maxpool'))
             seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
         else:
