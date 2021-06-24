@@ -49,7 +49,7 @@ class ResNet(Model):
         seq_layers_stack1.append(self._build_block1(filters, strides=strides1, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
-                self._build_block1(filters, conv_shortcut=True, zeropad_shortcut=False, name=name + '_block' + str(i)))
+                self._build_block1(filters, conv_shortcut=False, name=name + '_block' + str(i)))
         return seq_layers_stack1
 
     def stack1(self, x, seq_layers_stack1):
@@ -57,7 +57,7 @@ class ResNet(Model):
             x = self.block1(x, block, shortcut)
         return x
 
-    def _build_block1(self, filters, kernel_size=3, strides=2, conv_shortcut=True, zeropad_shortcut=False, name=None):
+    def _build_block1(self, filters, kernel_size=3, strides=1, conv_shortcut=True, zeropad_shortcut=False, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3
@@ -72,18 +72,18 @@ class ResNet(Model):
 
             def zeropad(x):
                 y = tf.zeros_like(x)
-                return layers.Concatenate(axis=1)([x,y])
+                return layers.Concatenate(axis=1)([x, y])
 
             def depth_pad(x):
-                new_channels = 4*filters
+                new_channels = 4 * filters
                 output = tf.identity(x)
-                repetitions = new_channels/x.shape.as_list[-1]
+                repetitions = new_channels / x.shape.as_list[-1]
                 for _ in range(int(repetitions)):
-                    zeroTensor = tf.zeros_like(x,name='pad_depth1')
-                    output = tf.keras.backend.concatenate([output,zeroTensor])
+                    zeroTensor = tf.zeros_like(x, name='pad_depth1')
+                    output = tf.keras.backend.concatenate([output, zeroTensor])
                 return output
 
-            seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1,1), strides=(strides,strides), padding='same'))
+            seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1, 1), strides=(strides, strides), padding='same'))
             # seq_layer_shortcut.append(layers.AveragePooling2D(1, strides=strides, name=name + '_0_avgpool'))
             # seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
             seq_layer_shortcut.append(layers.Lambda(lambda x: depth_pad(x)))
@@ -91,7 +91,7 @@ class ResNet(Model):
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
-        seq_layers_block.append(layers.Conv2D(filters, 1, name=name + '_1_conv',
+        seq_layers_block.append(layers.Conv2D(filters, 1, name=name + '_1_conv', strides=1,
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))

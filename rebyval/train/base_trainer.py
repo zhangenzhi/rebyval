@@ -189,7 +189,7 @@ class BaseTrainer:
                 if self.args['distribute']:
                     with self.mirrored_stragey.scope():
                         optimizer = tf.keras.optimizers.SGD(
-                            learning_rate=scheduler)
+                            learning_rate=scheduler, momentum=0.9, nesterov=True)
                 else:
                     optimizer = tf.keras.optimizers.SGD(
                         learning_rate=scheduler)
