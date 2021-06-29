@@ -28,9 +28,8 @@ class ResNet(Model):
             layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', padding='valid', use_bias=self.use_bias,
                           name='conv1_conv'))
         preprocess_layers.append(layers.BatchNormalization(axis=3,name='conv1_bn'))
-        preprocess_layers.append(
-            layers.MaxPool2D(64, 7, strides=2, kernel_initializer='he_normal', padding='valid', use_bias=self.use_bias,
-                          name='conv1_conv'))
+        preprocess_layers.append(layers.Activation('relu'))
+        preprocess_layers.append(layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)))
         return preprocess_layers
 
     def _preprocess(self, x, process_layers):
