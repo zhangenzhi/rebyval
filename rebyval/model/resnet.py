@@ -69,11 +69,9 @@ class ResNet(Model):
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         elif zeropad_shortcut:
-
             def zeropad(x):
                 y = tf.zeros_like(x)
                 return layers.Concatenate(axis=1)([x, y])
-
             def depth_pad(x):
                 new_channels = 4 * filters
                 output = tf.identity(x)
@@ -82,22 +80,18 @@ class ResNet(Model):
                     zeroTensor = tf.zeros_like(x, name='pad_depth1')
                     output = tf.keras.backend.concatenate([output, zeroTensor])
                 return output
-
             seq_layer_shortcut.append(layers.MaxPool2D(pool_size=(1, 1), strides=(strides, strides), padding='same'))
-            # seq_layer_shortcut.append(layers.AveragePooling2D(1, strides=strides, name=name + '_0_avgpool'))
-            # seq_layer_shortcut.append(layers.Lambda(lambda x: zeropad(x)))
             seq_layer_shortcut.append(layers.Lambda(lambda x: depth_pad(x)))
-
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
-        seq_layers_block.append(layers.Conv2D(filters, 1, name=name + '_1_conv', strides=1,
+        seq_layers_block.append(layers.Conv2D(filters, 1, name=name + '_1_conv', strides=strides,
                                               kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
         seq_layers_block.append(
-            layers.Conv2D(filters, kernel_size, strides=strides, padding='SAME', name=name + '_2_conv',
+            layers.Conv2D(filters, kernel_size, strides=1, padding='SAME', name=name + '_2_conv',
                           kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
