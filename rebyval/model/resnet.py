@@ -25,11 +25,12 @@ class ResNet(Model):
         preprocess_layers = []
         preprocess_layers.append(layers.ZeroPadding2D(padding=((3, 3), (3, 3)), name='conv1_pad'))
         preprocess_layers.append(
-            layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', padding='valid', use_bias=self.use_bias,
+            layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', use_bias=self.use_bias,
                           name='conv1_conv'))
-        preprocess_layers.append(layers.BatchNormalization(axis=3,name='conv1_bn'))
-        preprocess_layers.append(layers.Activation('relu'))
-        preprocess_layers.append(layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)))
+        preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
+        preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
+        preprocess_layers.append(layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='pool1_pad'))
+        preprocess_layers.append(layers.MaxPool2D(pool_size=3, strides=2, name='pool1_pool'))
         return preprocess_layers
 
     def _preprocess(self, x, process_layers):
