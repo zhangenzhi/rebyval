@@ -4,11 +4,12 @@ from tensorflow.keras import layers
 
 
 class ResNet(Model):
-    def __init__(self, use_bias=True, pooling=None, classes=1000):
+    def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000):
         super(ResNet, self).__init__()
 
         self.use_bias = use_bias
         self.pooling = pooling
+        self.include_top = include_top
         self.classes = classes
 
         self.preprocess_layers = self._build_preprocess()
@@ -26,6 +27,7 @@ class ResNet(Model):
         preprocess_layers.append(layers.ZeroPadding2D(padding=((3, 3), (3, 3)), name='conv1_pad'))
         preprocess_layers.append(
             layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', use_bias=self.use_bias,
+                          kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001),
                           name='conv1_conv'))
         preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
         preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
@@ -40,9 +42,14 @@ class ResNet(Model):
 
     def _build_dense_inference(self):
         inference_layer = []
-        inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
-        inference_layer.append(layers.Dense(self.classes, activation='softmax', name='prediction',
-                                            kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+
+        if self.include_top:
+            inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
+            inference_layer.append(
+                layers.Dense(self.classes, activation='softmax', name='prediction', kernel_initializer='he_normal',
+                             kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+        else:
+            inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
         return inference_layer
 
     def _dense_inference(self, x, dense_inference_layers):
