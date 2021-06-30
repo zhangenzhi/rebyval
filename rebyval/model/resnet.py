@@ -149,8 +149,8 @@ class ResNet(Model):
 
 
 class ResNet50(ResNet):
-    def __init__(self, use_bias=False, pooling=None, classes=1000):
-        super(ResNet50, self).__init__(use_bias, pooling, classes)
+    def __init__(self, use_bias=True, pooling=None, classes=1000):
+        super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes)
 
     def _build_stack_fn(self, name='resnet50'):
         seq_layer_stacks = []
