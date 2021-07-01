@@ -4,13 +4,15 @@ from tensorflow.keras import layers
 
 
 class ResNet(Model):
-    def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000):
+    def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000,
+                 regularizer=tf.keras.regularizers.l2(l2=0.0001)):
         super(ResNet, self).__init__()
 
         self.use_bias = use_bias
         self.pooling = pooling
         self.include_top = include_top
         self.classes = classes
+        self.regularizer = regularizer
 
         self.preprocess_layers = self._build_preprocess()
         self.stack_fn_stacks = self._build_stack_fn()
@@ -27,7 +29,7 @@ class ResNet(Model):
         preprocess_layers.append(layers.ZeroPadding2D(padding=((3, 3), (3, 3)), name='conv1_pad'))
         preprocess_layers.append(
             layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', use_bias=self.use_bias,
-                          kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001),
+                          kernel_regularizer=self.regularizer,
                           name='conv1_conv'))
         preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
         preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
@@ -47,7 +49,7 @@ class ResNet(Model):
             inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
             inference_layer.append(
                 layers.Dense(self.classes, activation='softmax', name='prediction', kernel_initializer='he_normal',
-                             kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+                             kernel_regularizer=self.regularizer))
         else:
             inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
         return inference_layer
@@ -78,7 +80,7 @@ class ResNet(Model):
         if conv_shortcut:
             seq_layer_shortcut.append(layers.Conv2D(
                 4 * filters, 1, strides=strides, name=name + '_0_conv',
-                kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+                kernel_regularizer=self.regularizer))
             seq_layer_shortcut.append(layers.BatchNormalization(
                 axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn'))
         elif zeropad_shortcut:
@@ -98,19 +100,19 @@ class ResNet(Model):
 
         seq_layers_block.append(
             layers.Conv2D(filters, 1, name=name + '_1_conv', strides=strides, kernel_initializer='he_normal',
-                          kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+                          kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
         seq_layers_block.append(
             layers.Conv2D(filters, kernel_size, strides=1, padding='SAME', name=name + '_2_conv',
                           kernel_initializer='he_normal',
-                          kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+                          kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
         seq_layers_block.append(layers.Conv2D(4 * filters, 1, name=name + '_3_conv', kernel_initializer='he_normal',
-                                              kernel_regularizer=tf.keras.regularizers.l2(l2=0.0001)))
+                                              kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn'))
 
         seq_layers_block.append(layers.Add(name=name + '_add'))
@@ -149,8 +151,8 @@ class ResNet(Model):
 
 
 class ResNet50(ResNet):
-    def __init__(self, use_bias=True, pooling=None, classes=1000):
-        super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes)
+    def __init__(self, use_bias=True, pooling=None, classes=1000, regularizer=None):
+        super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes, regularizer=regularizer)
 
     def _build_stack_fn(self, name='resnet50'):
         seq_layer_stacks = []
