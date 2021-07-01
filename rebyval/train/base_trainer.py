@@ -288,9 +288,9 @@ class BaseTrainer:
                 predictions = self.model(inputs, training=True)
                 # loss = self.metrics['loss_fn'](labels, predictions)
                 t_loss = self._compute_loss_for_dist(labels, predictions)
-                # re_loss = tf.math.add_n(self.model.losses)
-                # loss = t_loss + re_loss
-                loss = t_loss
+                re_loss = tf.math.add_n(self.model.losses)
+                loss = t_loss + re_loss
+                # loss = t_loss
                 self._compute_accuracy_for_dist(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)

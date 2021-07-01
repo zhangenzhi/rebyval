@@ -151,7 +151,7 @@ class ResNet(Model):
 
 
 class ResNet50(ResNet):
-    def __init__(self, use_bias=True, pooling=None, classes=1000, regularizer=None):
+    def __init__(self, use_bias=True, pooling=None, classes=1000, regularizer=tf.keras.regularizers.l2(l2=0.0000125)):
         super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes, regularizer=regularizer)
 
     def _build_stack_fn(self, name='resnet50'):
