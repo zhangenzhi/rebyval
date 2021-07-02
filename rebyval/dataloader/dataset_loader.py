@@ -123,6 +123,7 @@ class ImageNetDataLoader(BaseDataLoader):
                     for i in range(self.dataloader_args['batch_size']):
                         parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
                         resized_image = tf.image.resize(parsed_analyse_image, [224, 224])
+                        resized_image = tf.cast(resized_image, tf.float32)
                         resized_image = (resized_image / 127.5) - 1.0
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
