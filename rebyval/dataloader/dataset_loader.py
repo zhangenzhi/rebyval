@@ -61,7 +61,46 @@ class ImageNetDataLoader(BaseDataLoader):
                 raise ("no such type to describe")
         return analyse_feature_describs
 
-    def _load_imagenet_from_tfrecord(self, filelist):
+    def _load_train_imagenet_from_tfrecord(self, filelist):
+        raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
+
+        raw_analyse_dataset = raw_analyse_dataset.interleave(
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=28),
+            block_length=56,
+            cycle_length=28,
+            num_parallel_calls=28,
+            deterministic=False)
+
+        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
+        analyse_feature_describ = self._make_imagenet_describs()
+
+        def _parse_analyse_function(example_proto):
+            example = tf.io.parse_example(example_proto, analyse_feature_describ)
+            parsed_example = {}
+            for feat, tensor in analyse_feature_describ.items():
+                if example[feat].dtype == tf.string:
+                    parsed_single_example = []
+                    for i in range(self.dataloader_args['batch_size']):
+                        parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
+                        resized_image = tf.image.random_crop(parsed_analyse_image, [224, 224, 3])
+                        resized_image = tf.image.random_flip_left_right(resized_image)
+                        resized_image = (resized_image / 127.5) - 1  # [-1,1]
+                        resized_image = tf.expand_dims(resized_image, axis=0)
+                        parsed_single_example.append(resized_image)
+                    parsed_single_example = tf.concat(parsed_single_example, axis=0)
+                    parsed_example[feat] = parsed_single_example
+                else:
+                    parsed_example[feat] = example[feat]
+            return parsed_example
+
+        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
+                                                         num_parallel_calls=28, deterministic=False)
+
+        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
+
+        return parsed_analyse_dataset
+
+    def _load_test_imagenet_from_tfrecord(self, filelist):
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
@@ -83,7 +122,7 @@ class ImageNetDataLoader(BaseDataLoader):
                     for i in range(self.dataloader_args['batch_size']):
                         parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
                         resized_image = tf.image.resize(parsed_analyse_image, [224, 224])
-                        resized_image = (resized_image / 255.0)
+                        resized_image = (resized_image / 127.5) - 1
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
                     parsed_single_example = tf.concat(parsed_single_example, axis=0)
@@ -115,11 +154,11 @@ class ImageNetDataLoader(BaseDataLoader):
         print(len(valid_filelist), valid_filelist)
         print(len(test_filelist), test_filelist)
 
-        train_dataset = self._load_imagenet_from_tfrecord(filelist=train_filelist)
+        train_dataset = self._load_train_imagenet_from_tfrecord(filelist=train_filelist)
 
-        valid_dataset = self._load_imagenet_from_tfrecord(filelist=valid_filelist)
+        valid_dataset = self._load_test_imagenet_from_tfrecord(filelist=valid_filelist)
 
-        test_dataset = self._load_imagenet_from_tfrecord(filelist=test_filelist)
+        test_dataset = self._load_test_imagenet_from_tfrecord(filelist=test_filelist)
 
         train_dataset = train_dataset.repeat(-1)
         valid_dataset = valid_dataset.repeat(-1)

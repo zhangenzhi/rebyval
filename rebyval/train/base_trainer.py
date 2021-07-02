@@ -172,7 +172,7 @@ class BaseTrainer:
                                                                base_learning_rate=learning_rate,
                                                                warmup_steps=3000,
                                                                gradual_steps=10000,
-                                                               decay_steps=80000)
+                                                               decay_steps=7*60000)
                 elif scheduler_args['name'] == 'polynomial_decay':
                     scheduler = tf.keras.optimizers.schedules.PolynomialDecay(learning_rate,
                                                                               decay_steps=24000,

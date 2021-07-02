@@ -45,7 +45,7 @@ def unpack_tarfile(input_dirs):
         os.remove(tarfile_path)
 
 
-def convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs, config_path=None):
+def convert_imagenet_validset_to_tfrecords(input_dirs, output_dirs, config_path=None):
     # validation filepath
     valid_labels = {}
     filename = config_path if config_path else './examples/dataset/imagenet/ILSVRC2012_validation_ground_truth.txt'
@@ -160,4 +160,4 @@ def _image_example(image_string, label):
 if __name__ == '__main__':
     input_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid"
     output_dirs = "/home/work/dataset/ILSVRC2012/downloads/manual/valid_records"
-    metadata = convert_imagebet_validset_to_tfrecords(input_dirs, output_dirs)
+    metadata = convert_imagenet_validset_to_tfrecords(input_dirs, output_dirs)
