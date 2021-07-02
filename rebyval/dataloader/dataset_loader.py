@@ -82,8 +82,9 @@ class ImageNetDataLoader(BaseDataLoader):
                     parsed_single_example = []
                     for i in range(self.dataloader_args['batch_size']):
                         parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
-                        resized_image = tf.image.random_crop(parsed_analyse_image, [224, 224, 3])
-                        # resized_image = tf.image.random_flip_left_right(resized_image)
+                        resized_image = tf.image.resize(parsed_analyse_image, [224, 224])
+                        resized_image = tf.image.random_crop(resized_image, [224, 224, 3])
+                        resized_image = tf.image.random_flip_left_right(resized_image)
                         resized_image = tf.cast(resized_image, tf.float32)
                         resized_image = (resized_image / 127.5) - 1.0  # [-1,1]
                         resized_image = tf.expand_dims(resized_image, axis=0)
