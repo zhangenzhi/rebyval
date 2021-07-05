@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 
 
 class ResNet(Model):
-    def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000,
+    def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000, preact=False,
                  regularizer=tf.keras.regularizers.l2(l2=0.0001)):
         super(ResNet, self).__init__()
 
@@ -12,6 +12,7 @@ class ResNet(Model):
         self.pooling = pooling
         self.include_top = include_top
         self.classes = classes
+        self.preact = preact
         self.regularizer = regularizer
 
         self.preprocess_layers = self._build_preprocess()
@@ -31,8 +32,9 @@ class ResNet(Model):
             layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', use_bias=self.use_bias,
                           kernel_regularizer=self.regularizer,
                           name='conv1_conv'))
-        # preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
-        # preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
+        if not self.preact:
+            preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
+            preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
         preprocess_layers.append(layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='pool1_pad'))
         preprocess_layers.append(layers.MaxPool2D(pool_size=3, strides=2, name='pool1_pool'))
         return preprocess_layers
@@ -44,6 +46,11 @@ class ResNet(Model):
 
     def _build_dense_inference(self):
         inference_layer = []
+
+        if self.preact:
+            inference_layer.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='post_conv1_bn'))
+            inference_layer.append(layers.Activation('relu', name='post_conv1_relu'))
+
 
         if self.include_top:
             inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
