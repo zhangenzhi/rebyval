@@ -32,11 +32,11 @@ class ResNet(Model):
             layers.Conv2D(64, 7, strides=2, kernel_initializer='he_normal', use_bias=self.use_bias,
                           kernel_regularizer=self.regularizer,
                           name='conv1_conv'))
-        # if not self.preact:
-        #     preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
-        #     preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
-        # preprocess_layers.append(layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='pool1_pad'))
-        # preprocess_layers.append(layers.MaxPool2D(pool_size=3, strides=2, name='pool1_pool'))
+        if not self.preact:
+            preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='conv1_bn'))
+            preprocess_layers.append(layers.Activation('relu', name='conv1_relu'))
+        preprocess_layers.append(layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='pool1_pad'))
+        preprocess_layers.append(layers.MaxPool2D(pool_size=3, strides=2, name='pool1_pool'))
         return preprocess_layers
 
     def _preprocess(self, x, process_layers):
@@ -106,13 +106,13 @@ class ResNet(Model):
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
         seq_layers_block.append(
-            layers.Conv2D(filters, 1, name=name + '_1_conv', strides=strides, kernel_initializer='he_normal',
+            layers.Conv2D(filters, 1, name=name + '_1_conv', strides=1, kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
         seq_layers_block.append(
-            layers.Conv2D(filters, kernel_size, strides=1, padding='SAME', name=name + '_2_conv',
+            layers.Conv2D(filters, kernel_size, strides=strides, padding='SAME', name=name + '_2_conv',
                           kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
