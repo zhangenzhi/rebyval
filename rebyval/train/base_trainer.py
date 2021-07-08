@@ -221,6 +221,25 @@ class BaseTrainer:
                 learning_rate=learning_rate)
         elif optimizer_args['name'] == 'LARS':
             optimizer = LARS(learning_rate=learning_rate)
+            if optimizer_args.get('scheduler'):
+                scheduler_args = optimizer_args['scheduler']
+                if scheduler_args['name'] == 'linear_scaling_with_decay':
+                    linear_scaling = scheduler_args['scaling_factor'] if scheduler_args['scaling_factor'] else 1
+                    scheduler = LinearScalingWithDecaySchedule(linear_scaling=linear_scaling,
+                                                               base_learning_rate=learning_rate,
+                                                               warmup_steps=3000,
+                                                               gradual_steps=10000,
+                                                               decay_steps=80000)
+                else:
+                    print_error("No such scheduler")
+                    raise ("No such scheduler")
+
+                if self.args['distribute']:
+                    with self.mirrored_stragey.scope():
+                        # optimizer = tf.keras.optimizers.SGD(
+                        #     learning_rate=scheduler, momentum=0.9, nesterov=True)
+                        optimizer = LARS(learning_rate=scheduler)
+
         else:
             raise print_error(
                 '[Optimizer Status]: Unspport optimizer type: {:}'.format(

@@ -23,9 +23,9 @@ experiment:
     optimizer:
       name: LARS # default SGD
       learning_rate: 1.0 # default 0.01
-#      scheduler:
-#        name: linear_scaling_with_decay # default None
-#        scaling_factor: 4
+      scheduler:
+        name: linear_scaling_with_decay # default None
+        scaling_factor: 4
     train_loop_control:
       train:
         check_should_train: True
