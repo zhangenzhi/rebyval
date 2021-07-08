@@ -12,6 +12,7 @@ from rebyval.model.dnn import DenseNeuralNetwork
 from rebyval.model.resnet import ResNet50
 
 # optimizer
+from rebyval.optimizer.lars import LARS
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 
@@ -217,6 +218,9 @@ class BaseTrainer:
 
         elif optimizer_args['name'] == 'RMSprop':
             optimizer = tf.keras.optimizers.RMSprop(
+                learning_rate=learning_rate)
+        elif optimizer_args['name'] == 'LARS':
+            optimizer = tf.keras.optimizers.LARS(
                 learning_rate=learning_rate)
         else:
             raise print_error(

@@ -87,7 +87,7 @@ class ImageNetDataLoader(BaseDataLoader):
                         resized_image = tf.image.random_brightness(resized_image, 0.1)
                         resized_image = tf.image.random_flip_left_right(resized_image)
                         resized_image = tf.cast(resized_image, tf.float32)
-                        resized_image = (resized_image / 127.5) - 1.0  # [-1,1]
+                        resized_image = (resized_image / 127.5) - 1.0
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
                     parsed_single_example = tf.concat(parsed_single_example, axis=0)
