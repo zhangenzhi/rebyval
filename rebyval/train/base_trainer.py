@@ -220,8 +220,7 @@ class BaseTrainer:
             optimizer = tf.keras.optimizers.RMSprop(
                 learning_rate=learning_rate)
         elif optimizer_args['name'] == 'LARS':
-            optimizer = tf.keras.optimizers.LARS(
-                learning_rate=learning_rate)
+            optimizer = LARS(learning_rate=learning_rate)
         else:
             raise print_error(
                 '[Optimizer Status]: Unspport optimizer type: {:}'.format(
