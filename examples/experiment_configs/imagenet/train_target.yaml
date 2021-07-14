@@ -21,7 +21,7 @@ experiment:
       name: SparseCategoricalCrossentropy
       metric: accuracy
     optimizer:
-      name: LARS # default SGD
+      name: SGD # default SGD
       learning_rate: 1.0 # default 0.01
       scheduler:
         name: linear_scaling_with_decay # default None
@@ -35,7 +35,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/target/imagenet/dabz56_ls4d1_l2he_cv3s1_lars
+        log_path: ./log/target/imagenet/dabz56_ls4d1_l2he_cv3s1
       test:
         test_steps: 2500
         check_should_test: True # default False for no test step
