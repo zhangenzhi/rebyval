@@ -38,7 +38,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
         else:
             self.exclude_from_layer_adaptation = exclude_from_weight_decay
 
-    def _create_slot(self, var_list):
+    def _create_slots(self, var_list):
         for var in var_list:
             self.add_slot(var, "m")
 
