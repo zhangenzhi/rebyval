@@ -22,7 +22,7 @@ experiment:
       metric: accuracy
     optimizer:
       name: LAMB # default SGD
-      learning_rate: 0.01 # default 0.01
+      learning_rate: 0.001 # default 0.01
       scheduler:
         name: linear_scaling_with_decay # default None
         scaling_factor: 1
@@ -35,7 +35,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/target/imagenet/dabz56_ls1d1_l2he_cv3s1_lamb
+        log_path: ./log/target/imagenet/dabz56_ls1d1_l2he_cv3s1_lamb0001
       test:
         test_steps: 2500
         check_should_test: True # default False for no test step
