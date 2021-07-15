@@ -101,9 +101,9 @@ class LAMB(tf.keras.optimizers.Optimizer):
             w_norm = tf.norm(var, ord=2)
             g_norm = tf.norm(update, ord=2)
             ratio = tf.where(
-                tf.gather(w_norm, 0),
+                tf.greater(w_norm, 0),
                 tf.where(tf.greater(g_norm, 0), (w_norm / g_norm), 1.0),
-                1.0
+                1.0,
             )
 
         var_update = var - ratio * coefficients["lr_t"] * update
