@@ -176,7 +176,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
             return True
 
     def _do_layer_adaptation(self, param_name):
-        if self.exclude_from_layer_adaptatioin:
+        if self.exclude_from_layer_adaptation:
             for r in self.exclude_from_layer_adaptation:
                 if re.search(r, param_name) is not None:
                     return False
