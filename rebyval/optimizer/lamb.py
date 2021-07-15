@@ -107,7 +107,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
             )
 
         var_update = var - ratio * coefficients["lr_t"] * update
-        return var.assign(var_update, use_locking=self._use_locaking)
+        return var.assign(var_update, use_locking=self._use_locking)
 
     def _resource_apply_sparse(self, grad, var, indices, apply_state=None):
         var_device, var_dtype = var.device, var.dtype.base_dtype
@@ -144,9 +144,9 @@ class LAMB(tf.keras.optimizers.Optimizer):
         ratio = 1.0
         if self._do_layer_adaptation(var_name):
             w_norm = tf.norm(var, ord=2)
-            g_norm = tf.nrom(update, ord=2)
+            g_norm = tf.norm(update, ord=2)
             ratio = tf.where(
-                tf.gather(w_norm, 0),
+                tf.greater(w_norm, 0),
                 tf.where(tf.greater(g_norm, 0), (w_norm / g_norm), 1.0),
                 1.0
             )
