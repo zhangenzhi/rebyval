@@ -99,7 +99,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
         ratio = 1.0
         if self._do_layer_adaptation(var_name):
             w_norm = tf.norm(var, ord=2)
-            g_norm = tf.nrom(update, ord=2)
+            g_norm = tf.norm(update, ord=2)
             ratio = tf.where(
                 tf.gather(w_norm, 0),
                 tf.where(tf.greater(g_norm, 0), (w_norm / g_norm), 1.0),
