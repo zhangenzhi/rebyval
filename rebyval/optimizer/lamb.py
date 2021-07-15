@@ -54,7 +54,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
         weight_decay_rate = tf.identity(self._get_hyper("weight_decay_rate", var_dtype))
         beta_1_power = tf.pow(beta_1_t, local_step)
         beta_2_power = tf.pow(beta_2_t, local_step)
-        apply_state[(var_dtype, var_device)].update(
+        apply_state[(var_device, var_dtype)].update(
             dict(
                 weight_decay_rate=weight_decay_rate,
                 epsilon=tf.convert_to_tensor(self.epsilon, var_dtype),
