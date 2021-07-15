@@ -69,7 +69,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=XLA_compile_)
     def _resource_apply_dense(self, grad, var, apply_state=None):
-        var_device, var_dtype = var.device, var.dtype.base_type
+        var_device, var_dtype = var.device, var.dtype.base_dtype
         coefficients = (apply_state or {}).get(
             (var_device, var_dtype)
         ) or self._fallback_apply_state(var_device, var_dtype)
@@ -110,7 +110,7 @@ class LAMB(tf.keras.optimizers.Optimizer):
         return var.assign(var_update, use_locking=self._use_locaking)
 
     def _resource_apply_sparse(self, grad, var, indices, apply_state=None):
-        var_device, var_dtype = var.device, var.dtype.base_type
+        var_device, var_dtype = var.device, var.dtype.base_dtype
         coefficients = (apply_state or {}).get(
             (var_device, var_dtype)
         ) or self._fallback_apply_state(var_device, var_dtype)
