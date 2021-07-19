@@ -16,6 +16,7 @@ from rebyval.optimizer.lars import LARS
 from rebyval.optimizer.lamb import LAMB
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
+from rebyval.optimizer.scheduler.cyclical_learning_rate import TriangularCyclicalLearningRate
 
 # others
 from rebyval.train.utils import get_scheduler, prepare_dirs
@@ -184,6 +185,10 @@ class BaseTrainer:
                     boundaries = [20000, 40000]
                     values = [scale * learning_rate for scale in [1.0, 0.1, 0.01]]
                     scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
+                elif scheduler_args['name'] == 'triangular_cyclical_learning_rate':
+                    scheduler = TriangularCyclicalLearningRate(initial_learning_rate=0.001,
+                                                               maximal_learning_rate=1.0,
+                                                               step_size=30000)
                 else:
                     print_error("No such scheduler")
                     raise ("No such scheduler")
