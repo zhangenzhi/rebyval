@@ -10,7 +10,7 @@ from tensorflow.python.framework import ops
 XLA_compile_ = True if sys.platform == 'win32' else None
 
 
-class AverageOptimizerWrapper(tf.keras.optimizer.Optimizer, metaclass=abc.ABCMeta):
+class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMeta):
     def __init__(self, optimizer=None, name="AverageOptimizer", **kwargs):
         super(AverageOptimizerWrapper, self).__init__(name, **kwargs)
 
