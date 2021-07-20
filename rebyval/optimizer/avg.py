@@ -49,7 +49,7 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
             local_apply_state = self._fallback_apply_state(
                 var.device, var.dtype.base_dtype
             )
-        average_var = self.get_slot(var)
+        average_var = self.get_slot(var,"average")
         return self.average_op(var, average_var, local_apply_state)
 
     def _resource_apply_dense(self, grad, var, apply_state=None):
