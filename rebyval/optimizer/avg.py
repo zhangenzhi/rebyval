@@ -32,7 +32,7 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
         self._optimizer._create_hypers()
 
     def _prepare_local(self, var_device, var_dtype, apply_state):
-        return self._optimizer._prepare_local(var_device, )
+        return self._optimizer._prepare_local(var_device, var_dtype, apply_state)
 
     def apply_gradients(self, grad_and_vars, name=None, **kwargs):
         self._optimizer._iterations = self.iteration
