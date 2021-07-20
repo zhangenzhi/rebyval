@@ -44,7 +44,7 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
 
     def _apply_average_op(self, train_op, var, apply_state):
         apply_state = apply_state or {}
-        local_apply_state = apply_state.get((var.device, var.dtype.base_type))
+        local_apply_state = apply_state.get((var.device, var.dtype.base_dtype))
         if local_apply_state is None:
             local_apply_state = self._fallback_apply_state(
                 var.device, var.dtype.base_dtype
