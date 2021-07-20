@@ -49,7 +49,7 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
             local_apply_state = self._fallback_apply_state(
                 var.device, var.dtype.base_dtype
             )
-        average_var = self.get_slot(var,"average")
+        average_var = self.get_slot(var, "average")
         return self.average_op(var, average_var, local_apply_state)
 
     def _resource_apply_dense(self, grad, var, apply_state=None):
@@ -119,19 +119,19 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
 
     @property
     def lr(self):
-        pass
+        return self._optimizer._get_hyper("learning_rate")
 
     @lr.setter
     def lr(self, lr):
-        pass
+        return self._optimizer._set_hyper("learning_rate", lr)
 
     @property
     def learning_rate(self):
-        pass
+        return self._optimizer._get_hyper("learning_rate")
 
     @learning_rate.setter
     def learning_rate(self, learning_rate):
-        pass
+        return self._optimizer._set_hyper("learning_rate", learning_rate)
 
 
 class SWA(AverageOptimizerWrapper):
@@ -160,7 +160,7 @@ class SWA(AverageOptimizerWrapper):
         start_averaging = self._get_hyper("start_averaging", tf.dtypes.int64)
 
         num_snapshots = tf.math.maximum(
-            tf.cast(0,tf.int64),
+            tf.cast(0, tf.int64),
             tf.math.floordiv(self.iterations - start_averaging, average_period)
         )
 

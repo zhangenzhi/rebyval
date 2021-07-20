@@ -208,10 +208,18 @@ class BaseTrainer:
                     learning_rate=learning_rate, momentum=0.9, nesterov=True)
 
         elif optimizer_args['name'] == 'SWA':
-            core_optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
-            optimizer = SWA(optimizer=core_optimizer,
-                            start_averaging=0,
-                            average_period=10)
+            if self.args['distribute']:
+                with self.mirrored_stragey.scope():
+                    core_optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+                    optimizer = SWA(optimizer=core_optimizer,
+                                    start_averaging=0,
+                                    average_period=10)
+            else:
+                core_optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+                optimizer = SWA(optimizer=core_optimizer,
+                                start_averaging=0,
+                                average_period=10)
+
 
         elif optimizer_args['name'] == 'Adagrad':
             optimizer = tf.keras.optimizers.Adagrad(
