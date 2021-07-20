@@ -42,7 +42,6 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
     def average_op(self, var, average_var, local_apply_state):
         raise NotImplementedError
 
-    @abc.abstractmethod
     def _apply_average_op(self, train_op, var, apply_state):
         apply_state = apply_state or {}
         local_apply_state = apply_state.get((var.device, var.dtype.base_type))
