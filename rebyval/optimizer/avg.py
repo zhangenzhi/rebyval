@@ -144,7 +144,7 @@ class SWA(AverageOptimizerWrapper):
             name="SWA",
             **kwargs
     ):
-        super().__init__(optimizer, name, **kwargs)
+        super(SWA,self).__init__(optimizer, name, **kwargs)
 
         if average_period < 1:
             raise ValueError("average_period must >= 1")
