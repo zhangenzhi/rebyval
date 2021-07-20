@@ -154,7 +154,7 @@ class SWA(AverageOptimizerWrapper):
         self._set_hyper("average_period", average_period)
         self._set_hyper("start_averaging", start_averaging)
 
-    @tf.function
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def average_op(self, var, average_var, local_apply_state):
         average_period = self._get_hyper("average_period", tf.dtypes.int64)
         start_averaging = self._get_hyper("start_averaging", tf.dtypes.int64)
