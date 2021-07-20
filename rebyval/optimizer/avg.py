@@ -156,8 +156,8 @@ class SWA(AverageOptimizerWrapper):
 
     @tf.function
     def average_op(self, var, average_var, local_apply_state):
-        average_period = self._get_hyper("average_period", tf.dtype.int64)
-        start_averaging = self._get_hyper("start_averaging", tf.dtype.int64)
+        average_period = self._get_hyper("average_period", tf.dtypes.int64)
+        start_averaging = self._get_hyper("start_averaging", tf.dtypes.int64)
 
         num_snapshots = tf.math.maximum(
             tf.cast(0,tf.int64),
