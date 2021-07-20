@@ -21,12 +21,12 @@ experiment:
       name: SparseCategoricalCrossentropy
       metric: accuracy
     optimizer:
-      name: SGD # default SGD
+      name: SWA # default SGD
       learning_rate: 0.01 # default 0.01
-      scheduler:
-#        name: linear_scaling_with_decay # default None
-#        scaling_factor: 4
-        name: triangular_cyclical_learning_rate
+#      scheduler:
+##        name: linear_scaling_with_decay # default None
+##        scaling_factor: 4
+#        name: triangular_cyclical_learning_rate
     train_loop_control:
       train:
         check_should_train: True
@@ -36,7 +36,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/target/imagenet/dabz56_clr_l2he_cv3s1_sgd
+        log_path: ./log/target/imagenet/dabz56_l2he_cv3s1_swa
       test:
         test_steps: 2500
         check_should_test: True # default False for no test step

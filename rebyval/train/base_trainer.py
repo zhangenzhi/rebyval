@@ -14,6 +14,7 @@ from rebyval.model.resnet import ResNet50
 # optimizer
 from rebyval.optimizer.lars import LARS
 from rebyval.optimizer.lamb import LAMB
+from rebyval.optimizer.avg import SWA
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 from rebyval.optimizer.scheduler.cyclical_learning_rate import TriangularCyclicalLearningRate
@@ -186,7 +187,7 @@ class BaseTrainer:
                     values = [scale * learning_rate for scale in [1.0, 0.1, 0.01]]
                     scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
                 elif scheduler_args['name'] == 'triangular_cyclical_learning_rate':
-                    scheduler = TriangularCyclicalLearningRate(initial_learning_rate=learning_rate/10.0,
+                    scheduler = TriangularCyclicalLearningRate(initial_learning_rate=learning_rate / 10.0,
                                                                maximal_learning_rate=1.0,
                                                                step_size=30000)
                 else:
@@ -205,6 +206,12 @@ class BaseTrainer:
             else:
                 optimizer = tf.keras.optimizers.SGD(
                     learning_rate=learning_rate, momentum=0.9, nesterov=True)
+
+        elif optimizer_args['name'] == 'SWA':
+            core_optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+            optimizer = SWA(optimizer=core_optimizer,
+                            start_averaging=30000,
+                            average_period=90000)
 
         elif optimizer_args['name'] == 'Adagrad':
             optimizer = tf.keras.optimizers.Adagrad(
