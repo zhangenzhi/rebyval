@@ -52,15 +52,13 @@ class AverageOptimizerWrapper(tf.keras.optimizers.Optimizer, metaclass=abc.ABCMe
         average_var = self.get_slot(var)
         return self.average_op(var, average_var, local_apply_state)
 
-    def _resource_apply_dense(self, grad, var, indices, apply_state=None):
+    def _resource_apply_dense(self, grad, var, apply_state=None):
         if "apply_state" in self._optimizer._sparse_apply_args:
             train_op = self._optimizer._resource_apply_dense(
-                grad, var, indices, apply_state=apply_state
+                grad, var, apply_state=apply_state
             )
         else:
-            train_op = self._optimizer._resource_apply_dense(
-                grad, var, indices
-            )
+            train_op = self._optimizer._resource_apply_dense(grad, var)
         average_op = self._apply_average_op(train_op, var, apply_state)
         return tf.group(train_op, average_op)
 
