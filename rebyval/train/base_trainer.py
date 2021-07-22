@@ -187,7 +187,7 @@ class BaseTrainer:
                     values = [scale * learning_rate for scale in [1.0, 0.1, 0.01]]
                     scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
                 elif scheduler_args['name'] == 'triangular_cyclical_learning_rate':
-                    scheduler = TriangularCyclicalLearningRate(initial_learning_rate=learning_rate / 10.0,
+                    scheduler = TriangularCyclicalLearningRate(initial_learning_rate=learning_rate / 100.0,
                                                                maximal_learning_rate=1.0,
                                                                step_size=30000)
                 else:

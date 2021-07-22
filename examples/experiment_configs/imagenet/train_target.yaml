@@ -21,12 +21,12 @@ experiment:
       name: SparseCategoricalCrossentropy
       metric: accuracy
     optimizer:
-      name: SWA # default SGD
+      name: SGD # default SGD
       learning_rate: 0.01 # default 0.01
-#      scheduler:
-##        name: linear_scaling_with_decay # default None
-##        scaling_factor: 4
-#        name: triangular_cyclical_learning_rate
+      scheduler:
+#        name: linear_scaling_with_decay # default None
+#        scaling_factor: 4
+        name: triangular_cyclical_learning_rate
     train_loop_control:
       train:
         check_should_train: True
