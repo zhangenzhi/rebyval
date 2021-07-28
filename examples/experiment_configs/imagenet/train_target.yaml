@@ -36,7 +36,7 @@ experiment:
         check_should_valid: True # default False for no validation step
         valid_gap: 1000 # default 1000 training steps
         valid_steps: 100 # default valid for 100 steps
-        log_path: ./log/target/imagenet/dabz56_l2he_cv3s1_swa
+        log_path: ./log/target/imagenet/dabz56_ls4_l2he_cv3s1_lamb001
       test:
         test_steps: 2500
         check_should_test: True # default False for no test step
