@@ -22,7 +22,7 @@ experiment:
       metric: accuracy
     optimizer:
       name: LAMB # default SGD
-      learning_rate: 0.01 # default 0.01
+      learning_rate: 0.001 # default 0.01
       scheduler:
         name: linear_scaling_with_decay # default None
         scaling_factor: 4
