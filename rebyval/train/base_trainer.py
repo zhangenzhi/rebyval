@@ -108,15 +108,28 @@ class BaseTrainer:
     def _build_model(self):
         model_args = self.args['model']
 
+        # regularizer
+        if model_args.get('regularizer'):
+            regularizer = model_args['regularizer']
+        else:
+            regularizer = None
+
+        # initializer
+        if model_args.get('fixed_init'):
+            name = model_args['fixed_init']['initializer']
+            seed = model_args['fixed_init']['seed']
+            initializer = tf.keras.initializers.get(name)
+            initializer.seed = seed
+
+        else:
+            initializer = 'glorot_uniform'
+
         if model_args['name'] == 'dnn':
 
             deep_dims = list(map(lambda x: float(x), model_args['deep_dims'].split(',')))
             activations = list(map(lambda x: str(x), model_args['activations_for_all'].split(',')))
-            if model_args.get('regularizer'):
-                regularizer = model_args['regularizer']
-            else:
-                regularizer = None
-            model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations, regularizer=regularizer)
+            model = DenseNeuralNetwork(deep_dims=deep_dims, activations=activations, regularizer=regularizer,
+                                       initializer=initializer)
 
         elif model_args['name'] == 'resnet50':
 

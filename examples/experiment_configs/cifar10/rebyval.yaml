@@ -7,7 +7,7 @@ experiment:
 
   main_loop_control:
     warmup_steps:
-      target_model_samples: 20 # train 10 taget model and collect validation weight.
+      target_model_samples: 20 # train 10 target model and collect validation weight.
     target_samples_per_iter: 3
 
   target_trainer:
@@ -17,6 +17,9 @@ experiment:
       batch_size: 256
     model:
       name: dnn # default dnn
+      fixed_init:
+        initializer: glorot_uniform
+        seed: 9527
       deep_dims: 128,64,64,10 # default 128,64,64,32
       activations_for_all: relu,relu,relu,softmax # default relu
       restore_model:
