@@ -48,6 +48,9 @@ def print_error(*content):
     print(Fore.RED + ERROR_INFO + ' '.join([str(c)
                                             for c in content]) + Fore.RESET)
 
+def print_red(*content):
+    '''Print information to screen in red'''
+    print(Fore.RED + ' '.join([str(c) for c in content]) + Fore.RESET)
 
 def print_green(*content):
     '''Print information to screen in green'''

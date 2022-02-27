@@ -4,10 +4,10 @@ from tensorflow.keras.layers import Dense, Flatten
 
 
 class DenseNeuralNetwork(Model):
-    def __init__(self, deep_dims, activations=None, regularizer=None,initializer='glorot_uniform'):
+    def __init__(self, deep_dims=[64,32,16,10], activations=['relu,relu,relu,relu'], regularizer=None,initializer='glorot_uniform'):
         super(DenseNeuralNetwork, self).__init__()
         self.deep_dims = deep_dims
-        self.activations = activations if activations else ['relu'] * len(deep_dims)
+        self.activations = activations
         self.regularizer = regularizer
         self.initializer = initializer
         self.dnn_layer = self.build_deep_layers()

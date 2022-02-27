@@ -9,21 +9,24 @@ class Cifar10DataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
         super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
 
-    def load_dataset(self, format=None):
+    def load_dataset(self, epochs=-1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
 
-        full_train_size = len(x_train)
-        valid_size = int(0.2 * full_train_size)
+        full_size = len(x_train)
+        train_size = int(0.8 * full_size)
+        valid_size = int(0.2 * full_size)
 
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'label': y_train})
+        full_dataset = full_dataset.shuffle()
 
+        train_dataset = full_dataset.take(train_size)
         train_dataset = full_dataset.batch(self.dataloader_args['batch_size'])
-        train_dataset = train_dataset.shuffle(self.dataloader_args['batch_size'])
-        train_dataset = train_dataset.repeat(-1)
+        train_dataset = train_dataset.repeat(epochs)
+
+        valid_dataset = full_dataset.skip(train_size).repeat(epochs)
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'label': y_test})
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
-        valid_dataset = test_dataset.repeat(-1)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(1)
 
         return train_dataset, valid_dataset, test_dataset
 

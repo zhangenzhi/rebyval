@@ -19,9 +19,9 @@ setup(
     name="rebyval",
     version="0.1",
     packages=find_packages(),
-    author="Ruqin Wang && Enzhi Zhang",
-    author_email="zhangenzhi@gmail.com",
-    description="A way to bridge regularization penalty with validation loss by deep approximator",
+    author="Enzhi Zhang && Ruqin Wang",
+    author_email="zhangenzhi657@gmail.com",
+    description="A way to bridge regularization penalty with validation loss by a deep approximator",
     license="MIT",
     entry_points={
         'console_scripts':

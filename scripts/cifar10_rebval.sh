@@ -1,0 +1,1 @@
+python main.py --config="scripts/configs/cifar10/rebyval_dnn.yaml"

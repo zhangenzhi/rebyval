@@ -92,43 +92,6 @@ RUN wget -p -O cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v
    rm -f cmake.tar.gz
 
 
-# Add HDFS (copy from cloud-ml)
-ENV HADOOP_ROOT=/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610 \
-    JAVA_HOME=/hadoop/openjdk-java8-openjdk  \
-    CLASSPATH=/hadoop/openjdk-java8-openjdk/lib:/hadoop/openjdk-java8-openjdk/lib/tools.jar:/hadoop/openjdk-java8-openjdk/jre/lib/rt.jar \
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/lib:/hadoop/openjdk-java8-openjdk/jre/lib/amd64/server/:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/lib/native/ \
-    PATH=$PATH:/hadoop/openjdk-java8-openjdk/bin:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/ \
-    KERB_TICKET_CACHE_PATH=/tmp/krb5cc_0
-
-RUN wget -q https://cnbj1-inner-fds.api.xiaomi.net/sparsedl/hdfs/krb5-hadoop.conf -P /etc/ && \
-    wget -q https://cnbj1-inner-fds.api.xiaomi.net/sparsedl/hdfs/krb5.conf -P /etc/
-
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update -y && \
-    apt-get install -y krb5-user && \
-    mkdir /hadoop && \
-    cd /hadoop && \
-    wget https://cnbj1.fds.api.xiaomi.com/cloudmlusers/hdfs_packages/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610.tar.gz && \
-    tar -xvf zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610.tar.gz && \
-    wget https://cnbj1.fds.api.xiaomi.com/cloudmlusers/hdfs_packages/openjdk-java8-openjdk.tar.gz && \
-    tar -xvf openjdk-java8-openjdk.tar.gz && \
-    rm -f openjdk-java8-openjdk.tar.gz && \
-    rm -f zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610.tar.gz && \
-    mkdir /hdfs
-
-# Hadoop environment variables
-# Refer to https://github.com/tensorflow/ecosystem/blob/master/docker/Dockerfile.hdfs
-ENV HADOOP_VERSION 3.1.0
-ENV JAVA_HOME /hadoop/openjdk-java8-openjdk
-ENV HADOOP_INSTALL /hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610
-ENV HADOOP_HDFS_HOME $HADOOP_INSTALL
-ENV HADOOP_COMMON_LIB_NATIVE_DIR $HADOOP_INSTALL/lib/native
-ENV HADOOP_OPTS "-Djava.library.path=$HADOOP_INSTALL/lib/native"
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server
-ENV KERB_TICKET_CACHE_PATH /tmp/krb5cc_0
-ENV KRB5CCNAME /tmp/krb5cc_0
-ENV CLASSPATH /hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/etc/hadoop:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/common/lib/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/common/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/hdfs:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/hdfs/lib/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/hdfs/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/yarn/lib/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/yarn/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/mapreduce/lib/*:/hadoop/zjyprc-hadoop-hadoop-pack-3.1.0-mdh3.1.0.0-SNAPSHOT-20200610/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar:/contrib/capacity-scheduler/*.jar
-
 
 # # Setup VIM
 # RUN git clone --recursive https://github.com/llhe/vimrc.git
@@ -183,16 +146,3 @@ RUN apt-get update -y && \
     && rm -rf /var/lib/apt/lists/*
 
 
-# Build and install nvtop
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    libncurses5-dev \
-    libncursesw5-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/Syllo/nvtop.git
-RUN echo 'mkdir -p build && cd build && cmake .. -DNVML_RETRIEVE_HEADER_ONLINE=True && make && make install' > nvtop/build.sh
-
-# Install Intel PCM
-RUN git clone https://github.com/opcm/pcm.git
-RUN cd pcm && make -j4 && make install
