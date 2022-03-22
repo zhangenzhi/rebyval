@@ -1,4 +1,6 @@
 import os
+from time import sleep
+from tqdm import tqdm
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 import argparse
 

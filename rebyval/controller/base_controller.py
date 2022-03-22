@@ -1,5 +1,6 @@
 import time
 import argparse
+import tensorflow as tf
 
 from rebyval.tools.utils import *
 from rebyval.controller.utils import *
@@ -22,6 +23,10 @@ class BaseController:
         self.yaml_configs = check_args_from_input_config(self.yaml_configs)
 
         self._build_enviroment()
+        
+        self._student_ids = 0
+        self._supervisor_ids = 0
+        
         self.supervisor = self._build_supervisor()
 
     def _args_parser(self):
@@ -36,17 +41,26 @@ class BaseController:
 
     def _build_enviroment(self):
         self.args = self.yaml_configs['experiment']
+        context = self.args['context']
+        self.log_path = os.path.join(context['log_path'],context['name'])
 
-    def _build_student(self):
+    def _build_student(self, supervisor=None):
         student_args = self.args["student"]
-        student = Cifar10Student(student_args=student_args)
+        student_args['log_path'] = self.log_path
+        student = Cifar10Student(student_args=student_args, 
+                                 supervisor = supervisor,
+                                 id = self._student_ids)
+        self._student_ids += 1
         return student
 
     def _build_supervisor(self):
         supervisor_args = self.args["supervisor"]
-        supervisor = Cifar10Supervisor(supervisor_args=supervisor_args)
+        supervisor_args['log_path'] = self.log_path
+        supervisor = Cifar10Supervisor(supervisor_args=supervisor_args,
+                                       id = self._supervisor_ids)
+        self._supervisor_ids += 1
         return supervisor
-
+        
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
         for i in range(init_samples):
@@ -57,15 +71,15 @@ class BaseController:
 
         main_loop = self.args['main_loop']
 
-        #init weights pool
+        # init weights pool
         if 'warmup' in main_loop:
             self.warmup(main_loop['warmup'])
 
-        #main loop
+        # main loop
         for j in range(main_loop['nums']):
             self.supervisor.run()
             for i in range(main_loop['student_nums']):
-                student = self._build_student()
+                student = self._build_student(supervisor=self.supervisor)
                 student.run()
 
     def run(self):

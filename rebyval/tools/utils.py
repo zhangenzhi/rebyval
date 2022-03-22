@@ -9,6 +9,11 @@ from colorama import Fore
 
 from .constants import ERROR_INFO, NORMAL_INFO, WARNING_INFO
 
+def check_mkdir(path):
+    if not os.path.exists(path=path):
+        print_warning("no such path: {}, but we made.".format(path))
+        os.makedirs(path)
+        
 
 def get_format_time(cost_time):
     minute, second = divmod(cost_time, 60)
@@ -30,6 +35,15 @@ def get_yml_content(file_path):
     except Exception as exception:
         print_error(exception)
         exit(1)
+        
+def save_yaml_contents(file_path, contents):
+    try:
+        with open(file_path, 'w') as file:
+            yaml.dump(contents, file)
+    except Exception as exception:
+        print_error(exception)
+        exit(1)
+        
 
 
 def get_json_content(file_path):

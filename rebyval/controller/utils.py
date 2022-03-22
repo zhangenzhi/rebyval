@@ -8,6 +8,7 @@ from rebyval.controller.constants import default_parameters
 def check_args_from_input_config(input_config):
     default_configs = get_yml_content("./rebyval/controller/default_parameters.yaml")
     merged_configs = check_and_merge(input_config, default_configs)
+    print_dict(merged_configs)
     return merged_configs
 
 def check_and_merge(input_config, default_configs, indent=0):
@@ -15,24 +16,10 @@ def check_and_merge(input_config, default_configs, indent=0):
         if key not in input_config:
             input_config[key] = value
             if isinstance(value, dict):
-                    print_red('\t' * (indent) + key + ": ")
                     check_and_merge(input_config[key], value, indent + 1)
-            else:
-                try:
-                    print_red('\t' * (indent) + str(key) + ": " + str(value))
-                except:
-                    print_error("value can not print: ", type(value))
-                    raise
         else:
             if isinstance(value, dict):
-                    print_green('\t' * (indent) + key + ": ")
                     check_and_merge(input_config[key], value, indent + 1)
-            else:
-                try:
-                    print('\t' * (indent) + str(key) + ": " + str(value))
-                except:
-                    print_error("value can not print: ", type(value))
-                    raise
     return input_config
 
 def valid_weights_pool(dataloader_args):

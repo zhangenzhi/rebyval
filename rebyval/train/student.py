@@ -1,22 +1,25 @@
+from distutils.command.config import config
+from genericpath import exists
 import os
 import tensorflow as tf
 
 # dataloader
-from rebyval.dataloader.dataset_loader import Cifar10DataLoader, ImageNetDataLoader
-from rebyval.dataloader.weights_loader import DnnWeightsLoader
+from rebyval.dataloader.dataset_loader import Cifar10DataLoader
 
 # model
-from rebyval.model.dnn import DenseNeuralNetwork
-from rebyval.model.resnet import ResNet50
+from rebyval.model.dnn import DNN
+from rebyval.model.cnn import CNN
 
 # others
-from rebyval.train.utils import get_scheduler, prepare_dirs
-from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
+from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
+from rebyval.dataloader.utils import glob_tfrecords
+
 
 class Student:
-    def __init__(self, student_args, supervisor = None):
+    def __init__(self, student_args, supervisor = None, id = 0):
         self.args = student_args
         self.supervisor = supervisor
+        self.id = id
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
@@ -34,8 +37,9 @@ class Student:
 
     def _build_model(self):
         #TODO: need model registry
-        model_args = self.args['model']
-        model = DenseNeuralNetwork()
+        model = DNN(units=[64,32,16,10],
+                    activations=['relu', 'relu', 'relu', 'softmax'])
+        # model = CNN()
         # model restore
         if self.args['model'].get('restore_model'):
             self.model = self.model_restore(self.model)
@@ -48,20 +52,32 @@ class Student:
 
     def _build_metrics(self):
         metrics = {}
-        metrics_name = self.args['metrics']['name']
-        metrics[metrics_name] = tf.keras.metrics.get(metrics_name)
+        metrics = self.args['metrics']
+        metrics = tf.keras.metrics.get(metrics['name'])
         return metrics
 
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
+        optimizer.learning_rate = optimizer_args['learning_rate']
         return optimizer
     
-    def _build_weights_writer(self):
-        # weights writer
-        filepath = self.valid_args['weightspace_path']
-        record_file = os.path.join(filepath, '{}.tfrecords'.format(0))
-        self.writer = tf.io.TFRecordWriter(record_file)
+    def _build_logger(self):
+        logdir = os.path.join(self.args['log_path'], "tensorboard")
+        check_mkdir(logdir)
+        logger = tf.summary.create_file_writer(logdir)
+        return logger
+    
+    def _build_writter(self):
+        weight_dir = os.path.join(self.args['log_path'],"weight_space")
+        check_mkdir(weight_dir)
+        exists_student = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        if exists_student != 0:
+            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(exists_student))
+        else:
+            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
+        writter = tf.io.TFRecordWriter(weight_trace)
+        return writter
 
     def model_restore(self, model):
         model_args = self.args['model']
@@ -100,12 +116,10 @@ class Student:
     def train(self):
 
         # parse train loop control args
-        train_loop_control_args = self.args['train_loop_control']
-        train_args = train_loop_control_args['train']
+        train_loop_args = self.args['train_loop']
+        train_args = train_loop_args['train']
 
         # dataset train, valid, test
-        epoch = 0
-        step = 0
         train_iter = iter(self.train_dataset)
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
@@ -134,27 +148,42 @@ class Student:
         # build losses and metrics
         self.loss_fn = self._build_loss_fn()
         self.metrics = self._build_metrics()
+        
+        # build weights save writter
+        self.logger = self._build_logger()
+        self.writter = self._build_writter()
 
         # train
         self.train()
+        
+        self.writter.close()
+        print('Finished training student {}'.format(self.id))
+        
 
-        # Analyse
-    def _during_train_vars_tensor_example(self):
+    # weights space
+    def _during_train_vars_tensor_example(self, weight_loss):
         feature = {}
-        for feature_name, value in self.during_value_dict.items():
+        configs = {}
+        for feature_name, value in weight_loss.items():
+            
+            # weights config
             if isinstance(value, list):
-                value = [tf.io.serialize_tensor(v).numpy() for v in value]
-                v_len = len(value)
-                for i in range(v_len):
+                for i in range(len(value)):
+                    bytes_v = tf.io.serialize_tensor(value[i]).numpy() 
                     feature[feature_name + "_{}".format(i)] = tf.train.Feature(
-                        bytes_list=tf.train.BytesList(value=[value[i]]))
+                        bytes_list=tf.train.BytesList(value=[bytes_v]))
+                    configs[feature_name + "_{}".format(i)]= {'type':'bytes','shape':value[i].shape.as_list()}
+                    
                 feature[feature_name + "_length"] = tf.train.Feature(
-                    int64_list=tf.train.Int64List(value=[v_len])
+                    int64_list=tf.train.Int64List(value=[len(value)])
                 )
+                configs[feature_name + "_length"]= {'type':'int64','shape':[1],'value':len(value)}
+                
             else:
                 value = [value.numpy()]
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
+                configs[feature_name]= {'type':'float32', 'shape':[1]}
+        return tf.train.Example(features=tf.train.Features(feature=feature)), configs
 
     def _during_train_vars_tensor_sum_reduce_example(self):
         feature = {}
@@ -213,16 +242,28 @@ class Student:
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
-    def _write_analyse_to_tfrecord(self):
-
-        if self.valid_args['analyse']['format'] == 'tensor':
-            example = self._during_train_vars_tensor_example()
-        elif self.valid_args['analyse']['format'] == 'tensor_sum_reduce':
+    def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
+        
+        weight_loss = {'vars': weights, 'valid_loss': valid_loss}
+        
+        if weight_space['format'] == 'tensor':
+            example,configs = self._during_train_vars_tensor_example(weight_loss)
+        elif weight_space['format'] == 'tensor_sum_reduce':
             example = self._during_train_vars_tensor_sum_reduce_example()
-        elif self.valid_args['analyse']['format'] == 'tensor_sum_reduce_l2':
+        elif weight_space['format'] == 'tensor_sum_reduce_l2':
             example = self._during_train_tensor_sum_reduce_with_l2_example()
         else:
             example = self._during_train_vars_numpy_example()
+ 
+        weight_dir =  os.path.join(self.args['log_path'], 'weight_space')
+        config_path = os.path.join(weight_dir, 'feature_configs.yaml')
+        
+        configs['num_of_students'] = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        configs['sample_per_student'] = int(self.dataloader.info['train_step']  / self.args['train_loop']['valid']['valid_gap'] + 1) * self.dataloader.info['epochs']
+        configs['total_samples'] = configs['sample_per_student']  * configs['num_of_students']
+        save_yaml_contents(contents=configs, file_path=config_path)
+        
+        self.writter.write(example.SerializeToString())
+        
 
-        self.writer.write(example.SerializeToString())
 

@@ -7,8 +7,7 @@ experiment:
 
   main_loop:
     warmup:
-      init_samples: 0
-      target_model_samples: 0 # train 10 taget model and collect validation weight.
+      student_nums: 1 # train 1 student and collect validation weight.
     nums: 0
     student_nums: 0
 
@@ -16,14 +15,15 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       path: ~/.keras/dataset/cifar10 # default using keras
-      batch_size: 256
+      epochs: 10
+      batch_size: 128
     model:
       name: dnn # default dnn
       dims: 64,32,16,10 # default 128,64,64,32
       activations: relu,relu,relu,softmax # default relu
     loss:
       name: SparseCategoricalCrossentropy
-      metric: accuracy
+      metrics: Accuracy
     optimizer:
       name: SGD # default SGD
       learning_rate: 0.01 # default 0.01
@@ -33,25 +33,23 @@ experiment:
       valid:
         weight_space:
             format: tensor #tensor,numpy,tensor_sum_reduce
-            datapath: ./log/weight_space
-        log_path: ./log/student/valid
         save_model:
           save_in: student # or name as your wish
           save_after_epoch: 1 # save latest and best model per 1000 steps
       test:
-        log_path: ./log/student/test
+        epoch: 10
 
   supervisor:
     dataloader:
       name: weight
-      datapath: ./log/weight_space
-      sample_of_curves: 10
+      path: ./log/rebyval/weight_space
       format: tensor
-      batch_size: 64
+      epochs: 10
+      batch_size: 8
     model:
       name: dnn # default dnn
       dims: 64,32,16,1
-      activations: relu,relu,softplus
+      activations: relu,relu,relu,softplus
 #      restore_model:
 #        restore_from: ./log/supervisor/model_best # default best
     optimizer:
@@ -59,17 +57,17 @@ experiment:
       learning_rate: 0.01
     loss:
       name: MeanSquaredError
-      metric: MeanSquaredLogarithmicError
+    metrics:
+      name: MeanSquaredError
     train_loop:
       preprocess:
         name: normal # l2_sum_avg, sum_avg, normal
       train:
         epochs: 10 # default 10
       valid:
-        log_path: ./log/supvervisor/valid
         save_model:
           save_in: supvervisor # or name as your wish, default None
-          save_after_step: 1000 # save latest and best model per 1000 steps
+          save_after_epochs: 1 # save latest and best model per epochs
       test:
-        log_path: ./log/supervisor/test
+        epoch: 10
 

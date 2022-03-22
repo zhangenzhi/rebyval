@@ -1,80 +1,98 @@
 import tensorflow as tf
-from rebyval.train.supervisor import Supervisor
+from tqdm import trange
 
-from rebyval.train.utils import get_scheduler, prepare_dirs
-from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
+from rebyval.train.supervisor import Supervisor
+from rebyval.tools.utils import print_error
 
 class Cifar10Supervisor(Supervisor):
-    def __init__(self, supervisor_args):
-        super().__init__(supervisor_args)
-
-    def __call__(self, inputs):
+    def __init__(self, supervisor_args, logger = None, id = 0):
+        super().__init__(supervisor_args, logger = logger, id = id)
+        
+    def __call__(self, weights):
         flat_vars = []
-        for feat, tensor in inputs.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
-        return self.model(flat_input)
-
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels):
+        for var in weights:
+            flat_vars.append(tf.reshape(var, shape=(-1)))
+        inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+        s_loss = self.model(inputs, training=False)
+        s_loss = tf.squeeze(s_loss)
+        return s_loss
+            
+    def preprocess_weightspace(self, raw_inputs):
+        # label
+        labels = raw_inputs.pop('valid_loss')
+        
+        # var_length
+        raw_inputs.pop('vars_length')
+        
+        # inputs
         flat_vars = []
-        for feat, tensor in inputs.items():
+        for feat, tensor in raw_inputs.items():
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+        inputs = tf.concat(flat_vars, axis=1)
+        
+        return inputs, labels
+        
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
             with tf.GradientTape() as tape:
-                predictions = self.model(flat_input, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
+                predictions = self.model(inputs, training=True)
+                predictions = tf.squeeze(predictions)
+                loss = self.loss_fn(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
-            self.metrics['train_loss'](loss)
+            
         except:
             print_error("train step error")
-            raise 
+        
+        with self.logger.as_default():
+            step = train_step+epoch*self.dataloader.info['train_step']
+            tf.summary.scalar("train_loss", loss, step=step) 
+            
+        return loss
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _valid_step(self, inputs, labels):
-        flat_vars = []
-        for feat, tensor in inputs.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
         try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(flat_input, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
         except:
             print_error("valid step error.")
-            raise 
+        
+        with self.logger.as_default():
+            step = valid_step+epoch*self.dataloader.info['valid_step']
+            tf.summary.scalar("valid_loss", loss, step=step)
+            
+        return loss
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _test_step(self, inputs, labels):
-        flat_vars = []
-        for feat, tensor in inputs.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        flat_vars = tf.concat(flat_vars, axis=1)
-        flat_input = {'inputs': flat_vars}
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _test_step(self, inputs, labels, test_step=0):
         try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(flat_input, training=True)
-                loss = self.metrics['loss_fn'](labels, predictions)
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
         except:
             print_error("test step error.")
             raise 
+        
+        with self.logger.as_default():
+            tf.summary.scalar("test_loss", loss, step=test_step)
+        
+        return loss
 
     def train(self):
+        
         # parse train loop control args
-        train_loop_control_args = self.args['train_loop_control']
-        train_args = train_loop_control_args['train']
+        train_loop_args = self.args['train_loop']
+        train_args = train_loop_args['train']
+        valid_args = train_loop_args['valid']
+        test_args = train_loop_args['test']
 
         # dataset train, valid, test
-        epoch = 0
-        step = 0
         train_iter = iter(self.train_dataset)
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
@@ -82,3 +100,33 @@ class Cifar10Supervisor(Supervisor):
         # metrics reset
         metric_name = self.args['metrics']['name']
         self.metrics[metric_name].reset_states()
+
+        # train, valid, test
+        # tqdm update, logger
+        with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+            for epoch in e:
+                with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
+                    for train_step in t:
+                        data = train_iter.get_next()
+                        inputs,labels = self.preprocess_weightspace(data)
+                        train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
+                        t.set_postfix(train_loss=train_loss.numpy())
+                        
+                # valid
+                with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
+                    for valid_step in v:
+                        data = valid_iter.get_next()
+                        inputs,labels = self.preprocess_weightspace(data)
+                        valid_loss = self._valid_step(inputs, labels,
+                                                    valid_step=valid_step, epoch=epoch,
+                                                    )
+                        v.set_postfix(valid_loss=valid_loss.numpy())
+                            
+                e.set_postfix(train_loss=train_loss.numpy(), valid_loss=valid_loss.numpy())
+        
+        with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
+            for test_step in t:
+                data = test_iter.get_next()
+                inputs,labels = self.preprocess_weightspace(data)
+                t_loss = self._test_step(inputs, labels, test_step = test_step)
+                t.set_postfix(test_loss=t_loss.numpy())

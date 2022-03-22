@@ -1,25 +1,42 @@
 import os
+from matplotlib import units
 import tensorflow as tf
 from rebyval.train.student import Student
+from rebyval.dataloader.weights_loader import DNNWeightsLoader
+# model
+from rebyval.model.dnn import DNN
 
 # others
-from rebyval.train.utils import prepare_dirs
-from rebyval.tools.utils import calculate_auc, write_log, print_green, print_error, print_normal
+from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir
 
 class Supervisor:
-    def __init__(self, supervisor_args):
+    def __init__(self, supervisor_args, logger = None, id = 0):
         self.args = supervisor_args
+        self.logger = logger
+        self.id = id
+    
+    def __call__(self, weights):
+        pass
     
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green(gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+            
+    def _build_model(self):
+        #TODO: need model registry
+        model = DNN(units=[64,32,16,1],
+                    activations=['relu', 'relu', 'relu', 'linear'])
+        # model restore
+        if self.args['model'].get('restore_model'):
+            self.model = self.model_restore(self.model)
+        return model
 
     def _build_dataset(self):
         #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
-        dataloader = Cifar10DataLoader(dataset_args)
+        dataloader = DNNWeightsLoader(dataset_args)
    
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
@@ -28,11 +45,23 @@ class Supervisor:
         loss_fn = {}
         loss_fn = tf.keras.losses.get(self.args['loss']['name'])
         return loss_fn
+    
+    def _build_metrics(self):
+        metrics = {}
+        metrics_name = self.args['metrics']['name']
+        metrics[metrics_name] = tf.keras.metrics.get(metrics_name)
+        return metrics
  
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         return optimizer
+    
+    def _build_logger(self):
+        logdir = os.path.join(self.args['log_path'], "tensorboard")
+        check_mkdir(logdir)
+        logger = tf.summary.create_file_writer(logdir)
+        return logger
 
     def model_restore(self, model):
         model_args = self.args['model']
@@ -110,6 +139,9 @@ class Supervisor:
         # build losses and metrics
         self.loss_fn = self._build_loss_fn()
         self.metrics = self._build_metrics()
+        
+        # build weights and writter
+        self.logger = self._build_logger()
 
         # train
         self.train()

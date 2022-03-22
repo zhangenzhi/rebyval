@@ -1,5 +1,5 @@
 import os
-
+from rebyval.tools.utils import print_warning
 
 def prepare_dirs(valid_args):
     if valid_args.get('log_path'):
@@ -20,7 +20,11 @@ def prepare_dirs(valid_args):
             valid_args['log_file'] = os.path.join(valid_args['analyse_dir'], 'log_file.txt')
             mkdirs(valid_args['analyse_dir'])
 
-
+def check_mkdir(path):
+    if not os.path.exists(path=path):
+        print_warning("no such path: {}, but we made.".format(path))
+        os.makedirs(path)
+        
 def mkdirs(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
