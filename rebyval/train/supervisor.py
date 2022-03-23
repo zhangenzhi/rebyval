@@ -121,7 +121,7 @@ class Supervisor:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self,keep_train=False):
+    def run(self, keep_train=False):
 
         if keep_train:
             # prepare dataset
