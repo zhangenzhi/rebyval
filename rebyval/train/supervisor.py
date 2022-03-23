@@ -121,28 +121,37 @@ class Supervisor:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self):
+    def run(self,keep_train=False):
 
-        # set enviroment
-        self._build_enviroment()
+        if keep_train:
+            # prepare dataset
+            self.train_dataset, self.valid_dataset, self.test_dataset, \
+            self.dataloader = self._build_dataset()
+            
+            # train
+            self.train()
+            
+        else:
+            # set enviroment
+            self._build_enviroment()
 
-        # prepare dataset
-        self.train_dataset, self.valid_dataset, self.test_dataset, \
-        self.dataloader = self._build_dataset()
+            # prepare dataset
+            self.train_dataset, self.valid_dataset, self.test_dataset, \
+            self.dataloader = self._build_dataset()
 
-        # build optimizer
-        self.optimizer = self._build_optimizer()
+            # build optimizer
+            self.optimizer = self._build_optimizer()
 
-        # build model
-        self.model = self._build_model()
+            # build model
+            self.model = self._build_model()
 
-        # build losses and metrics
-        self.loss_fn = self._build_loss_fn()
-        self.metrics = self._build_metrics()
-        
-        # build weights and writter
-        self.logger = self._build_logger()
+            # build losses and metrics
+            self.loss_fn = self._build_loss_fn()
+            self.metrics = self._build_metrics()
+            
+            # build weights and writter
+            self.logger = self._build_logger()
 
-        # train
-        self.train()
+            # train
+            self.train()
 
