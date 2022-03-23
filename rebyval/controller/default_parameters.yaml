@@ -49,7 +49,7 @@ experiment:
     model:
       name: dnn # default dnn
       dims: 64,32,16,1
-      activations: relu,relu,relu,softplus
+      activations: relu,relu,relu,relu
 #      restore_model:
 #        restore_from: ./log/supervisor/model_best # default best
     optimizer:
