@@ -1,6 +1,6 @@
 import os
-import datetime
-from matplotlib import units
+from datetime import datetime
+
 import tensorflow as tf
 from rebyval.train.student import Student
 from rebyval.dataloader.weights_loader import DNNWeightsLoader

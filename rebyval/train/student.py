@@ -1,7 +1,6 @@
-from distutils.command.config import config
-from genericpath import exists
+
 import os
-import datetime
+from datetime import datetime
 import tensorflow as tf
 
 # dataloader
