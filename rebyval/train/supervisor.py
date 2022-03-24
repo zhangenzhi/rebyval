@@ -1,4 +1,5 @@
 import os
+import datetime
 from matplotlib import units
 import tensorflow as tf
 from rebyval.train.student import Student
@@ -58,7 +59,8 @@ class Supervisor:
         return optimizer
     
     def _build_logger(self):
-        logdir = os.path.join(self.args['log_path'], "tensorboard")
+        logdir = "tensorboard/"+ "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
         return logger

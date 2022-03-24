@@ -1,6 +1,7 @@
 from distutils.command.config import config
 from genericpath import exists
 import os
+import datetime
 import tensorflow as tf
 
 # dataloader
@@ -63,7 +64,8 @@ class Student:
         return optimizer
     
     def _build_logger(self):
-        logdir = os.path.join(self.args['log_path'], "tensorboard")
+        logdir = "tensorboard/"+ "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
         return logger
