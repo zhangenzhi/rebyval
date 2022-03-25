@@ -110,7 +110,7 @@ class Cifar10Supervisor(Supervisor):
                         data = train_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
                         train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
-                        t.set_postfix(train_loss=train_loss.numpy())
+                        t.set_postfix(st_loss=train_loss.numpy())
                         
                 # valid
                 with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
@@ -120,7 +120,7 @@ class Cifar10Supervisor(Supervisor):
                         valid_loss = self._valid_step(inputs, labels,
                                                     valid_step=valid_step, epoch=epoch,
                                                     )
-                        v.set_postfix(valid_loss=valid_loss.numpy())
+                        v.set_postfix(sv_loss=valid_loss.numpy())
                             
                 e.set_postfix(train_loss=train_loss.numpy(), valid_loss=valid_loss.numpy())
         
@@ -129,4 +129,4 @@ class Cifar10Supervisor(Supervisor):
                 data = test_iter.get_next()
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels, test_step = test_step)
-                t.set_postfix(test_loss=t_loss.numpy())
+                t.set_postfix(se_loss=t_loss.numpy())
