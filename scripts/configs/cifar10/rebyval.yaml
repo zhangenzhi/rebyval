@@ -2,8 +2,8 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 70
-    nums: 0
+      student_nums: 
+    nums: 30
     student_nums: 0
 
   student:

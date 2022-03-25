@@ -63,7 +63,7 @@ class Student:
         return optimizer
     
     def _build_logger(self):
-        logdir = "tensorboard/"+ "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/"+ "student-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
