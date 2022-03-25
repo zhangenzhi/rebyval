@@ -99,7 +99,7 @@ class DNNWeightsLoader(BaseDataLoader):
                                                     name='feature_configs.yaml')
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
-                                                                feature_config=feature_config)
+                                                               feature_config=feature_config)
         
         train_dataset = full_dataset.take(self.info['train_samples']).shuffle(self.dataloader_args['batch_size'])
         
