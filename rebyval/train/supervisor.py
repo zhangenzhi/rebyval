@@ -50,7 +50,8 @@ class Supervisor:
     def _build_metrics(self):
         metrics = {}
         metrics_name = self.args['metrics']['name']
-        metrics[metrics_name] = tf.keras.metrics.get(metrics_name)
+        for m in metrics_name:
+            metrics[m] = tf.keras.metrics.get(m)
         return metrics
  
     def _build_optimizer(self):

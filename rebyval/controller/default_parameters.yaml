@@ -23,7 +23,7 @@ experiment:
       activations: relu,relu,relu,softmax # default relu
     loss:
       name: SparseCategoricalCrossentropy
-      metrics: Accuracy
+      metrics: SparseCategoricalAccuracy
     optimizer:
       name: SGD # default SGD
       learning_rate: 0.01 # default 0.01
@@ -58,7 +58,7 @@ experiment:
     loss:
       name: MeanSquaredError
     metrics:
-      name: MeanSquaredError
+      name: Mean
     train_loop:
       preprocess:
         name: normal # l2_sum_avg, sum_avg, normal

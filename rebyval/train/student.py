@@ -48,7 +48,8 @@ class Student:
     def _build_loss_fn(self):
         loss_fn = {}
         loss_fn = tf.keras.losses.get(self.args['loss']['name'])
-        return loss_fn
+        mloss_fn = tf.keras.metrics.get("Mean")
+        return loss_fn, mloss_fn
 
     def _build_metrics(self):
         metrics = {}
@@ -63,7 +64,7 @@ class Student:
         return optimizer
     
     def _build_logger(self):
-        logdir = "tensorboard/"+ "student-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/" + "student-{}-".format(self.id) + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
@@ -147,7 +148,7 @@ class Student:
         self.model = self._build_model()
 
         # build losses and metrics
-        self.loss_fn = self._build_loss_fn()
+        self.loss_fn, self.mloss_fn = self._build_loss_fn()
         self.metrics = self._build_metrics()
         
         # build weights save writter
