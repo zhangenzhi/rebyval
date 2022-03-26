@@ -27,7 +27,7 @@ experiment:
     dataloader:
       name: dnn_weights
       batch_size: 16
-      epochs: 1
+      epochs: 10
     model:
       name: dnn # default dnn
     optimizer:
