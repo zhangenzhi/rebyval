@@ -78,10 +78,10 @@ class BaseController:
         # main loop
         for j in range(main_loop['nums']):
             keep_train = False if j == 0 else True
+            self.supervisor.run(keep_train=keep_train)
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
                 student.run()
-            self.supervisor.run(keep_train=keep_train)
 
     def run(self):
         
