@@ -45,13 +45,13 @@ class Supervisor:
     def _build_loss_fn(self):
         loss_fn = {}
         loss_fn = tf.keras.losses.get(self.args['loss']['name'])
-        return loss_fn
+        mloss_fn = tf.keras.metrics.Mean()
+        return loss_fn, mloss_fn
     
     def _build_metrics(self):
         metrics = {}
         metrics_name = self.args['metrics']['name']
-        for m in metrics_name:
-            metrics[m] = tf.keras.metrics.get(m)
+        metrics[metrics_name] = tf.keras.metrics.get(metrics_name)
         return metrics
  
     def _build_optimizer(self):
@@ -150,7 +150,7 @@ class Supervisor:
             self.model = self._build_model()
 
             # build losses and metrics
-            self.loss_fn = self._build_loss_fn()
+            self.loss_fn, self.mloss_fn = self._build_loss_fn()
             self.metrics = self._build_metrics()
             
             # build weights and writter

@@ -76,12 +76,12 @@ class BaseController:
             self.warmup(main_loop['warmup'])
 
         # main loop
-        self.supervisor.run()
         for j in range(main_loop['nums']):
+            keep_train = False if j == 0 else True
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
                 student.run()
-            self.supervisor.run(keep_train=True)
+            self.supervisor.run(keep_train=keep_train)
 
     def run(self):
         

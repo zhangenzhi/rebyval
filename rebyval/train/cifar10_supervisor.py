@@ -104,25 +104,35 @@ class Cifar10Supervisor(Supervisor):
         # train, valid, test
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+            self.mloss_fn.reset_states()
             for epoch in e:
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
                         train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
+                        self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
+                    et_loss = self.mloss_fn.result()
                         
                 # valid
                 with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
+                    self.mloss_fn.reset_states()
                     for valid_step in v:
                         data = valid_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
                         valid_loss = self._valid_step(inputs, labels,
                                                     valid_step=valid_step, epoch=epoch,
                                                     )
+                        self.mloss_fn.update_state(valid_loss)
                         v.set_postfix(sv_loss=valid_loss.numpy())
-                            
-                e.set_postfix(train_loss=train_loss.numpy(), valid_loss=valid_loss.numpy())
+                    ev_loss = self.mloss_fn.result()
+                    
+                # epoch info
+                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy())
+                with self.logger.as_default():
+                    tf.summary.scalar("epoch_train_loss", et_loss, step=epoch)
+                    tf.summary.scalar("epoch_valid_loss", ev_loss, step=epoch)
         
         with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
             for test_step in t:

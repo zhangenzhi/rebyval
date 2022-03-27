@@ -58,7 +58,7 @@ experiment:
     loss:
       name: MeanSquaredError
     metrics:
-      name: Mean
+      name: MeanSquaredError
     train_loop:
       preprocess:
         name: normal # l2_sum_avg, sum_avg, normal

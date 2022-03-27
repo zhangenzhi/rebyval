@@ -23,7 +23,7 @@ class Student:
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_green(gpus)
+        print_green("devices:", gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
@@ -48,8 +48,9 @@ class Student:
     def _build_loss_fn(self):
         loss_fn = {}
         loss_fn = tf.keras.losses.get(self.args['loss']['name'])
-        mloss_fn = tf.keras.metrics.get("Mean")
-        return loss_fn, mloss_fn
+        mt_loss_fn = tf.keras.metrics.Mean()
+        mv_loss_fn = tf.keras.metrics.Mean()
+        return loss_fn, mt_loss_fn, mv_loss_fn
 
     def _build_metrics(self):
         metrics = {}
@@ -148,7 +149,7 @@ class Student:
         self.model = self._build_model()
 
         # build losses and metrics
-        self.loss_fn, self.mloss_fn = self._build_loss_fn()
+        self.loss_fn, self.mt_loss_fn, self.mv_loss_fn = self._build_loss_fn()
         self.metrics = self._build_metrics()
         
         # build weights save writter
