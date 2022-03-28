@@ -127,8 +127,6 @@ class Supervisor:
 
     def run(self, keep_train=False):
         
-        self.id += 1
-        
         if keep_train:
             # prepare dataset
             self.train_dataset, self.valid_dataset, self.test_dataset, \
@@ -160,4 +158,6 @@ class Supervisor:
 
             # train
             self.train()
+            
+        self.id += 1
 
