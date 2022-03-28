@@ -132,6 +132,7 @@ class Cifar10Student(Student):
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
+                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
         
         with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
             for test_step in t:
