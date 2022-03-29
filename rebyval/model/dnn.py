@@ -36,12 +36,12 @@ class DNN(tf.keras.Model):
 
         self.units = units
         self.activations = activations
+        self.use_bn = use_bn
+        
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
         self.fc_act = self._build_act()
-        self.use_bn = use_bn
-        if self.use_bn:
-            self.fc_bn = self._build_bn()
+        self.fc_bn = self._build_bn()
 
     def _build_fc(self):
         layers = []
