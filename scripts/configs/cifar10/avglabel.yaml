@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: avg_worse
+    name: avg_even_worse
 
   main_loop:
     warmup: 
@@ -23,7 +23,7 @@ experiment:
       learning_rate: 0.0001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 100 
+          valid_gap: 100
 
   supervisor:
     dataloader:
@@ -34,9 +34,9 @@ experiment:
       name: dnn # default dnn
     optimizer:
       name: Adam
-      learning_rate: 0.0001
+      learning_rate: 0.001
     loss:
-      name: mean_squared_error
+      name: mean_absolute_error
     train_loop:
         valid:
           valid_gap: 100 
