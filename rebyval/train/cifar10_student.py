@@ -126,7 +126,7 @@ class Cifar10Student(Student):
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
-                                                              valid_loss = ev_loss,
+                                                              valid_loss = valid_loss,
                                                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
