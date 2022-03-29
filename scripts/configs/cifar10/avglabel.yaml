@@ -28,7 +28,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      batch_size: 256
+      batch_size: 128
       epochs: 10
     model:
       name: dnn # default dnn
