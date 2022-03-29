@@ -92,7 +92,6 @@ class DNNWeightsLoader(BaseDataLoader):
         return parsed_analyse_dataset
     
     def load_dataset(self, format=None):
-
         filelist = glob_tfrecords(
             self.dataloader_args['path'], glob_pattern='*.tfrecords')
         feature_config = self._feature_config_parse(self.dataloader_args['path'], 

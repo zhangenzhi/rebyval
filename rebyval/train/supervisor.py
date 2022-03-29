@@ -39,6 +39,9 @@ class Supervisor:
     def _build_dataset(self):
         #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
+        
+        datadir = "weight_space"
+        dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         dataloader = DNNWeightsLoader(dataset_args)
    
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()

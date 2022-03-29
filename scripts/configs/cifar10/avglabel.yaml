@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: avg_even_worse
+    name: avglabel
 
   main_loop:
     warmup: 

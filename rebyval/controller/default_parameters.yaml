@@ -42,7 +42,6 @@ experiment:
   supervisor:
     dataloader:
       name: weight
-      path: ./log/rebyval/weight_space
       format: tensor
       epochs: 10
       batch_size: 8
