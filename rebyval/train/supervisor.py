@@ -27,8 +27,8 @@ class Supervisor:
             
     def _build_model(self):
         #TODO: need model registry
-        model = DNN(units=[512,256,128,64,32,16,1],
-                    activations=['relu', 'relu', 'relu', 'relu', 'relu', 'relu', 'relu'],
+        model = DNN(units=[64,32,16,1],
+                    activations=['relu', 'relu', 'relu', 'tanh'],
                     use_bn=True)
         # model restore
         if self.args['model'].get('restore_model'):
@@ -58,7 +58,7 @@ class Supervisor:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        ls = tf.keras.optimizers.schedules.PolynomialDecay(initial_learning_rate=optimizer_args['learning_rate'], decay_steps=35000) 
+        # ls = tf.keras.optimizers.schedules.PolynomialDecay(initial_learning_rate=optimizer_args['learning_rate'], decay_steps=35000) 
         optimizer.learning_rate = optimizer_args['learning_rate']
         return optimizer
     
