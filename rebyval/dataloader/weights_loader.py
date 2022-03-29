@@ -2,7 +2,7 @@ import os
 import random
 import tensorflow as tf
 
-from rebyval.tools.utils import get_yml_content
+from rebyval.tools.utils import get_yml_content, print_green
 from rebyval.dataloader.utils import glob_tfrecords
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
@@ -92,6 +92,8 @@ class DNNWeightsLoader(BaseDataLoader):
         return parsed_analyse_dataset
     
     def load_dataset(self, format=None):
+        
+        print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         filelist = glob_tfrecords(
             self.dataloader_args['path'], glob_pattern='*.tfrecords')
         feature_config = self._feature_config_parse(self.dataloader_args['path'], 
