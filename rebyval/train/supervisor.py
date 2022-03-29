@@ -58,8 +58,8 @@ class Supervisor:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        ls = tf.keras.optimizers.schedules.PolynomialDecay(initial_learning_rate=optimizer_args['learning_rate'], decay_steps=3500) 
-        optimizer.learning_rate = ls
+        # ls = tf.keras.optimizers.schedules.PolynomialDecay(initial_learning_rate=optimizer_args['learning_rate'], decay_steps=3500) 
+        optimizer.learning_rate = optimizer_args['learning_rate']
         return optimizer
     
     def _build_logger(self):
