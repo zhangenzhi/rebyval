@@ -85,7 +85,7 @@ class DNNWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_weights_function,
-                                                         num_parallel_calls=64, deterministic=False)
+                                                         num_parallel_calls=16, deterministic=True)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
