@@ -29,7 +29,7 @@ class Supervisor:
         #TODO: need model registry
         model = DNN(units=[64,32,16,1],
                     activations=['relu', 'relu', 'relu', 'exponential'],
-                    use_bn=False,
+                    use_bn=True,
                     seed=None)
         # model restore
         if self.args['model'].get('restore_model'):
