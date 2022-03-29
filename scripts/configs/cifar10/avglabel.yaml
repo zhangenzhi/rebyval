@@ -28,13 +28,13 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      batch_size: 64
+      batch_size: 128
       epochs: 10
     model:
       name: dnn # default dnn
     optimizer:
       name: Adam
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: mean_squared_error
     train_loop:
