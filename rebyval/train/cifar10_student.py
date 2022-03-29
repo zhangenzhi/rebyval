@@ -66,6 +66,9 @@ class Cifar10Student(Student):
         except:
             print_error("valid step error")
             raise
+        with self.logger.as_default():
+            step = valid_step+epoch*self.dataloader.info['valid_step']
+            tf.summary.scalar("valid_loss", loss, step=step)
         return loss
     
     def _test_step(self, inputs, labels, test_step=0):
