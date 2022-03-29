@@ -34,7 +34,7 @@ experiment:
       name: dnn # default dnn
     optimizer:
       name: SGD
-      learning_rate: 0.01
+      learning_rate: 0.1
     loss:
       name: mean_squared_error
     train_loop:
