@@ -20,24 +20,7 @@ class Linear(keras.layers.Layer):
             initial_value=b_init(shape=(self.units,), dtype="float32"), trainable=True,
             name="b"
         )
-            
-    def build_fuse_layer(self, fuse_nums):
         
-        w_init = tf.random_normal_initializer(seed=100000)
-        b_init = tf.zeros_initializer()
-
-        init_w = tf.stack(
-            [w_init(shape=(self.w.shape[0], self.units), dtype="float32")] * fuse_nums)
-        init_b = tf.stack([b_init(
-            shape=(1, self.units), dtype="float32")] * fuse_nums)
-
-        self.fuse_w = tf.Variable(
-            initial_value=init_w, trainable=True, name="w")
-        self.fuse_b = tf.Variable(
-            initial_value=init_b, trainable=True,
-            name="b"
-        )
-
     def call(self, inputs):
         outputs = tf.matmul(inputs, self.w) + self.b
         return outputs
@@ -75,9 +58,6 @@ class DNN(tf.keras.Model):
         for act in self.activations:
             acts.append(tf.keras.layers.Activation(act))
         return acts
-    
-    def build_fuse_model(self, fuse_nums):
-        pass
 
     def call(self, inputs):
         x = inputs

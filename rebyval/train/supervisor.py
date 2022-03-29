@@ -27,8 +27,8 @@ class Supervisor:
             
     def _build_model(self):
         #TODO: need model registry
-        model = DNN(units=[128,32,16,1],
-                    activations=['relu', 'relu', 'relu', 'softplus'])
+        model = DNN(units=[512,256,128,64,32,16,1],
+                    activations=['relu', 'relu', 'relu', 'relu', 'relu', 'relu', 'relu'])
         # model restore
         if self.args['model'].get('restore_model'):
             self.model = self.model_restore(self.model)
