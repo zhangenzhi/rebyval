@@ -30,6 +30,7 @@ class DNN(tf.keras.Model):
     def __init__(self,
                  units=[64, 32, 16, 1],
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
+                 use_bn=False,
                 ):
         super(DNN, self).__init__()
 
@@ -38,7 +39,9 @@ class DNN(tf.keras.Model):
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
         self.fc_act = self._build_act()
-        self.fc_bn = self._build_bn()
+        self.use_bn = use_bn
+        if self.use_bn:
+            self.fc_bn = self._build_bn()
 
     def _build_fc(self):
         layers = []
@@ -65,5 +68,6 @@ class DNN(tf.keras.Model):
         for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):
             x = layer(x)
             x = act(x)
-            # x = bn(x)
+            if self.use_bn:
+                x = bn(x)
         return x
