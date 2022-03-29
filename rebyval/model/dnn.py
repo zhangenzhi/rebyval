@@ -1,14 +1,16 @@
+from random import seed
 import tensorflow as tf
 from tensorflow import keras
 
 class Linear(keras.layers.Layer):
-    def __init__(self, units=32):
+    def __init__(self, units=32, seed=100000):
         super(Linear, self).__init__()
         self.units = units
+        self.seed = seed
 
     def build(self, input_shape):
 
-        w_init = tf.random_normal_initializer(seed=100000)
+        w_init = tf.random_normal_initializer(seed=self.seed)
         b_init = tf.zeros_initializer()
 
         self.w = tf.Variable(
@@ -31,12 +33,14 @@ class DNN(tf.keras.Model):
                  units=[64, 32, 16, 1],
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
                  use_bn=False,
+                 seed=100000,
                 ):
         super(DNN, self).__init__()
 
         self.units = units
         self.activations = activations
-        self.use_bn = use_bn
+        self.use_bn = use_bn 
+        self.seed = seed
         
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
@@ -46,7 +50,7 @@ class DNN(tf.keras.Model):
     def _build_fc(self):
         layers = []
         for units in self.units:
-            layers.append(Linear(units=units))
+            layers.append(Linear(units=units, seed=self.seed))
         return layers
     
     def _build_bn(self):
@@ -65,9 +69,13 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
         x = inputs
         x = self.flatten(x)
-        for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):
-            x = layer(x)
-            x = act(x)
-            if self.use_bn:
+        if self.use_bn:
+            for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):
+                x = layer(x)
+                x = act(x)
                 x = bn(x)
+        else:
+            for layer, act in zip(self.fc_layers, self.fc_act):
+                x = layer(x)
+                x = act(x)
         return x

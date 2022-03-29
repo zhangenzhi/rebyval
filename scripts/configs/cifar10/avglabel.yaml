@@ -4,9 +4,9 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 30
+      student_nums: 0
     nums: 100
-    student_nums: 3
+    student_nums: 0
 
   student:
     dataloader:
@@ -34,7 +34,7 @@ experiment:
       name: dnn # default dnn
     optimizer:
       name: SGD
-      learning_rate: 0.01
+      learning_rate: 0.001
     loss:
       name: mean_squared_error
     train_loop:
