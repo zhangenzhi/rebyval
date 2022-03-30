@@ -125,7 +125,7 @@ class DNNWeightsLoader(BaseDataLoader):
             for _ in range(len(new_students)):
                 self.replay_buffer.pop(0)
             filelist = self.replay_buffer + new_students
-            print("filelist: {}".format(filelist))
+        print("filelist length: {}".format(len(filelist)))
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=self.feature_config)
