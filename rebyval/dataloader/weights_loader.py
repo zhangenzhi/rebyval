@@ -5,6 +5,7 @@ import tensorflow as tf
 from rebyval.tools.utils import get_yml_content, print_green
 from rebyval.dataloader.utils import glob_tfrecords
 from rebyval.dataloader.base_dataloader import BaseDataLoader
+from rebyval.train.student import Student
 
 
 class DNNWeightsLoader(BaseDataLoader):
@@ -114,7 +115,7 @@ class DNNWeightsLoader(BaseDataLoader):
 
         return parsed_analyse_dataset
     
-    def load_dataset(self, format=None):
+    def load_dataset(self, new_student=[]):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         
@@ -122,6 +123,8 @@ class DNNWeightsLoader(BaseDataLoader):
             filelist = glob_tfrecords(
                 self.dataloader_args['path'], glob_pattern='*.tfrecords')
         else:
+            if len(new_student) != 0:
+                self.replay_buffer[:len(new_student)] = new_student
             filelist = self.replay_buffer
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,

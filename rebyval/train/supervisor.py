@@ -37,7 +37,7 @@ class Supervisor:
             self.model = self.model_restore(self.model)
         return model
 
-    def _build_dataset(self):
+    def _build_dataset(self, new_student = []):
         #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         
@@ -45,7 +45,7 @@ class Supervisor:
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         dataloader = DNNWeightsLoader(dataset_args)
         
-        train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
+        train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_student = new_student)
         return train_dataset, valid_dataset, test_dataset, dataloader
 
     def _build_loss_fn(self):
@@ -131,12 +131,13 @@ class Supervisor:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, keep_train=False):
+    def run(self, new_students=[], keep_train=False):
         
         if keep_train:
             # prepare dataset
+            self.new_students = new_students
             self.train_dataset, self.valid_dataset, self.test_dataset, \
-            self.dataloader = self._build_dataset()
+            self.dataloader = self._build_dataset(new_students=new_students)
             
             # train
             self.train()

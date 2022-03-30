@@ -80,7 +80,7 @@ class Student:
         else:
             weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
         writter = tf.io.TFRecordWriter(weight_trace)
-        return writter
+        return writter, weight_dir
 
     def model_restore(self, model):
         model_args = self.args['model']
@@ -154,13 +154,14 @@ class Student:
         
         # build weights save writter
         self.logger = self._build_logger()
-        self.writter = self._build_writter()
+        self.writter, weight_dir = self._build_writter()
 
         # train
         self.train()
         
         self.writter.close()
         print('Finished training student {}'.format(self.id))
+        return weight_dir
         
 
     # weights space
