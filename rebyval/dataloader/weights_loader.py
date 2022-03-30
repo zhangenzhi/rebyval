@@ -120,11 +120,11 @@ class DNNWeightsLoader(BaseDataLoader):
         if len(self.replay_buffer) < self.dataloader_args['replay_window']:
             filelist = glob_tfrecords(
                 self.dataloader_args['path'], glob_pattern='*.tfrecords')
-            self.replay_buffer = filelist
         else:
             for _ in range(len(new_students)):
                 self.replay_buffer.pop(0)
             filelist = self.replay_buffer + new_students
+        self.replay_buffer = filelist
         print("filelist length: {}".format(len(filelist)))
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
