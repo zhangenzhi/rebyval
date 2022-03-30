@@ -9,9 +9,14 @@ from rebyval.dataloader.base_dataloader import BaseDataLoader
 
 class DNNWeightsLoader(BaseDataLoader):
 
-    def __init__(self, dataloader_args, replay_buffer=None):
+    def __init__(self, dataloader_args):
         super(DNNWeightsLoader, self).__init__(dataloader_args=dataloader_args)
-        self.replay_buffer = replay_buffer
+        
+    def _build_replay_buffer(self):
+        replay_buffer = glob_tfrecords(
+        self.dataloader_args['path'], glob_pattern='*.tfrecords')
+        if len(replay_buffer) > self.dataloader_args["replay_window"]:
+            replay_buffer = replay_buffer[:self.dataloader_args["replay_window"]]
         
     def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
         yaml_path = os.path.join(config_path,name)
@@ -57,10 +62,10 @@ class DNNWeightsLoader(BaseDataLoader):
         raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_analyse_dataset = raw_analyse_dataset.interleave(
-            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=16),
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=tf.data.AUTOTUNE),
             block_length=256,
             cycle_length=16,
-            num_parallel_calls=16,
+            num_parallel_calls=tf.data.AUTOTUNE,
             deterministic=False)
 
         analyse_feature_describ = self._make_analyse_tensor_describs(
@@ -79,7 +84,7 @@ class DNNWeightsLoader(BaseDataLoader):
             return parsed_example
 
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_weights_function,
-                                                         num_parallel_calls=16, deterministic=True)
+                                                         num_parallel_calls=tf.data.AUTOTUNE, deterministic=True)
 
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
@@ -87,20 +92,16 @@ class DNNWeightsLoader(BaseDataLoader):
     
     def load_dataset(self, format=None):
         
-        if self.replay_buffer == None:
-            print_green("weight_space_path:{}".format(self.dataloader_args['path']))
-            filelist = glob_tfrecords(
-                self.dataloader_args['path'], glob_pattern='*.tfrecords')
-            feature_config = self._feature_config_parse(self.dataloader_args['path'], 
-                                                        name='feature_configs.yaml')
-        else:
-            filelist = self.replay_buffer
-            feature_config = self.replay_buffer.buffer_config()
+        print_green("weight_space_path:{}".format(self.dataloader_args['path']))
+        filelist = glob_tfrecords(
+            self.dataloader_args['path'], glob_pattern='*.tfrecords')
+        feature_config = self._feature_config_parse(self.dataloader_args['path'], 
+                                                    name='feature_configs.yaml')
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=feature_config)
         
-        train_dataset = full_dataset.take(self.info['train_samples']).shuffle(self.info['test_samples'])
+        train_dataset = full_dataset.take(self.info['train_samples']).shuffle(self.info['train_samples'])
         
         valid_dataset = full_dataset.skip(self.info['train_samples'])
         valid_dataset = valid_dataset.take(self.info['valid_samples'])
