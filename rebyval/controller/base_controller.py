@@ -27,8 +27,6 @@ class BaseController:
         self._student_ids = 0
         self._supervisor_ids = 0
         
-        self.replay_buffer = self._build_replay_buffer()
-        
         self.supervisor = self._build_supervisor()
 
     def _args_parser(self):
