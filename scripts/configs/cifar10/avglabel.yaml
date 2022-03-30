@@ -34,7 +34,7 @@ experiment:
     model:
       name: dnn # default dnn
     optimizer:
-      name: Adam
+      name: sgd
       learning_rate: 0.001
     loss:
       name: mean_absolute_error #mean_absolute_error
