@@ -23,19 +23,19 @@ experiment:
       learning_rate: 0.0001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 100
+          valid_gap: 10
 
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 30
+      replay_window: 10
       batch_size: 32
       epochs: 10
     model:
       name: dnn # default dnn
     optimizer:
       name: sgd
-      learning_rate: 0.01
+      learning_rate: 0.001
     loss:
       name: mean_absolute_error #mean_absolute_error
     train_loop:
