@@ -136,8 +136,8 @@ class Supervisor:
         if keep_train:
             # prepare dataset
             self.new_students = new_students
-            self.train_dataset, self.valid_dataset, self.test_dataset, \
-            self.dataloader = self._build_dataset(new_students=new_students)
+            self.train_dataset, self.valid_dataset, self.test_datase \
+                = self.dataloader.load_dataset(new_students = new_students)
             
             # train
             self.train()
