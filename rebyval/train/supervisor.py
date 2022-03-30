@@ -45,10 +45,13 @@ class Supervisor:
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         replay_buffer = glob_tfrecords(
                 dataset_args['path'], glob_pattern='*.tfrecords')
+        if len(replay_buffer) > dataset_args["replay_window"]:
+            replay_buffer = replay_buffer[:dataset_args["replay_window"]]
+        dataloader = DNNWeightsLoader(dataset_args, replay_buffer)
+
         import pdb
         pdb.set_trace()
-        dataloader = DNNWeightsLoader(dataset_args, replay_buffer)
-   
+        
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
 
