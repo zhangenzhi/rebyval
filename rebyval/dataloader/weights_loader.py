@@ -11,33 +11,55 @@ class DNNWeightsLoader(BaseDataLoader):
 
     def __init__(self, dataloader_args):
         super(DNNWeightsLoader, self).__init__(dataloader_args=dataloader_args)
+        self.feature_config, self.info = self._feature_config_parse(self.dataloader_args['path'], 
+                                                    name='feature_configs.yaml')
+        self.replay_buffer = self._build_replay_buffer()
         
     def _build_replay_buffer(self):
         replay_buffer = glob_tfrecords(
         self.dataloader_args['path'], glob_pattern='*.tfrecords')
         if len(replay_buffer) > self.dataloader_args["replay_window"]:
             replay_buffer = replay_buffer[:self.dataloader_args["replay_window"]]
+            self.info = self.get_info_inference(num_of_students=self.dataloader_args["replay_window"],
+                                                sample_per_student=self.info["sample_per_student"])
+        else:
+            return None
+            
+    def get_info_inference(self, num_of_students, sample_per_student):
+        total_sample = num_of_students * sample_per_student
+        train_samples = int(total_sample*0.6)
+        valid_samples =int(total_sample*0.2)
+        test_samples = int(total_sample*0.2)
+        train_step = int(train_samples / self.dataloader_args['batch_size'])
+        valid_step = int(train_samples / self.dataloader_args['batch_size'])
+        test_step = int(train_samples / self.dataloader_args['batch_size'])
         
-    def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
-        yaml_path = os.path.join(config_path,name)
-        yaml_feature_config = get_yml_content(yaml_path)
-        
-        self.info = {'epochs': self.dataloader_args['epochs'],
-                     'total_samples': yaml_feature_config['total_samples'],
-                     'train_samples': int(yaml_feature_config['total_samples']*0.6),
-                     'test_samples': int(yaml_feature_config['total_samples']*0.2), 
-                     'valid_samples': int(yaml_feature_config['total_samples']*0.2),
-                     'train_step': int(yaml_feature_config['total_samples']*0.6 / self.dataloader_args['batch_size']),
-                     'valid_step': int(yaml_feature_config['total_samples']*0.2 / self.dataloader_args['batch_size']),
-                     'test_step': int(yaml_feature_config['total_samples']*0.2 / self.dataloader_args['batch_size'])
+        info = {'epochs': self.dataloader_args['epochs'],
+                'num_of_students': num_of_students,
+                'sample_per_student': sample_per_student,
+                'total_samples': total_sample,
+                'train_samples': train_samples,
+                'test_samples': test_samples, 
+                'valid_samples': valid_samples,
+                'train_step': train_step,
+                'valid_step': valid_step,
+                'test_step': test_step,
             }
+        
+        return info
+    
+    def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
+        yaml_path = os.path.join(config_path, name)
+        yaml_feature_config = get_yml_content(yaml_path)
+        info = self.get_info_inference(yaml_feature_config['num_of_students'],
+                                            yaml_feature_config['sample_per_student'])
         
         feature_config = {
                 'valid_loss': {"type": 'value', "length": 1, "dtype": tf.float32},
                 'vars': {"type": 'list', "length": yaml_feature_config['vars_length']['value'], "dtype": tf.string},
             }
 
-        return feature_config
+        return feature_config, info
 
     def _make_analyse_tensor_describs(self, feature_config=None):
 
@@ -93,13 +115,15 @@ class DNNWeightsLoader(BaseDataLoader):
     def load_dataset(self, format=None):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
-        filelist = glob_tfrecords(
-            self.dataloader_args['path'], glob_pattern='*.tfrecords')
-        feature_config = self._feature_config_parse(self.dataloader_args['path'], 
-                                                    name='feature_configs.yaml')
+        
+        if self.replay_buffer == None:
+            filelist = glob_tfrecords(
+                self.dataloader_args['path'], glob_pattern='*.tfrecords')
+        else:
+            filelist = self.replay_buffer
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
-                                                               feature_config=feature_config)
+                                                               feature_config=self.feature_config)
         
         train_dataset = full_dataset.take(self.info['train_samples']).shuffle(self.info['train_samples'])
         
