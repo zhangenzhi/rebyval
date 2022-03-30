@@ -37,7 +37,7 @@ class Supervisor:
             self.model = self.model_restore(self.model)
         return model
 
-    def _build_dataset(self, new_student = []):
+    def _build_dataset(self, new_students = []):
         #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         
@@ -45,7 +45,7 @@ class Supervisor:
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         dataloader = DNNWeightsLoader(dataset_args)
         
-        train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_student = new_student)
+        train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_students = new_students)
         return train_dataset, valid_dataset, test_dataset, dataloader
 
     def _build_loss_fn(self):
