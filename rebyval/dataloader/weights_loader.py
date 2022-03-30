@@ -16,9 +16,7 @@ class DNNWeightsLoader(BaseDataLoader):
         self.replay_buffer = self._build_replay_buffer()
         
     def _build_replay_buffer(self):
-        import pdb
-        pdb.set_trace()
-        
+
         replay_buffer = glob_tfrecords(
         self.dataloader_args['path'], glob_pattern='*.tfrecords')
         if len(replay_buffer) > self.dataloader_args["replay_window"]:
