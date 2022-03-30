@@ -9,8 +9,9 @@ from rebyval.dataloader.base_dataloader import BaseDataLoader
 
 class DNNWeightsLoader(BaseDataLoader):
 
-    def __init__(self, dataloader_args):
+    def __init__(self, dataloader_args, replay_buffer=None):
         super(DNNWeightsLoader, self).__init__(dataloader_args=dataloader_args)
+        self.replay_buffer = replay_buffer
         
     def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
         yaml_path = os.path.join(config_path,name)
@@ -62,9 +63,6 @@ class DNNWeightsLoader(BaseDataLoader):
             num_parallel_calls=16,
             deterministic=False)
 
-        # raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
-
-        # feature_config = self._feature_config_parse(self.dataloader_args[''])
         analyse_feature_describ = self._make_analyse_tensor_describs(
             feature_config = feature_config)
 
@@ -74,10 +72,6 @@ class DNNWeightsLoader(BaseDataLoader):
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:
-                    # parsed_single_example = []
-                    # for i in range(self.dataloader_args['batch_size']):
-                    #     parsed_single_example.append(tf.io.parse_tensor(example[feat][i], out_type=tf.float32))
-                    # parsed_example[feat] = parsed_single_example
                     parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
                 else:
                     parsed_example[feat] = example[feat]
@@ -93,11 +87,15 @@ class DNNWeightsLoader(BaseDataLoader):
     
     def load_dataset(self, format=None):
         
-        print_green("weight_space_path:{}".format(self.dataloader_args['path']))
-        filelist = glob_tfrecords(
-            self.dataloader_args['path'], glob_pattern='*.tfrecords')
-        feature_config = self._feature_config_parse(self.dataloader_args['path'], 
-                                                    name='feature_configs.yaml')
+        if self.replay_buffer == None:
+            print_green("weight_space_path:{}".format(self.dataloader_args['path']))
+            filelist = glob_tfrecords(
+                self.dataloader_args['path'], glob_pattern='*.tfrecords')
+            feature_config = self._feature_config_parse(self.dataloader_args['path'], 
+                                                        name='feature_configs.yaml')
+        else:
+            filelist = self.replay_buffer
+            feature_config = self.replay_buffer.buffer_config()
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=feature_config)

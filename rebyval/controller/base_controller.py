@@ -1,9 +1,13 @@
+from importlib.resources import path
+from multiprocessing.dummy import current_process
 import time
 import argparse
+from queue import Queue
 import tensorflow as tf
 
 from rebyval.tools.utils import *
 from rebyval.controller.utils import *
+from rebyval.dataloader.utils import glob_tfrecords
 from rebyval.train.cifar10_student import Cifar10Student
 from rebyval.train.cifar10_supervisor import Cifar10Supervisor
 
@@ -26,6 +30,8 @@ class BaseController:
         
         self._student_ids = 0
         self._supervisor_ids = 0
+        
+        self.replay_buffer = self._build_replay_buffer()
         
         self.supervisor = self._build_supervisor()
 

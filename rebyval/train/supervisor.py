@@ -9,6 +9,7 @@ from rebyval.model.dnn import DNN
 
 # others
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir
+from rebyval.dataloader.utils import glob_tfrecords
 
 class Supervisor:
     def __init__(self, supervisor_args, logger = None, id = 0):
@@ -42,7 +43,11 @@ class Supervisor:
         
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
-        dataloader = DNNWeightsLoader(dataset_args)
+        replay_buffer = glob_tfrecords(
+                self.dataloader_args['path'], glob_pattern='*.tfrecords')
+        import pdb
+        pdb.set_trace()
+        dataloader = DNNWeightsLoader(dataset_args, replay_buffer)
    
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
