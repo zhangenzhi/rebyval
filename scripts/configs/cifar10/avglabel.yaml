@@ -1,12 +1,12 @@
 experiment:
   context:
-    name: avglabel-v2
+    name: avglabel-v3
 
   main_loop:
     warmup: 
-      student_nums: 0
+      student_nums: 3
     nums: 100
-    student_nums: 1
+    student_nums: 3
 
   student:
     dataloader:
@@ -35,7 +35,7 @@ experiment:
       name: dnn # default dnn
     optimizer:
       name: sgd
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: mean_absolute_error #mean_absolute_error
     train_loop:
