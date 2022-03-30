@@ -117,9 +117,10 @@ class DNNWeightsLoader(BaseDataLoader):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         
-        if len(self.replay_buffer) <= self.dataloader_args['replay_window']:
+        if len(self.replay_buffer) < self.dataloader_args['replay_window']:
             filelist = glob_tfrecords(
                 self.dataloader_args['path'], glob_pattern='*.tfrecords')
+            self.replay_buffer = filelist
         else:
             for _ in range(len(new_students)):
                 self.replay_buffer.pop(0)
