@@ -4,9 +4,9 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 0
+      student_nums: 10
     nums: 100
-    student_nums: 1
+    student_nums: 3
 
   student:
     dataloader:
@@ -23,12 +23,12 @@ experiment:
       learning_rate: 0.0001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 10
+          valid_gap: 100
 
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 5
+      replay_window: 30
       batch_size: 32
       epochs: 10
     model:
