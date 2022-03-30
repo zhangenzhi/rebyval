@@ -122,6 +122,9 @@ class DNNWeightsLoader(BaseDataLoader):
         else:
             filelist = self.replay_buffer
         
+        import pdb
+        pdb.set_trace()
+        
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=self.feature_config)
         
