@@ -44,7 +44,7 @@ class Supervisor:
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         replay_buffer = glob_tfrecords(
-                self.dataloader_args['path'], glob_pattern='*.tfrecords')
+                dataset_args['path'], glob_pattern='*.tfrecords')
         import pdb
         pdb.set_trace()
         dataloader = DNNWeightsLoader(dataset_args, replay_buffer)
