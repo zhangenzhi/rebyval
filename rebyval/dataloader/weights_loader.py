@@ -16,6 +16,9 @@ class DNNWeightsLoader(BaseDataLoader):
         self.replay_buffer = self._build_replay_buffer()
         
     def _build_replay_buffer(self):
+        import pdb
+        pdb.set_trace()
+        
         replay_buffer = glob_tfrecords(
         self.dataloader_args['path'], glob_pattern='*.tfrecords')
         if len(replay_buffer) > self.dataloader_args["replay_window"]:
@@ -121,9 +124,6 @@ class DNNWeightsLoader(BaseDataLoader):
                 self.dataloader_args['path'], glob_pattern='*.tfrecords')
         else:
             filelist = self.replay_buffer
-        
-        import pdb
-        pdb.set_trace()
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=self.feature_config)
