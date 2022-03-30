@@ -26,7 +26,8 @@ class DNNWeightsLoader(BaseDataLoader):
             self.info = self.get_info_inference(num_of_students=self.dataloader_args["replay_window"],
                                                 sample_per_student=self.info["sample_per_student"])
         else:
-            return None
+            replay_buffer = None
+        return replay_buffer
             
     def get_info_inference(self, num_of_students, sample_per_student):
         total_sample = num_of_students * sample_per_student
