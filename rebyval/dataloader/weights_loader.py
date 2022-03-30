@@ -33,8 +33,8 @@ class DNNWeightsLoader(BaseDataLoader):
         valid_samples =int(total_sample*0.2)
         test_samples = int(total_sample*0.2)
         train_step = int(train_samples / self.dataloader_args['batch_size'])
-        valid_step = int(train_samples / self.dataloader_args['batch_size'])
-        test_step = int(train_samples / self.dataloader_args['batch_size'])
+        valid_step = int(valid_samples / self.dataloader_args['batch_size'])
+        test_step = int(test_samples / self.dataloader_args['batch_size'])
         
         info = {'epochs': self.dataloader_args['epochs'],
                 'num_of_students': num_of_students,
