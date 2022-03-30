@@ -24,8 +24,6 @@ class DNNWeightsLoader(BaseDataLoader):
             replay_buffer = replay_buffer[:self.dataloader_args["replay_window"]]
             self.info = self.get_info_inference(num_of_students=self.dataloader_args["replay_window"],
                                                 sample_per_student=self.info["sample_per_student"])
-        else:
-            replay_buffer = None
         return replay_buffer
             
     def get_info_inference(self, num_of_students, sample_per_student):
@@ -119,14 +117,14 @@ class DNNWeightsLoader(BaseDataLoader):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         
-        if self.replay_buffer == None:
+        if len(self.replay_buffer) <= self.dataloader_args['replay_window']:
             filelist = glob_tfrecords(
                 self.dataloader_args['path'], glob_pattern='*.tfrecords')
         else:
-            if len(new_students) != 0:
-                self.replay_buffer[:len(new_students)] = new_students
-            filelist = self.replay_buffer
-            print("replay_buffer:{}".format(filelist))
+            for _ in range(len(new_students)):
+                self.replay_buffer.pop(0)
+            filelist = self.replay_buffer + new_students
+            print("filelist: {}".format(filelist))
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=self.feature_config)
