@@ -28,7 +28,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 30
+      replay_window: 50
       batch_size: 256
       epochs: 10
     model:
@@ -37,7 +37,7 @@ experiment:
       name: sgd
       learning_rate: 0.001
     loss:
-      name: MeanAbsoluteError #MeanSquaredError
+      name: MeanSquaredError #MeanAbsoluteError 
     train_loop:
         valid:
           valid_gap: 100 
