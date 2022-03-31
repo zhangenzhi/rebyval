@@ -28,14 +28,14 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 50
+      replay_window: 40
       batch_size: 256
       epochs: 10
     model:
       name: dnn # default dnn
     optimizer:
       name: sgd
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: MeanSquaredError #MeanAbsoluteError 
     train_loop:
