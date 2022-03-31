@@ -29,7 +29,7 @@ class Supervisor:
     def _build_model(self):
         #TODO: need model registry
         model = DNN(units=[256,128,64,32,10,1],
-                    activations=['relu', 'relu', 'relu', 'softplus'],
+                    activations=['relu', 'relu', 'relu', 'relu', 'relu', 'softplus'],
                     use_bn=True,
                     seed=None)
         # model restore
