@@ -29,7 +29,7 @@ experiment:
     dataloader:
       name: dnn_weights
       replay_window: 30
-      batch_size: 32
+      batch_size: 64
       epochs: 10
     model:
       name: dnn # default dnn
