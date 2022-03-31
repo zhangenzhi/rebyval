@@ -4,9 +4,9 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 1
-    nums: 0
-    student_nums: 0
+      student_nums: 5
+    nums: 100
+    student_nums: 1
 
   student:
     dataloader:
@@ -28,7 +28,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 30
+      replay_window: 10
       batch_size: 256
       epochs: 10
     model:
