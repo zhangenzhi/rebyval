@@ -37,7 +37,7 @@ experiment:
       name: sgd
       learning_rate: 0.001
     loss:
-      name: MeanSquaredError #mean_absolute_error
+      name: MeanAbsoluteError #MeanSquaredError
     train_loop:
         valid:
           valid_gap: 100 
