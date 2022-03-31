@@ -1,17 +1,17 @@
 experiment:
   context:
-    name: avglabel-v3
+    name: avglabel-v4
 
   main_loop:
     warmup: 
-      student_nums: 0
-    nums: 100
+      student_nums: 1
+    nums: 0
     student_nums: 0
 
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 50
+      epochs: 100
     model:
       name: dnn # default dnn
     loss:
@@ -28,7 +28,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 40
+      replay_window: 30
       batch_size: 256
       epochs: 10
     model:
