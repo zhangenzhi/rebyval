@@ -4,6 +4,7 @@ from datetime import datetime
 import tensorflow as tf
 from rebyval.train.student import Student
 from rebyval.dataloader.weights_loader import DNNWeightsLoader
+from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 # model
 from rebyval.model.dnn import DNN
 
@@ -63,7 +64,10 @@ class Supervisor:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        optimizer.learning_rate = optimizer_args['learning_rate']
+        ls = LinearScalingWithDecaySchedule(base_learning_rate=optimizer_args['learning_rate'],
+                                             linear_scaling=1,warmup_steps=250000,decay_steps=250000)
+        optimizer.learning_rate = ls
+        
         return optimizer
     
     def _build_logger(self):
