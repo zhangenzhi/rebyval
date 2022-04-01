@@ -63,9 +63,14 @@ class BaseController:
         
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
+        supervisor_trains = warmup['supervisor_trains']
         for i in range(init_samples):
             student = self._build_student()
             student.run()
+        
+        for j in range(supervisor_trains):
+            keep_train = False if j == 0 else True
+            self.supervisor.run(keep_train=keep_train, new_students=[])
 
     def main_loop(self):
 
@@ -78,8 +83,7 @@ class BaseController:
         # main loop
         new_student = []
         for j in range(main_loop['nums']):
-            keep_train = False if j == 0 else True
-            self.supervisor.run(keep_train=keep_train, new_students=new_student)
+            self.supervisor.run(keep_train=True, new_students=new_student)
             new_student = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
