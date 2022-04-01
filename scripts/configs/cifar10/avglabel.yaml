@@ -5,8 +5,9 @@ experiment:
   main_loop:
     warmup: 
       student_nums: 0
+      supervisor_train: 4
     nums: 100
-    student_nums: 0
+    student_nums: 5
 
   student:
     dataloader:

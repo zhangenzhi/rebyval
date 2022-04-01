@@ -64,9 +64,9 @@ class Supervisor:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        ls = LinearScalingWithDecaySchedule(base_learning_rate=optimizer_args['learning_rate'],
-                                             linear_scaling=1,warmup_steps=250000,decay_steps=250000)
-        optimizer.learning_rate = ls
+        # ls = LinearScalingWithDecaySchedule(base_learning_rate=optimizer_args['learning_rate'],
+        #                                      linear_scaling=1,warmup_steps=250000,decay_steps=250000)
+        optimizer.learning_rate = optimizer_args['learning_rate']
         
         return optimizer
     
