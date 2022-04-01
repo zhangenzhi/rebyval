@@ -141,15 +141,10 @@ class DNNWeightsLoader(BaseDataLoader):
         train_dataset = train_dataset.repeat(self.info["epochs"])
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         
-        
-        # valid_dataset = valid_dataset.take(self.info['valid_samples'])
         valid_dataset = valid_dataset.repeat(self.info["epochs"])
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
         
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
-
-        # import pdb
-        # pdb.set_trace()
         
         return train_dataset, valid_dataset, test_dataset
     

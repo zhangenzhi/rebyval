@@ -6,7 +6,7 @@ experiment:
     warmup: 
       student_nums: 0
     nums: 100
-    student_nums: 1
+    student_nums: 0
 
   student:
     dataloader:
@@ -28,9 +28,9 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 10
+      replay_window: 30
       batch_size: 64
-      epochs: 30
+      epochs: 50
     model:
       name: dnn # default dnn
     optimizer:
