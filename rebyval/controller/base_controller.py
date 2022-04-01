@@ -81,13 +81,12 @@ class BaseController:
             self.warmup(main_loop['warmup'])
 
         # main loop
-        new_student = []
         for j in range(main_loop['nums']):
-            self.supervisor.run(keep_train=True, new_students=new_student)
             new_student = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
                 new_student.append(student.run())
+            self.supervisor.run(keep_train=True, new_students=new_student)
             print_green("new_student:{}, welcome!".format(new_student))
 
     def run(self):
