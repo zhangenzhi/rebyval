@@ -130,7 +130,7 @@ class DNNWeightsLoader(BaseDataLoader):
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
                                                                feature_config=self.feature_config)
         
-        train_dataset = full_dataset.take(self.info['train_samples'])
+        train_dataset = full_dataset.take(self.info['train_samples']).shuffle(self.info['train_samples'])
         
         valid_dataset = full_dataset.skip(self.info['train_samples'])
         valid_dataset = valid_dataset.take(self.info['valid_samples'])
@@ -147,8 +147,8 @@ class DNNWeightsLoader(BaseDataLoader):
         
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
 
-        # import pdb
-        # pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         
         return train_dataset, valid_dataset, test_dataset
     
