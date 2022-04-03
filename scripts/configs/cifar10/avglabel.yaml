@@ -29,7 +29,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_weights
-      replay_window: 25
+      replay_window: 20
       batch_size: 64
       epochs: 50
     model:
