@@ -62,7 +62,8 @@ class DNN(tf.keras.Model):
         layers = []
         if self.initial_value != None:
             for i in range(len(self.units)):
-                layers.append(Linear(units=self.units[i], seed=self.seed, initial_value=[i*2,i*2+1]))
+                layers.append(Linear(units=self.units[i], seed=self.seed, initial_value=[self.initial_value[i*2],
+                                                                                         self.initial_value[i*2+1]]))
         else:
             for units in self.units:
                 layers.append(Linear(units=units, seed=self.seed))
