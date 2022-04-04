@@ -75,9 +75,6 @@ class BaseController:
         print([p.join() for p in processes])
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
         
-        import pdb
-        pdb.set_trace()
-        
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])

@@ -40,7 +40,7 @@ class Cifar10Student(Student):
                 predictions = self.model(inputs, training=True)
                 s_loss = self.supervisor(self.model.trainable_variables)
                 t_loss = self.loss_fn(labels, predictions)
-                loss = t_loss + 0.1 * s_loss
+                loss = t_loss + 0.01 * s_loss
                 # loss = t_loss 
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(
