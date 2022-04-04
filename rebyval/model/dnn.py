@@ -1,4 +1,5 @@
 from random import seed
+import dill
 import tensorflow as tf
 from tensorflow import keras
 
@@ -45,7 +46,8 @@ class DNN(tf.keras.Model):
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
         self.fc_act = self._build_act()
-        self.fc_bn = self._build_bn()
+        # self.fc_bn = self._build_bn()
+        self.fc_bn = []
 
     def _build_fc(self):
         layers = []
