@@ -71,6 +71,7 @@ class BaseController:
             p = Process(target = student.run)
             p.start()
             processes.append(p)
+            time.sleep(2)
         print([p.join() for p in processes])
         
         for j in range(supervisor_trains):
