@@ -101,7 +101,7 @@ class BaseController:
             for i in range(main_loop['student_nums']):
                 student = self._build_student()
                 # student = self._build_student(supervisor_model=self.supervisor.model) # not work with  model
-                supervisor_vars = [var.numpy for var in self.supervisor.model.trainable_variables]
+                supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables]
                 p = Process(target = student.run, args=(self.queue, supervisor_vars))
                 p.start()
                 processes.append(p)
