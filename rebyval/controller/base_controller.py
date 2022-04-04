@@ -1,6 +1,7 @@
 import time
 import argparse
 from multiprocessing import Pool, Queue, Process
+from threading import Thread
 
 from rebyval.tools.utils import *
 from rebyval.controller.utils import *
@@ -67,7 +68,7 @@ class BaseController:
         processes = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Process(target = student.run, args=(self.queue,))
+            p = Thread(target = student.run, args=(self.queue,))
             p.start()
             processes.append(p)
             time.sleep(2)
@@ -91,7 +92,7 @@ class BaseController:
             processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor.model)
-                p = Process(target = student.run, args=(self.queue,))
+                p = Thread(target = student.run, args=(self.queue,))
                 p.start()
                 processes.append(p)
                 time.sleep(2)
