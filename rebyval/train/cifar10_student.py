@@ -37,22 +37,19 @@ class Cifar10Student(Student):
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
-        try:
-            # self.supervisor = self._build_supervisor_from_vars()
-            import pdb
-            pdb.set_trace()
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                s_loss = self.supervisor(self.model.trainable_variables)
-                t_loss = self.loss_fn(labels, predictions)
-                loss = t_loss + 0.01 * s_loss
-                # loss = t_loss 
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-        except:
-            print_error("rebyval train step error")
-            raise
+    
+        # self.supervisor = self._build_supervisor_from_vars()
+        import pdb
+        pdb.set_trace()
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            s_loss = self.supervisor(self.model.trainable_variables)
+            t_loss = self.loss_fn(labels, predictions)
+            loss = t_loss + 0.01 * s_loss
+            # loss = t_loss 
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
         
         with self.logger.as_default():
             step = train_step+epoch*self.dataloader.info['train_step']
