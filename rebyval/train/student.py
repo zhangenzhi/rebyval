@@ -24,12 +24,9 @@ class Student:
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
-        try:
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        except RuntimeError as e:
-            print(e)
-        
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    
 
     def _build_dataset(self):
         #TODO: need dataloader registry
