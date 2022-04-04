@@ -1,0 +1,44 @@
+experiment:
+  context:
+    name: multi-p-v1
+
+  main_loop:
+    warmup: 
+      student_nums: 3
+      supervisor_trains: 1
+    nums: 0
+    student_nums: 0
+
+  student:
+    dataloader:
+      name: cifar10 # default cifar10
+      epochs: 50
+    model:
+      name: dnn # default dnn
+    loss:
+      name: SparseCategoricalCrossentropy
+    metrics: 
+      name: SparseCategoricalAccuracy
+    optimizer:
+      name: Adam # default SGD
+      learning_rate: 0.0001 # default 0.01
+    train_loop:
+        valid:
+          valid_gap: 100
+
+  supervisor:
+    dataloader:
+      name: dnn_weights
+      replay_window: 20
+      batch_size: 64
+      epochs: 50
+    model:
+      name: dnn # default dnn
+    optimizer:
+      name: sgd
+      learning_rate: 0.001
+    loss:
+      name: MeanAbsoluteError #MeanAbsoluteError 
+    train_loop:
+        valid:
+          valid_gap: 100 

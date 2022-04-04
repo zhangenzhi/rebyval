@@ -1,6 +1,7 @@
 import time
 import argparse
 import tensorflow as tf
+from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
 from rebyval.controller.utils import *
@@ -64,9 +65,13 @@ class BaseController:
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
         supervisor_trains = warmup['supervisor_trains']
+        processes = []
         for i in range(init_samples):
             student = self._build_student()
-            student.run()
+            p = Process(target = student.run)
+            p.start()
+            processes.append(p)
+        print([p.join() for p in processes])
         
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
