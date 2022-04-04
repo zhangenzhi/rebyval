@@ -16,8 +16,6 @@ class Cifar10Student(Student):
 
     def _build_supervisor_from_vars(self):
         model = None
-        import pdb
-        pdb.set_trace()
         if self.supervisor_vars != None:
             #TODO: need model registry
             model = DNN(units=[64,32,10,1],
