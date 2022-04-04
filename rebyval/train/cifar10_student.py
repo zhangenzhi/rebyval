@@ -23,6 +23,7 @@ class Cifar10Student(Student):
             model = DNN(units=[64,32,10,1],
                     activations=['relu', 'relu', 'relu', 'softplus'],
                     use_bn=False,
+                    initial_value=self.supervisor_vars,
                     seed=None)
         return model
     
