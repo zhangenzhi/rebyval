@@ -66,13 +66,15 @@ class BaseController:
         init_samples = warmup['student_nums']
         supervisor_trains = warmup['supervisor_trains']
         processes = []
+        new_student = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Process(target = student.run)
+            p = Process(target = student.run,args=[new_student])
             p.start()
             processes.append(p)
             time.sleep(2)
         print([p.join() for p in processes])
+        print(new_student)
         
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
@@ -89,9 +91,15 @@ class BaseController:
         # main loop
         for j in range(main_loop['nums']):
             new_student = []
+            processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
-                new_student.append(student.run())
+                p = Process(target = student.run, args=[new_student])
+                p.start()
+                processes.append(p)
+                time.sleep(2)
+            print([p.join() for p in processes])
+              
             self.supervisor.run(keep_train=True, new_students=new_student)
             print_green("new_student:{}, welcome!".format(new_student))
 

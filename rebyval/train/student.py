@@ -133,7 +133,7 @@ class Student:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self):
+    def run(self, new_student=[]):
 
         # set enviroment
         self._build_enviroment()
@@ -161,6 +161,9 @@ class Student:
         
         self.writter.close()
         print('Finished training student {}'.format(self.id))
+        
+        new_student.append(weight_dir)
+        
         return weight_dir
         
 
