@@ -118,7 +118,7 @@ class Cifar10Student(Student):
         # import pdb
         # pdb.set_trace()
         if supervisor_vars != None:
-            # ForkedPdb().set_trace()
+            ForkedPdb().set_trace()
             self.supervisor_vars = supervisor_vars
             self.supervisor = self._build_supervisor_from_vars()
 
