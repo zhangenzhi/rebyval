@@ -39,6 +39,8 @@ class Cifar10Student(Student):
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
             # self.supervisor = self._build_supervisor_from_vars()
+            import pdb
+            pdb.set_trace()
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 s_loss = self.supervisor(self.model.trainable_variables)
