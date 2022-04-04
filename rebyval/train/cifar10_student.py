@@ -10,8 +10,8 @@ from rebyval.tools.utils import print_warning, print_green, print_error, print_n
 class Cifar10Student(Student):
     
     def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
-        super(Cifar10Student, self).__init__(student_args, supervisor, id)
-        self.supervisor_vars = supervisor_vars
+        super(Cifar10Student, self).__init__(student_args, supervisor, supervisor_vars=supervisor_vars,id)
+        # self.supervisor_vars = supervisor_vars
         # self.supervisor = self._build_supervisor_from_vars()
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
