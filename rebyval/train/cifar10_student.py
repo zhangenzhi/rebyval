@@ -35,7 +35,17 @@ class Cifar10Student(Student):
         self.mt_loss_fn.update_state(loss)
         
         return loss
-
+    
+    def weightspace_loss(self, weights):
+        # label
+        flat_vars = []
+        for var in weights:
+            flat_vars.append(tf.reshape(var, shape=(-1)))
+        inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+        s_loss = self.supervisor(inputs, training=False)
+        s_loss = tf.squeeze(s_loss)
+        return s_loss
+    
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
     
@@ -43,7 +53,7 @@ class Cifar10Student(Student):
         ForkedPdb().set_trace()
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
-            s_loss = self.supervisor(self.model.trainable_variables)
+            s_loss = self.weightspace_loss(self.model.trainable_variables)
             t_loss = self.loss_fn(labels, predictions)
             loss = t_loss + 0.01 * s_loss
             # loss = t_loss 
