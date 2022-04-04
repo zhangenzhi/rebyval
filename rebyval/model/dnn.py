@@ -3,23 +3,27 @@ import tensorflow as tf
 from tensorflow import keras
 
 class Linear(keras.layers.Layer):
-    def __init__(self, units=32, seed=100000):
+    def __init__(self, units=32, seed=100000, initial_value=None):
         super(Linear, self).__init__()
         self.units = units
         self.seed = seed
+        self.initial_value = initial_value
 
     def build(self, input_shape):
 
-        w_init = tf.random_normal_initializer(seed=self.seed)
-        b_init = tf.zeros_initializer()
+        if self.initial_value == None:
+            w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
+            b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
+        else:
+            w_init = self.initial_value[0]
+            b_init = self.initial_value[1]
 
         self.w = tf.Variable(
-            initial_value=w_init(
-                shape=(input_shape[-1], self.units), dtype="float32"),
+            initial_value=w_init,
             trainable=True, name="w"
         )
         self.b = tf.Variable(
-            initial_value=b_init(shape=(self.units,), dtype="float32"), trainable=True,
+            initial_value=b_init, trainable=True,
             name="b"
         )
         
@@ -34,6 +38,7 @@ class DNN(tf.keras.Model):
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
                  use_bn=False,
                  seed=100000,
+                 initial_value=None
                 ):
         super(DNN, self).__init__()
 
@@ -41,6 +46,7 @@ class DNN(tf.keras.Model):
         self.activations = activations
         self.use_bn = use_bn 
         self.seed = seed
+        self.intial_value = initial_value
         
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
@@ -50,8 +56,12 @@ class DNN(tf.keras.Model):
 
     def _build_fc(self):
         layers = []
-        for units in self.units:
-            layers.append(Linear(units=units, seed=self.seed))
+        if self.initial_value !=None:
+            for i in range(len(self.units)):
+                layers.append(Linear(units=self.units[i], seed=self.seed, initial_value=[i*2,i*2+1]))
+        else:
+            for units in self.units:
+                layers.append(Linear(units=units, seed=self.seed))
         return layers
     
     def _build_bn(self):
