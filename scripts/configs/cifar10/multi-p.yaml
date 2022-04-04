@@ -12,7 +12,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 150
+      epochs: 10
     model:
       name: dnn # default dnn
     loss:

@@ -24,7 +24,7 @@ class BaseController:
         self.yaml_configs = check_args_from_input_config(self.yaml_configs)
 
         self._build_enviroment()
-        
+        self.queue = Queue(maxsize=10)
         self._student_ids = 0
         self._supervisor_ids = 0
         
@@ -69,12 +69,15 @@ class BaseController:
         new_student = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Process(target = student.run,args=[new_student])
+            p = Process(target = student.run, args=(self.queue,))
             p.start()
             processes.append(p)
-            time.sleep(2)
+            time.sleep(3)
         print([p.join() for p in processes])
         print(new_student)
+        
+        import pdb
+        pdb.set_trace()
         
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
