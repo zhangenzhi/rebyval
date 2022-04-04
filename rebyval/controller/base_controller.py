@@ -52,11 +52,12 @@ class BaseController:
         context = self.args['context']
         self.log_path = os.path.join(context['log_path'],context['name'])
 
-    def _build_student(self, supervisor=None):
+    def _build_student(self, supervisor=None, supervisor_vars = None):
         student_args = self.args["student"]
         student_args['log_path'] = self.log_path
         student = Cifar10Student(student_args=student_args, 
                                  supervisor = supervisor,
+                                 supervisor_vars = supervisor_vars,
                                  id = self._student_ids)
         self._student_ids += 1
         return student
@@ -98,8 +99,8 @@ class BaseController:
         for j in range(main_loop['nums']):
             processes = []
             for i in range(main_loop['student_nums']):
-                # student = self._build_student(supervisor=self.supervisor.model.trainable_variables)
-                student = self._build_student(supervisor=self.supervisor.model)
+                student = self._build_student(supervisor_vars=self.supervisor.model.trainable_variables)
+                # student = self._build_student(supervisor_model=self.supervisor.model) # not work with  model
                 p = Process(target = student.run, args=(self.queue,))
                 p.start()
                 processes.append(p)

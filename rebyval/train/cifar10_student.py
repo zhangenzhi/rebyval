@@ -3,15 +3,27 @@ from tqdm import trange
 import tensorflow as tf
 
 # others
+from rebyval.model.dnn import DNN
 from rebyval.train.student import Student
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
 class Cifar10Student(Student):
     
-    def __init__(self, student_args, supervisor = None, id = 0):
+    def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
         super(Cifar10Student, self).__init__(student_args, supervisor, id)
+        self.supervisor_vars = supervisor_vars
+        self.supervisor = self._build_supervisor_from_vars()
 
-
+    def _build_supervisor_from_vars(self):
+        model = None
+        if self.supervisor_vars != None:
+            #TODO: need model registry
+            model = DNN(units=[64,32,10,1],
+                    activations=['relu', 'relu', 'relu', 'softplus'],
+                    use_bn=False,
+                    seed=None)
+        return model
+    
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
