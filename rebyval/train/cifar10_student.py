@@ -39,6 +39,7 @@ class Cifar10Student(Student):
     def weightspace_loss(self, weights):
         # label
         flat_vars = []
+        ForkedPdb().set_trace()
         for var in weights:
             flat_vars.append(tf.reshape(var, shape=(-1)))
         inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
@@ -51,7 +52,7 @@ class Cifar10Student(Student):
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
     
         # self.supervisor = self._build_supervisor_from_vars()
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             s_loss = self.weightspace_loss(self.model.trainable_variables)
