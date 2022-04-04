@@ -46,7 +46,7 @@ class DNN(tf.keras.Model):
         self.activations = activations
         self.use_bn = use_bn 
         self.seed = seed
-        self.intial_value = initial_value
+        self.initial_value = initial_value
         
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
