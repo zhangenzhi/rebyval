@@ -83,7 +83,6 @@ class DNN(tf.keras.Model):
 
     def call(self, inputs):
         x = inputs
-        ForkedPdb().set_trace()
         x = self.flatten(x)
         if self.use_bn:
             for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):
