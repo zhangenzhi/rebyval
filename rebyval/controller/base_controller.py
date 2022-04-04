@@ -91,7 +91,7 @@ class BaseController:
             processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=None)
-                p = Process(target = student.run, args=(self.queue, self.supervisor,))
+                p = Process(target = student.run, args=(self.queue,))
                 p.start()
                 processes.append(p)
                 time.sleep(2)
