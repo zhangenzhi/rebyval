@@ -16,10 +16,22 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student:
-    def __init__(self, student_args, supervisor = None, id = 0):
+    def __init__(self, student_args, supervisor = None, supervisor_vars  = None , id = 0):
         self.args = student_args
         self.supervisor = supervisor
+        self.supervisor_vars  = supervisor_vars
         self.id = id
+        
+    def _build_supervisor_from_vars(self):
+        model = None
+        if self.supervisor_vars != None:
+            #TODO: need model registry
+            model = DNN(units=[64,32,10,1],
+                    activations=['relu', 'relu', 'relu', 'softplus'],
+                    use_bn=False,
+                    initial_value=self.supervisor_vars,
+                    seed=None)
+        return model
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
@@ -159,6 +171,7 @@ class Student:
 
         # train
         self.supervisor = supervisor
+        self.supervisor = self._build_supervisor_from_vars()
         self.train()
         
         self.writter.close()

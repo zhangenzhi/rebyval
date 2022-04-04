@@ -12,18 +12,7 @@ class Cifar10Student(Student):
     def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
         super(Cifar10Student, self).__init__(student_args, supervisor, id)
         self.supervisor_vars = supervisor_vars
-        self.supervisor = self._build_supervisor_from_vars()
-
-    def _build_supervisor_from_vars(self):
-        model = None
-        if self.supervisor_vars != None:
-            #TODO: need model registry
-            model = DNN(units=[64,32,10,1],
-                    activations=['relu', 'relu', 'relu', 'softplus'],
-                    use_bn=False,
-                    initial_value=self.supervisor_vars,
-                    seed=None)
-        return model
+        # self.supervisor = self._build_supervisor_from_vars()
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
@@ -49,6 +38,7 @@ class Cifar10Student(Student):
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
+            # self.supervisor = self._build_supervisor_from_vars()
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 s_loss = self.supervisor(self.model.trainable_variables)
