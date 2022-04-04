@@ -66,15 +66,14 @@ class BaseController:
         init_samples = warmup['student_nums']
         supervisor_trains = warmup['supervisor_trains']
         processes = []
-        new_student = []
         for i in range(init_samples):
             student = self._build_student()
             p = Process(target = student.run, args=(self.queue,))
             p.start()
             processes.append(p)
-            time.sleep(3)
+            time.sleep(2)
         print([p.join() for p in processes])
-        print(new_student)
+        new_students = [self.queue.get() for _ in range(self.queue.qsize())]
         
         import pdb
         pdb.set_trace()
@@ -93,18 +92,18 @@ class BaseController:
 
         # main loop
         for j in range(main_loop['nums']):
-            new_student = []
             processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
-                p = Process(target = student.run, args=[new_student])
+                p = Process(target = student.run, args=(self.queue,))
                 p.start()
                 processes.append(p)
                 time.sleep(2)
             print([p.join() for p in processes])
+            new_students = [self.queue.get() for _ in range(self.queue.qsize())]
               
-            self.supervisor.run(keep_train=True, new_students=new_student)
-            print_green("new_student:{}, welcome!".format(new_student))
+            self.supervisor.run(keep_train=True, new_students=new_students)
+            print_green("new_student:{}, welcome!".format(new_students))
 
     def run(self):
         
