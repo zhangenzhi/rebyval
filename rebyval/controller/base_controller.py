@@ -68,7 +68,7 @@ class BaseController:
         processes = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Thread(target = student.run, args=(self.queue,))
+            p = Process(target = student.run, args=(self.queue,))
             p.start()
             processes.append(p)
             time.sleep(2)
@@ -92,7 +92,7 @@ class BaseController:
             processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor.model)
-                p = Thread(target = student.run, args=(self.queue,))
+                p = Process(target = student.run, args=(self.queue,))
                 p.start()
                 processes.append(p)
                 time.sleep(2)
