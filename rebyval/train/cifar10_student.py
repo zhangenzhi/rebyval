@@ -39,12 +39,12 @@ class Cifar10Student(Student):
     def weightspace_loss(self, weights):
         # label
         flat_vars = []
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         for var in weights:
             flat_vars.append(tf.reshape(var, shape=(-1)))
         inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
         # ForkedPdb().set_trace()
-        s_loss = self.supervisor(inputs, training=False)
+        s_loss = self.supervisor(inputs)
         s_loss = tf.squeeze(s_loss)
         return s_loss
     
