@@ -103,6 +103,11 @@ class Cifar10Student(Student):
         
         # metrics reset
         self.metrics.reset_states()
+        
+        import pdb
+        pdb.set_trace()
+        
+        self.supervisor = self._build_supervisor_from_vars()
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
