@@ -26,6 +26,7 @@ class Student:
         print_green("devices:", gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+        
 
     def _build_dataset(self):
         #TODO: need dataloader registry

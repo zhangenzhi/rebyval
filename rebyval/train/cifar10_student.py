@@ -86,6 +86,7 @@ class Cifar10Student(Student):
         return loss
 
     def train(self):
+        
         # parse train loop control args
         train_loop_args = self.args['train_loop']
         train_args = train_loop_args['train']
