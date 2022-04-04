@@ -173,7 +173,7 @@ class Student:
         # import pdb
         # pdb.set_trace()
        
-        self.supervisor = self._build_supervisor_from_vars()
+        # self.supervisor = self._build_supervisor_from_vars()
         self.train()
         
         self.writter.close()
