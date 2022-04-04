@@ -88,7 +88,7 @@ class Cifar10Student(Student):
             
         return loss
 
-    def train(self):
+    def train(self, supervisor_vars=None):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
@@ -106,8 +106,9 @@ class Cifar10Student(Student):
         
         # import pdb
         # pdb.set_trace()
-        
-        self.supervisor = self._build_supervisor_from_vars()
+        if supervisor_vars != None:
+            self.supervisor_vars = supervisor_vars
+            self.supervisor = self._build_supervisor_from_vars()
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger

@@ -146,7 +146,7 @@ class Student:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, new_student=None):
+    def run(self, new_student=None, supervisor_vars = None):
 
         # set enviroment
         self._build_enviroment()
@@ -174,7 +174,7 @@ class Student:
         # pdb.set_trace()
        
         # self.supervisor = self._build_supervisor_from_vars()
-        self.train()
+        self.train(supervisor_vars = supervisor_vars)
         
         self.writter.close()
         print('Finished training student {}'.format(self.id))
