@@ -1,6 +1,5 @@
 import time
 import argparse
-import tensorflow as tf
 from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
