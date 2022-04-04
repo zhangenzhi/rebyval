@@ -16,7 +16,7 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student:
-    def __init__(self, student_args, supervisor = None, supervisor_vars  = None , id = 0):
+    def __init__(self, student_args, supervisor = None, supervisor_vars = None , id = 0):
         self.args = student_args
         self.supervisor = supervisor
         self.supervisor_vars  = supervisor_vars
@@ -146,7 +146,7 @@ class Student:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, new_student=None, supervisor=None):
+    def run(self, new_student=None):
 
         # set enviroment
         self._build_enviroment()
@@ -169,10 +169,10 @@ class Student:
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
 
-        # train
-        import pdb
-        pdb.set_trace()
-        self.supervisor = supervisor
+        # # train
+        # import pdb
+        # pdb.set_trace()
+       
         self.supervisor = self._build_supervisor_from_vars()
         self.train()
         
