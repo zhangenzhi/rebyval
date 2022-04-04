@@ -170,6 +170,8 @@ class Student:
         self.writter, weight_dir = self._build_writter()
 
         # train
+        import pdb
+        pdb.set_trace()
         self.supervisor = supervisor
         self.supervisor = self._build_supervisor_from_vars()
         self.train()
