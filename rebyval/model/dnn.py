@@ -15,8 +15,8 @@ class Linear(keras.layers.Layer):
             w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
             b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
         else:
-            w_init = self.initial_value[0]
-            b_init = self.initial_value[1]
+            w_init = tf.cast(self.initial_value[0],dtype="float32")
+            b_init = tf.cast(self.initial_value[1],dtype="float32")
 
         self.w = tf.Variable(
             initial_value=w_init,
