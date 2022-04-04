@@ -5,6 +5,7 @@ import tensorflow as tf
 # others
 from rebyval.model.dnn import DNN
 from rebyval.train.student import Student
+from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
 class Cifar10Student(Student):
@@ -39,8 +40,7 @@ class Cifar10Student(Student):
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
     
         # self.supervisor = self._build_supervisor_from_vars()
-        import pdb
-        pdb.set_trace()
+        ForkedPdb.set_trace()
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             s_loss = self.supervisor(self.model.trainable_variables)
