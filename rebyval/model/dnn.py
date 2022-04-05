@@ -8,6 +8,7 @@ class Linear(keras.layers.Layer):
         self.initial_value = initial_value
         
         super(Linear, self).__init__()
+        self.seed=seed
         self.units = units
 
     def build(self, input_shape):
