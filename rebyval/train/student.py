@@ -32,7 +32,6 @@ class Student:
                     use_bn=False,
                     initial_value=self.supervisor_vars,
                     seed=None)
-            # ForkedPdb().set_trace()
             
         return model
 

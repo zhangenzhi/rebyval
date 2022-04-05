@@ -80,7 +80,7 @@ class BaseController:
             p.start()
             processes.append(p)
             time.sleep(2)
-        print([p.join() for p in processes])
+        pres = [p.join() for p in processes]
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
         
         for j in range(supervisor_trains):
@@ -97,18 +97,20 @@ class BaseController:
 
         # main loop
         for j in range(main_loop['nums']):
+            # mp students with supervisor
             processes = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student()
-                # student = self._build_student(supervisor_model=self.supervisor.model) # not work with  model
-                supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables]
+                # student = self._build_student(supervisor_model=self.supervisor.model) # mp not work with  model
+                supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
                 p = Process(target = student.run, args=(self.queue, supervisor_vars))
                 p.start()
                 processes.append(p)
                 time.sleep(2)
-            print([p.join() for p in processes])
+            pres = [p.join() for p in processes]
             new_students = [self.queue.get() for _ in range(self.queue.qsize())]
-              
+            
+            # supervisor
             self.supervisor.run(keep_train=True, new_students=new_students)
             print_green("new_student:{}, welcome!".format(new_students))
 
