@@ -11,11 +11,11 @@ class Linear(keras.layers.Layer):
         self.units = units
 
     def build(self, input_shape):
-        ForkedPdb().set_trace()
         if self.initial_value == None:
             w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
             b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
         else:
+            ForkedPdb().set_trace()
             w_init = tf.cast(self.initial_value[0],dtype="float32")
             w_init = tf.reshape(w_init,shape=(input_shape[-1]))
             
