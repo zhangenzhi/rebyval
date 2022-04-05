@@ -11,6 +11,7 @@ from rebyval.model.dnn import DNN
 from rebyval.model.cnn import CNN
 
 # others
+from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 
@@ -31,6 +32,8 @@ class Student:
                     use_bn=False,
                     initial_value=self.supervisor_vars,
                     seed=None)
+            ForkedPdb().set_trace()
+            
         return model
 
     def _build_enviroment(self):
