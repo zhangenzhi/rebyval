@@ -5,23 +5,17 @@ from rebyval.train.utils import ForkedPdb
 
 class Linear(keras.layers.Layer):
     def __init__(self, units=32, seed=100000, initial_value=None):
-        self.initial_value = initial_value
         
         super(Linear, self).__init__()
         self.seed=seed
         self.units = units
+        self.initial_value = initial_value
+        
+        self.build_from_value()
 
     def build(self, input_shape):
-        if self.initial_value == None:
-            w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
-            b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
-        else:
-            ForkedPdb().set_trace()
-            w_init = tf.cast(self.initial_value[0], dtype="float32")
-            w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
-            
-            b_init = tf.cast(self.initial_value[1], dtype="float32")
-            b_init = tf.reshape(b_init, shape=(self.units,))
+        w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
+        b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
 
         self.w = tf.Variable(
             initial_value=w_init,
@@ -31,6 +25,24 @@ class Linear(keras.layers.Layer):
             initial_value=b_init, trainable=True,
             name="b"
         )
+        
+    def build_from_value(self):
+        if self.initial_value!=None:
+            ForkedPdb().set_trace()
+            w_init = tf.cast(self.initial_value[0], dtype="float32")
+            # w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
+            
+            b_init = tf.cast(self.initial_value[1], dtype="float32")
+            b_init = tf.reshape(b_init, shape=(self.units,))
+            
+            self.w = tf.Variable(
+                initial_value=w_init,
+                trainable=True, name="w"
+            )
+            self.b = tf.Variable(
+                initial_value=b_init, trainable=True,
+                name="b"
+            )
         
     def call(self, inputs):
         outputs = tf.matmul(inputs, self.w) + self.b
