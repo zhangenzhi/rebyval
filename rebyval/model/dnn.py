@@ -5,13 +5,13 @@ from rebyval.train.utils import ForkedPdb
 
 class Linear(keras.layers.Layer):
     def __init__(self, units=32, seed=100000, initial_value=None):
+        self.initial_value = initial_value
+        
         super(Linear, self).__init__()
         self.units = units
-        self.seed = seed
-        self.initial_value = initial_value
 
     def build(self, input_shape):
-
+        ForkedPdb().set_trace()
         if self.initial_value == None:
             w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
             b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
