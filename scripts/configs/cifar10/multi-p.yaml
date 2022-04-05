@@ -6,13 +6,13 @@ experiment:
     warmup: 
       student_nums: 3
       supervisor_trains: 1
-    nums: 100
+    nums: 3
     student_nums: 3
 
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 10
+      epochs: 5
     model:
       name: dnn # default dnn
     loss:
