@@ -14,21 +14,22 @@ class Linear(keras.layers.Layer):
         self.build_from_value()
 
     def build(self, input_shape):
-        w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
-        b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
+        if self.initial_value == None:
+            w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1], self.units), dtype="float32")
+            b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
 
-        self.w = tf.Variable(
-            initial_value=w_init,
-            trainable=True, name="w"
-        )
-        self.b = tf.Variable(
-            initial_value=b_init, trainable=True,
-            name="b"
-        )
+            self.w = tf.Variable(
+                initial_value=w_init,
+                trainable=True, name="w"
+            )
+            self.b = tf.Variable(
+                initial_value=b_init, trainable=True,
+                name="b"
+            )
         
     def build_from_value(self):
         if self.initial_value!=None:
-            ForkedPdb().set_trace()
+            # ForkedPdb().set_trace()
             w_init = tf.cast(self.initial_value[0], dtype="float32")
             # w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
             
