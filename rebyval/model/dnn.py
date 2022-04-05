@@ -29,7 +29,7 @@ class Linear(keras.layers.Layer):
         
     def build_from_value(self):
         if self.initial_value!=None:
-            # ForkedPdb().set_trace()
+            
             w_init = tf.cast(self.initial_value[0], dtype="float32")
             # w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
             

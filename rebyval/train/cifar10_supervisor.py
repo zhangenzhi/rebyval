@@ -126,12 +126,10 @@ class Cifar10Supervisor(Supervisor):
                         data = valid_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
                         valid_loss = self._valid_step(inputs, labels,
-                                                    valid_step=valid_step, epoch=epoch,
-                                                    )
+                                                    valid_step=valid_step, epoch=epoch)
                         self.mloss_fn.update_state(valid_loss)
                         v.set_postfix(sv_loss=valid_loss.numpy())
                     ev_loss = self.mloss_fn.result()
-                    print(ev_loss)
                     
                 # epoch info
                 e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy())
