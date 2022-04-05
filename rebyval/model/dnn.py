@@ -16,8 +16,8 @@ class Linear(keras.layers.Layer):
             b_init = tf.zeros_initializer()(shape=(self.units,), dtype="float32")
         else:
             ForkedPdb().set_trace()
-            w_init = tf.cast(self.initial_value[0],dtype="float32")
-            w_init = tf.reshape(w_init,shape=(input_shape[-1]))
+            w_init = tf.cast(self.initial_value[0], dtype="float32")
+            w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
             
             b_init = tf.cast(self.initial_value[1], dtype="float32")
             b_init = tf.reshape(b_init, shape=(self.units,))
