@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: multi-p-v1
+    name: multi-p-v2
 
   main_loop:
     warmup: 
