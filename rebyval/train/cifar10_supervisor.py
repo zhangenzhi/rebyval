@@ -118,8 +118,6 @@ class Cifar10Supervisor(Supervisor):
                     et_loss = self.mloss_fn.result()
                         
                 # valid
-                import pdb
-                pdb.set_trace()
                 with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                     self.mloss_fn.reset_states()
                     for valid_step in v:
