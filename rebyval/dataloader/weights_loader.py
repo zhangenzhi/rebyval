@@ -116,15 +116,12 @@ class DNNWeightsLoader(BaseDataLoader):
     def load_dataset(self, new_students=[]):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
-        
-        if len(self.replay_buffer) < self.dataloader_args['replay_window']:
-            filelist = glob_tfrecords(
-                self.dataloader_args['path'], glob_pattern='*.tfrecords')
-        else:
-            for _ in range(len(new_students)):
-                self.replay_buffer.pop(0)
-            filelist = self.replay_buffer + new_students
-        self.replay_buffer = filelist
+        filelist = glob_tfrecords(self.dataloader_args['path'], glob_pattern='*.tfrecords')
+        if len(filelist) > self.dataloader_args['replay_window']:
+            filelist = random.shuffle(filelist)
+            filelist = list(set(filelist) - set(new_students))
+            past = [filelist.pop() for _ in range(self.dataloader_args['replay_window'] - len(new_students))]
+            filelist = new_students + past
         print("filelist length: {}".format(len(filelist)))
         
         full_dataset = self._load_analyse_tensor_from_tfrecord(filelist=filelist,
@@ -147,8 +144,3 @@ class DNNWeightsLoader(BaseDataLoader):
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
         
         return train_dataset, valid_dataset, test_dataset
-    
-# ds = iter(full_dataset)
-# for i in range(1000):
-#     ds.get_next()
-#     print(i)
