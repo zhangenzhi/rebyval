@@ -31,8 +31,6 @@ class Linear(keras.layers.Layer):
         if self.initial_value!=None:
             
             w_init = tf.cast(self.initial_value[0], dtype="float32")
-            # w_init = tf.reshape(w_init, shape=(input_shape[-1], self.units))
-            
             b_init = tf.cast(self.initial_value[1], dtype="float32")
             b_init = tf.reshape(b_init, shape=(self.units,))
             
