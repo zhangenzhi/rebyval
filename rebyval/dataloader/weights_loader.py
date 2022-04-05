@@ -118,7 +118,7 @@ class DNNWeightsLoader(BaseDataLoader):
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         filelist = glob_tfrecords(self.dataloader_args['path'], glob_pattern='*.tfrecords')
         if len(filelist) > self.dataloader_args['replay_window']:
-            filelist = random.shuffle(filelist)
+            random.shuffle(filelist)
             filelist = list(set(filelist) - set(new_students))
             past = [filelist.pop() for _ in range(self.dataloader_args['replay_window'] - len(new_students))]
             filelist = new_students + past

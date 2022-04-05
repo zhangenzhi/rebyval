@@ -111,8 +111,8 @@ class BaseController:
             new_students = [self.queue.get() for _ in range(self.queue.qsize())]
             
             # supervisor
-            self.supervisor.run(keep_train=True, new_students=new_students)
             print_green("new_student:{}, welcome!".format(new_students))
+            self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
         
