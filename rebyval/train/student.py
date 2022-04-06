@@ -89,11 +89,7 @@ class Student:
     def _build_writter(self):
         weight_dir = os.path.join(self.args['log_path'],"weight_space")
         check_mkdir(weight_dir)
-        exists_student = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
-        if exists_student != 0:
-            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(exists_student))
-        else:
-            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
+        weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
         writter = tf.io.TFRecordWriter(weight_trace)
         return writter, weight_trace
 

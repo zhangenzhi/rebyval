@@ -7,6 +7,7 @@ from multiprocessing import Pool, Queue, Process
 from threading import Thread
 
 from rebyval.tools.utils import *
+from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.cifar10_student import Cifar10Student
 from rebyval.train.cifar10_supervisor import Cifar10Supervisor
@@ -28,7 +29,8 @@ class BaseController:
 
         self._build_enviroment()
         self.queue = Queue(maxsize=10)
-        self._student_ids = 0
+        weight_dir = os.path.join(self.log_path, "weight_space")
+        self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
         self._supervisor_ids = 0
         
         self.supervisor = self._build_supervisor()
@@ -106,7 +108,7 @@ class BaseController:
                 p = Process(target = student.run, args=(self.queue, supervisor_vars))
                 p.start()
                 processes.append(p)
-                time.sleep(2)
+                time.sleep(3)
             pres = [p.join() for p in processes]
             new_students = [self.queue.get() for _ in range(self.queue.qsize())]
             
