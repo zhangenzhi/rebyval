@@ -3,15 +3,18 @@ from tqdm import trange
 import tensorflow as tf
 
 # others
+from rebyval.model.dnn import DNN
 from rebyval.train.student import Student
+from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
 class Cifar10Student(Student):
     
-    def __init__(self, student_args, supervisor = None, id = 0):
-        super(Cifar10Student, self).__init__(student_args, supervisor, id)
-
-
+    def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
+        super(Cifar10Student, self).__init__(student_args, supervisor, supervisor_vars,id)
+        # self.supervisor_vars = supervisor_vars
+        # self.supervisor = self._build_supervisor_from_vars()
+    
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
@@ -32,25 +35,37 @@ class Cifar10Student(Student):
         self.mt_loss_fn.update_state(loss)
         
         return loss
-
+    
+    def weightspace_loss(self, weights):
+        # label
+        flat_vars = []
+        for var in weights:
+            flat_vars.append(tf.reshape(var, shape=(-1)))
+        inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+        s_loss = self.supervisor(inputs)
+        s_loss = tf.squeeze(s_loss)
+        return s_loss
+    
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0):
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                s_loss = self.supervisor(self.model.trainable_variables)
-                t_loss = self.loss_fn(labels, predictions)
-                loss = t_loss + 0.1 * s_loss
-                # loss = t_loss 
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-        except:
-            print_error("rebyval train step error")
-            raise
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.01):
+        
+        step = train_step+epoch*self.dataloader.info['train_step']
+        
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            s_loss = self.weightspace_loss(self.model.trainable_variables)
+            t_loss = self.loss_fn(labels, predictions)
+            if step >= 250000:
+                decay_factor = decay_factor * 10 
+            elif step >= 350000:
+                decay_factor = decay_factor * 100
+            loss = t_loss + decay_factor * s_loss
+            
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
         
         with self.logger.as_default():
-            step = train_step+epoch*self.dataloader.info['train_step']
             tf.summary.scalar("train_loss", t_loss, step=step)
             tf.summary.scalar("surrogate_loss", s_loss, step=step)
             
@@ -85,7 +100,8 @@ class Cifar10Student(Student):
             
         return loss
 
-    def train(self):
+    def train(self, new_student=None, supervisor_vars=None):
+        
         # parse train loop control args
         train_loop_args = self.args['train_loop']
         train_args = train_loop_args['train']
@@ -99,6 +115,13 @@ class Cifar10Student(Student):
         
         # metrics reset
         self.metrics.reset_states()
+        
+        # import pdb
+        # pdb.set_trace()
+        if supervisor_vars != None:
+            # ForkedPdb().set_trace()
+            self.supervisor_vars = supervisor_vars
+            self.supervisor = self._build_supervisor_from_vars()
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger

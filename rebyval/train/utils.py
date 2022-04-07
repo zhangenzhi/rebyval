@@ -1,4 +1,6 @@
 import os
+import sys
+import pdb
 from rebyval.tools.utils import print_warning
 
 def prepare_dirs(valid_args):
@@ -32,3 +34,19 @@ def mkdirs(dir_path):
 
 def get_scheduler(name):
     return name
+
+import sys
+import pdb
+
+class ForkedPdb(pdb.Pdb):
+    """A Pdb subclass that may be used
+    from a forked multiprocessing child
+
+    """
+    def interaction(self, *args, **kwargs):
+        _stdin = sys.stdin
+        try:
+            sys.stdin = open('/dev/stdin')
+            pdb.Pdb.interaction(self, *args, **kwargs)
+        finally:
+            sys.stdin = _stdin

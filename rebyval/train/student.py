@@ -11,21 +11,36 @@ from rebyval.model.dnn import DNN
 from rebyval.model.cnn import CNN
 
 # others
+from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student:
-    def __init__(self, student_args, supervisor = None, id = 0):
+    def __init__(self, student_args, supervisor = None, supervisor_vars = None , id = 0):
         self.args = student_args
         self.supervisor = supervisor
+        self.supervisor_vars  = supervisor_vars
         self.id = id
+        
+    def _build_supervisor_from_vars(self):
+        model = None
+        if self.supervisor_vars != None:
+            #TODO: need model registry
+            model = DNN(units=[64,32,10,1],
+                    activations=['relu', 'relu', 'relu', 'softplus'],
+                    use_bn=False,
+                    initial_value=self.supervisor_vars,
+                    seed=None)
+            
+        return model
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+    
 
     def _build_dataset(self):
         #TODO: need dataloader registry
@@ -74,11 +89,7 @@ class Student:
     def _build_writter(self):
         weight_dir = os.path.join(self.args['log_path'],"weight_space")
         check_mkdir(weight_dir)
-        exists_student = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
-        if exists_student != 0:
-            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(exists_student))
-        else:
-            weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
+        weight_trace = os.path.join(weight_dir, '{}.tfrecords'.format(self.id))
         writter = tf.io.TFRecordWriter(weight_trace)
         return writter, weight_trace
 
@@ -133,7 +144,7 @@ class Student:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self):
+    def run(self, new_student=None, supervisor_vars = None):
 
         # set enviroment
         self._build_enviroment()
@@ -156,11 +167,18 @@ class Student:
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
 
-        # train
-        self.train()
+        # # train
+        # import pdb
+        # pdb.set_trace()
+      
+        # self.supervisor = self._build_supervisor_from_vars()
+        self.train(supervisor_vars = supervisor_vars)
         
         self.writter.close()
         print('Finished training student {}'.format(self.id))
+        
+        new_student.put(weight_dir)
+        
         return weight_dir
         
 

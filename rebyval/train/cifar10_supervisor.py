@@ -59,7 +59,7 @@ class Cifar10Supervisor(Supervisor):
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
         try:
-            predictions = self.model(inputs, training=True)
+            predictions = self.model(inputs, training=False)
             predictions = tf.squeeze(predictions)
             loss = self.loss_fn(labels, predictions)
         except:
@@ -124,8 +124,7 @@ class Cifar10Supervisor(Supervisor):
                         data = valid_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
                         valid_loss = self._valid_step(inputs, labels,
-                                                    valid_step=valid_step, epoch=epoch,
-                                                    )
+                                                    valid_step=valid_step, epoch=epoch)
                         self.mloss_fn.update_state(valid_loss)
                         v.set_postfix(sv_loss=valid_loss.numpy())
                     ev_loss = self.mloss_fn.result()

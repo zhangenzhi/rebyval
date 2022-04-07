@@ -3,6 +3,7 @@ experiment:
   context:
     name: rebyval 
     author: Enzhi Zhang & Ruqin Wang
+    multi-p: False
     log_path: ./log
 
   main_loop:

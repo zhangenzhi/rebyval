@@ -2,7 +2,14 @@ import time
 import argparse
 import tensorflow as tf
 
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+from multiprocessing import Pool, Queue, Process
+from threading import Thread
+
 from rebyval.tools.utils import *
+from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.cifar10_student import Cifar10Student
 from rebyval.train.cifar10_supervisor import Cifar10Supervisor
@@ -23,8 +30,9 @@ class BaseController:
         self.yaml_configs = check_args_from_input_config(self.yaml_configs)
 
         self._build_enviroment()
-        
-        self._student_ids = 0
+        self.queue = Queue(maxsize=100)
+        weight_dir = os.path.join(self.log_path, "weight_space")
+        self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
         self._supervisor_ids = 0
         
         self.supervisor = self._build_supervisor()
@@ -40,15 +48,20 @@ class BaseController:
         return args
 
     def _build_enviroment(self):
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+            
         self.args = self.yaml_configs['experiment']
-        context = self.args['context']
-        self.log_path = os.path.join(context['log_path'],context['name'])
+        self.context = self.args['context']
+        self.log_path = os.path.join(self.context['log_path'],self.context['name'])
 
-    def _build_student(self, supervisor=None):
+    def _build_student(self, supervisor=None, supervisor_vars = None):
         student_args = self.args["student"]
         student_args['log_path'] = self.log_path
         student = Cifar10Student(student_args=student_args, 
                                  supervisor = supervisor,
+                                 supervisor_vars = supervisor_vars,
                                  id = self._student_ids)
         self._student_ids += 1
         return student
@@ -64,9 +77,22 @@ class BaseController:
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
         supervisor_trains = warmup['supervisor_trains']
-        for i in range(init_samples):
-            student = self._build_student()
-            student.run()
+        
+        if self.context["multi-p"]:
+            processes = []
+            for i in range(init_samples):
+                student = self._build_student()
+                p = Process(target = student.run, args=(self.queue,))
+                p.start()
+                processes.append(p)
+                time.sleep(2)
+            pres = [p.join() for p in processes]
+            new_students = [self.queue.get() for _ in range(self.queue.qsize())]
+        else:
+            for i in range(init_samples):
+                student = self._build_student()
+                student.run()
+            
         
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
@@ -82,12 +108,28 @@ class BaseController:
 
         # main loop
         for j in range(main_loop['nums']):
-            new_student = []
-            for i in range(main_loop['student_nums']):
-                student = self._build_student(supervisor=self.supervisor)
-                new_student.append(student.run())
-            self.supervisor.run(keep_train=True, new_students=new_student)
-            print_green("new_student:{}, welcome!".format(new_student))
+            if self.context["multi-p"]:
+                # mp students with supervisor
+                processes = []
+                for i in range(main_loop['student_nums']):
+                    student = self._build_student()
+                    # student = self._build_student(supervisor_model=self.supervisor.model) # mp not work with  model
+                    supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
+                    p = Process(target = student.run, args=(self.queue, supervisor_vars))
+                    p.start()
+                    processes.append(p)
+                    time.sleep(3)
+                pres = [p.join() for p in processes]
+                new_students = [self.queue.get() for _ in range(self.queue.qsize())]
+            else:
+                new_students = []
+                for i in range(main_loop['student_nums']):
+                    student = self._build_student(supervisor=self.supervisor)
+                    new_students.append[student.run()]
+                    
+            # supervisor
+            print_green("new_student:{}, welcome!".format(new_students))
+            self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
         
