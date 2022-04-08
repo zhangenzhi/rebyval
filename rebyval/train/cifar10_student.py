@@ -53,13 +53,13 @@ class Cifar10Student(Student):
         
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
-            s_loss = self.weightspace_loss(self.model.trainable_variables)
+            if step % self.dataloader.info['train_step'] == 0:
+                self.s_loss = self.weightspace_loss(self.model.trainable_variables)
             t_loss = self.loss_fn(labels, predictions)
-            if step >= 250000:
-                decay_factor = decay_factor * 10 
-            elif step >= 350000:
-                decay_factor = decay_factor * 100
-            loss = t_loss + decay_factor * s_loss
+            if self.id % 10 == 0:
+                loss = t_loss
+            else:
+                loss = t_loss + self.s_loss
             
         gradients = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(
@@ -67,7 +67,7 @@ class Cifar10Student(Student):
         
         with self.logger.as_default():
             tf.summary.scalar("train_loss", t_loss, step=step)
-            tf.summary.scalar("surrogate_loss", s_loss, step=step)
+            tf.summary.scalar("surrogate_loss", self.s_loss, step=step)
             
         self.mt_loss_fn.update_state(t_loss)
         
