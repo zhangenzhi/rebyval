@@ -35,12 +35,12 @@ experiment:
       epochs: 50
     model:
       name: dnn # default dnn
-      units: 64,32,16,10
+      units: 64,32,16,1
       activations: relu,relu,relu,relu
       use_neu: False
     optimizer:
       name: sgd
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:
