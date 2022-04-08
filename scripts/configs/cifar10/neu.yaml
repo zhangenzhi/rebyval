@@ -40,7 +40,7 @@ experiment:
       use_neu: False
     optimizer:
       name: sgd
-      learning_rate: 0.01
+      learning_rate: 0.001
     loss:
       name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:

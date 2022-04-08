@@ -29,7 +29,7 @@ class Cifar10Supervisor(Supervisor):
         for feat, tensor in raw_inputs.items():
             # if feat in ["vars_0", "vars_1"]: # fitting still gook, but how grad? keep?
             #     continue
-            tensor = tf.reduce_sum(tensor,axis=-1)
+            tensor = tf.reduce_sum(tensor, axis=-1)
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
