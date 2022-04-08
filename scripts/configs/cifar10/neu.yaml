@@ -37,7 +37,7 @@ experiment:
       name: dnn # default dnn
       units: 64,32,16,10
       activations: relu,relu,relu,relu
-      use_neu: True
+      use_neu: False
     optimizer:
       name: sgd
       learning_rate: 0.0001

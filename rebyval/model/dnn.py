@@ -6,7 +6,7 @@ from rebyval.train.utils import ForkedPdb
 class NEU(keras.layers.Layer):
     def __init__(self, classes=10, trainable = True,  seed=100000, initial_value=None, **kwargs):
         
-        super().__init__(trainable = True, name="neu", **kwargs)
+        super().__init__(trainable = trainable, name="neu", **kwargs)
         self.classes = classes
         self.seed= seed
         self.initial_value = initial_value
