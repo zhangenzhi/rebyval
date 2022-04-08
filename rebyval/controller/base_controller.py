@@ -2,8 +2,9 @@ import time
 import argparse
 import tensorflow as tf
 
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+gpus = tf.config.experimental.list_physical_devices("GPU")
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 from multiprocessing import Pool, Queue, Process
 
@@ -31,6 +32,10 @@ class BaseController:
         self._build_enviroment()
         self.queue = Queue(maxsize=100)
         weight_dir = os.path.join(self.log_path, "weight_space")
+        if os.path.exists(weight_dir):
+            self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        else:
+            self._student_ids = 0
         self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
         self._supervisor_ids = 0
         
