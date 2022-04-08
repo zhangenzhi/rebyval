@@ -36,7 +36,6 @@ class BaseController:
             self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
         else:
             self._student_ids = 0
-        self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
         self._supervisor_ids = 0
         
         self.supervisor = self._build_supervisor()
@@ -58,7 +57,7 @@ class BaseController:
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
-        self.log_path = os.path.join(self.context['log_path'],self.context['name'])
+        self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
     def _build_student(self, supervisor=None, supervisor_vars = None):
         student_args = self.args["student"]
