@@ -30,7 +30,7 @@ class Supervisor:
     def _build_model(self):
         #TODO: need model registry
         model_args = self.args['model']
-        model = DNN(units=[64,32,16,10],
+        model = DNN(units=[64,32,16,1],
                     activations=['relu', 'relu', 'relu', 'relu'],
                     use_neu=model_args['use_neu'],
                     use_bn=False,
