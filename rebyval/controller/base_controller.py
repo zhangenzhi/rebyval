@@ -13,6 +13,7 @@ from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.cifar10_student import Cifar10Student
+from rebyval.train.cifar10_student_online import Cifar10StudentOnline
 from rebyval.train.cifar10_supervisor import Cifar10Supervisor
 
 
@@ -60,13 +61,20 @@ class BaseController:
         self.context = self.args['context']
         self.log_path = os.path.join(self.context['log_path'],self.context['name'])
 
-    def _build_student(self, supervisor=None, supervisor_vars = None):
+    def _build_student(self, supervisor=None, supervisor_vars = None, online=False):
         student_args = self.args["student"]
         student_args['log_path'] = self.log_path
-        student = Cifar10Student(student_args=student_args, 
-                                 supervisor = supervisor,
-                                 supervisor_vars = supervisor_vars,
-                                 id = self._student_ids)
+        if online:
+            student = Cifar10StudentOnline(student_args=student_args, 
+                                        supervisor = supervisor,
+                                        supervisor_vars = supervisor_vars,
+                                        queue = self.queue,
+                                        id = self._student_ids)
+        else:
+            student = Cifar10Student(student_args=student_args, 
+                                    supervisor = supervisor,
+                                    supervisor_vars = supervisor_vars,
+                                    id = self._student_ids)
         self._student_ids += 1
         return student
 

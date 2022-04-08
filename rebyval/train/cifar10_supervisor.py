@@ -1,3 +1,4 @@
+import time
 import tensorflow as tf
 from tqdm import trange
 
@@ -27,9 +28,9 @@ class Cifar10Supervisor(Supervisor):
         # inputs
         flat_vars = []
         for feat, tensor in raw_inputs.items():
-            # if feat in ["vars_0", "vars_1"]: # fitting still gook, but how grad? keep?
+            # if feat in ["vars_0", "vars_1"]: # 1. fitting still good with lr 001, but how grad? keep?
             #     continue
-            tensor = tf.reduce_sum(tensor, axis=-1)
+            # tensor = tf.reduce_sum(tensor, axis=-1)  # 2. fitting still good with lr 01.
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
@@ -142,3 +143,18 @@ class Cifar10Supervisor(Supervisor):
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels, test_step = test_step)
                 t.set_postfix(se_loss=t_loss.numpy())
+                
+    def train_online(self):
+        # train, valid, test
+        # tqdm update, logger
+        # parse train loop control args
+        train_loop_args = self.args['train_loop']
+        
+        # metrics reset
+        while True:
+            if self.queue.empty():
+                time.sleep(1)
+            else:
+                data = self.queue.get()
+                inputs,labels = self.preprocess_weightspace(data)
+                train_loss = self._train_step(inputs, labels)

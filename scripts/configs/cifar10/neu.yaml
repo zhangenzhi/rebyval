@@ -1,7 +1,8 @@
 experiment:
   context:
     name: neu-v1
-    multi-p: True
+    multi-p: False
+    online: True
 
   main_loop:
     warmup: 

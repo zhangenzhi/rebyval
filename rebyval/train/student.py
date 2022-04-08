@@ -1,5 +1,6 @@
 
 import os
+import time
 from datetime import datetime
 import tensorflow as tf
 
@@ -285,6 +286,17 @@ class Student:
         save_yaml_contents(contents=configs, file_path=config_path)
         
         self.writter.write(example.SerializeToString())
+        
+    def _connect_to_supervisor(self, weights, valid_loss, weight_space=None):
+         weight_loss = {'vars': weights, 'valid_loss': valid_loss}
+         while True:
+            if self.queue.full():
+                print_normal("student queue is full.")
+                time.sleep(1)
+            else:    
+                self.queue.put(weight_loss)
+                break
+        
         
 
 
