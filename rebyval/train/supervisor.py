@@ -29,8 +29,10 @@ class Supervisor:
             
     def _build_model(self):
         #TODO: need model registry
-        model = DNN(units=[64,32,10,1],
-                    activations=['relu', 'relu', 'relu', 'softplus'],
+        model_args = self.args['model']
+        model = DNN(units=[64,32,16,10],
+                    activations=['relu', 'relu', 'relu', 'relu'],
+                    use_neu=model_args['use_neu'],
                     use_bn=False,
                     seed=None)
         # model restore
@@ -169,6 +171,4 @@ class Supervisor:
 
             # train
             self.train()
-            
-        self.id += 1
 

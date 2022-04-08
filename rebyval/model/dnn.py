@@ -3,6 +3,47 @@ import tensorflow as tf
 from tensorflow import keras
 from rebyval.train.utils import ForkedPdb
 
+class NEU(keras.layers.Layer):
+    def __init__(self, classes=10, trainable = True,  seed=100000, initial_value=None, **kwargs):
+        
+        super().__init__(trainable = True, name="neu", **kwargs)
+        self.classes = classes
+        self.seed= seed
+        self.initial_value = initial_value
+        
+    def build(self, input_shape):
+        if self.initial_value==None:
+            w_init = tf.random_normal_initializer(seed=self.seed)(shape=(input_shape[-1],), dtype="float32")
+            b_init = tf.zeros_initializer()(shape=(1,), dtype="float32")
+            self.w = tf.Variable(
+                    initial_value=w_init,
+                    trainable=True, name="w"
+                )
+            self.b = tf.Variable(
+                initial_value=b_init, trainable=False,
+                name="b"
+            )
+    def build_from_value(self):
+        if self.initial_value!=None:
+            
+            w_init = tf.cast(self.initial_value[0], dtype="float32")
+            b_init = tf.cast(self.initial_value[1], dtype="float32")
+            
+            self.w = tf.Variable(
+                initial_value=w_init,
+                trainable=True, name="w"
+            )
+            self.b = tf.Variable(
+                initial_value=b_init, trainable=True,
+                name="b"
+            )
+        
+    def call(self, inputs, **kwargs):
+        alpha = keras.layers.Softmax()(inputs)
+        beta = keras.utils.normalize(self.w)
+        x = - tf.matmul(tf.math.log(alpha), tf.reshape(beta,shape=(-1,1)))
+        return x
+    
 class Linear(keras.layers.Layer):
     def __init__(self, units=32, seed=100000, initial_value=None):
         
@@ -53,6 +94,7 @@ class DNN(tf.keras.Model):
                  units=[64, 32, 16, 1],
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
                  use_bn=False,
+                 use_neu=False,
                  seed=100000,
                  initial_value=None
                 ):
@@ -61,6 +103,8 @@ class DNN(tf.keras.Model):
         self.units = units
         self.activations = activations
         self.use_bn = use_bn 
+        self.use_neu = use_neu
+        
         self.seed = seed
         self.initial_value = initial_value
         
@@ -69,6 +113,8 @@ class DNN(tf.keras.Model):
         self.fc_act = self._build_act()
         self.fc_bn = self._build_bn()
         self.fc_bn = []
+        
+        self.neu = NEU() if self.use_neu else None
 
     def _build_fc(self):
         layers = []
@@ -97,6 +143,7 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
         x = inputs
         x = self.flatten(x)
+        
         if self.use_bn:
             for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):
                 x = layer(x)
@@ -106,4 +153,6 @@ class DNN(tf.keras.Model):
             for layer, act in zip(self.fc_layers, self.fc_act):
                 x = layer(x)
                 x = act(x)
+                
+        x = self.neu(x) if self.use_neu else x
         return x

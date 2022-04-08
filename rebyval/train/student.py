@@ -168,8 +168,6 @@ class Student:
         self.writter, weight_dir = self._build_writter()
 
         # # train
-        # import pdb
-        # pdb.set_trace()
       
         # self.supervisor = self._build_supervisor_from_vars()
         self.train(supervisor_vars = supervisor_vars)
@@ -177,7 +175,8 @@ class Student:
         self.writter.close()
         print('Finished training student {}'.format(self.id))
         
-        new_student.put(weight_dir)
+        if new_student!=None:
+            new_student.put(weight_dir) 
         
         return weight_dir
         

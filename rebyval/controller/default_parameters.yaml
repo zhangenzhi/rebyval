@@ -48,8 +48,9 @@ experiment:
       batch_size: 8
     model:
       name: dnn # default dnn
-      dims: 64,32,16,1
+      units: 64,32,16,1
       activations: relu,relu,relu,relu
+      use_neu: False
 #      restore_model:
 #        restore_from: ./log/supervisor/model_best # default best
     optimizer:

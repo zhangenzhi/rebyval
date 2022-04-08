@@ -49,8 +49,6 @@ class Cifar10Supervisor(Supervisor):
             print_error("train step error")
         
         with self.logger.as_default():
-            # import pdb
-            # pdb.set_trace()
             step = train_step+epoch*self.dataloader.info['train_step']
             tf.summary.scalar("train_loss", loss, step=step) 
             
