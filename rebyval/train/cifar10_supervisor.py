@@ -27,8 +27,8 @@ class Cifar10Supervisor(Supervisor):
         # inputs
         flat_vars = []
         for feat, tensor in raw_inputs.items():
-            # if feat in ["vars_0", "vars_1"]:
-            #     continue
+            if feat in ["vars_0", "vars_1"]:
+                continue
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
