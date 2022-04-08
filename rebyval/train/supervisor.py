@@ -31,7 +31,7 @@ class Supervisor:
         #TODO: need model registry
         model_args = self.args['model']
         model = DNN(units=[64,32,16,10],
-                    activations=['relu', 'relu', 'relu', 'sigmoid'],
+                    activations=['sigmoid', 'sigmoid', 'sigmoid', 'sigmoid'],
                     use_neu=model_args['use_neu'],
                     use_bn=False,
                     seed=None)
