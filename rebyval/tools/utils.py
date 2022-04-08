@@ -1,5 +1,3 @@
-from distutils import filelist
-from importlib.resources import path
 import os
 import sys
 import json
