@@ -27,7 +27,7 @@ class Student:
         model = None
         if self.supervisor_vars != None:
             #TODO: need model registry
-            model = DNN(units=[64,32,10,1],
+            model = DNN(units=[128, 64, 32, 10, 1],
                     activations=['relu', 'relu', 'relu', 'softplus'],
                     use_bn=False,
                     initial_value=self.supervisor_vars,

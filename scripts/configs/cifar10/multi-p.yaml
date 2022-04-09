@@ -13,7 +13,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 50
+      epochs: 150
     model:
       name: dnn # default dnn
     loss:
@@ -32,7 +32,7 @@ experiment:
       name: dnn_weights
       replay_window: 20
       batch_size: 64
-      epochs: 10
+      epochs: 100
     model:
       name: dnn # default dnn
     optimizer:
