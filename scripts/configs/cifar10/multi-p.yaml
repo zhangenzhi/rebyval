@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: multi-p-v2
+    name: multi-p-v3
     multi-p: True
 
   main_loop:
@@ -37,7 +37,7 @@ experiment:
       name: dnn # default dnn
     optimizer:
       name: sgd
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:

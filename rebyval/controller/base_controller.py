@@ -2,11 +2,11 @@ import time
 import argparse
 import tensorflow as tf
 
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+gpus = tf.config.experimental.list_physical_devices("GPU")
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 from multiprocessing import Pool, Queue, Process
-from threading import Thread
 
 from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
@@ -32,7 +32,10 @@ class BaseController:
         self._build_enviroment()
         self.queue = Queue(maxsize=100)
         weight_dir = os.path.join(self.log_path, "weight_space")
-        self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        if os.path.exists(weight_dir):
+            self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        else:
+            self._student_ids = 0
         self._supervisor_ids = 0
         
         self.supervisor = self._build_supervisor()
@@ -54,7 +57,7 @@ class BaseController:
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
-        self.log_path = os.path.join(self.context['log_path'],self.context['name'])
+        self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
     def _build_student(self, supervisor=None, supervisor_vars = None):
         student_args = self.args["student"]
