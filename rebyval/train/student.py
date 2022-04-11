@@ -176,14 +176,13 @@ class Student:
         
         self.writter.close()
         print('Finished training student {}'.format(self.id))
-        
-        new_student.put(weight_dir)
+        if new_student!=None:
+            new_student.put(weight_dir)
         
         return weight_dir
         
-
     # weights space
-    def _during_train_vars_tensor_example(self, weight_loss):
+    def _weights_valid_example(self, weight_loss):
         feature = {}
         configs = {}
         for feature_name, value in weight_loss.items():
@@ -206,76 +205,18 @@ class Student:
                 feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
                 configs[feature_name]= {'type':'float32', 'shape':[1]}
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
-
-    def _during_train_vars_tensor_sum_reduce_example(self):
-        feature = {}
-        for feature_name, value in self.during_value_dict.items():
-            if isinstance(value, list):
-                model_vars = []
-                for tensor in value:
-                    axis = tensor.shape.rank - 1
-                    compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
-                    model_vars.append(tf.reshape(compressed_tensor, shape=(-1)))
-                model_vars = tf.concat(model_vars, axis=0)
-                value = tf.io.serialize_tensor(model_vars).numpy()
-                feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
-
-            else:
-                value = [value.numpy()]
-                feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
-
-    def _during_train_tensor_sum_reduce_with_l2_example(self):
-        feature = {}
-        for feature_name, value in self.during_value_dict.items():
-            if isinstance(value, list):
-                model_vars = []
-
-                # drop weights of first layer
-                value = value[2:]
-
-                for tensor in value:
-                    axis = tensor.shape.rank - 1
-                    compressed_tensor = tf.math.reduce_sum(tensor, axis=axis, keepdims=True)
-                    model_vars.append(tf.reshape(compressed_tensor, shape=(-1)))
-                model_vars = tf.concat(model_vars, axis=0)
-                value = tf.io.serialize_tensor(model_vars).numpy()
-                feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
-
-            else:
-                value = [value.numpy()]
-                feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
-
-    def _during_train_vars_numpy_example(self):
-        feature = {}
-        for feature_name, value in self.during_value_dict.items():
-            if isinstance(value, list):
-                value = [v.numpy() for v in value]
-                v_len = len(value)
-                for i in range(v_len):
-                    feature[feature_name + "_{}".format(i)] = tf.train.Feature(
-                        float_list=tf.train.FloatList(value=[value[i]]))
-                feature[feature_name + "_length"] = tf.train.Feature(
-                    int64_list=tf.train.Int64List(value=[v_len])
-                )
-            else:
-                value = [value.numpy()]
-                feature[feature_name] = tf.train.Feature(float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
-
-    def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
+    
+    def _write_trace_to_tfrecord(self, weights, valid_loss, previous_loss = None, weight_space=None):
         
         weight_loss = {'vars': weights, 'valid_loss': valid_loss}
         
         if weight_space['format'] == 'tensor':
-            example,configs = self._during_train_vars_tensor_example(weight_loss)
-        elif weight_space['format'] == 'tensor_sum_reduce':
-            example = self._during_train_vars_tensor_sum_reduce_example()
-        elif weight_space['format'] == 'tensor_sum_reduce_l2':
-            example = self._during_train_tensor_sum_reduce_with_l2_example()
+            example, configs = self._weights_valid_example(weight_loss)
+        elif weight_space['format'] == 'chain-valid':
+            weight_loss['previous_loss'] = previous_loss
+            example, configs = self._weights_valid_example(weight_loss=weight_loss)
         else:
-            example = self._during_train_vars_numpy_example()
+            example, configs = self._weights_valid_example(weight_loss)
  
         weight_dir =  os.path.join(self.args['log_path'], 'weight_space')
         config_path = os.path.join(weight_dir, 'feature_configs.yaml')

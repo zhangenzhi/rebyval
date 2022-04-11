@@ -4,6 +4,7 @@ from datetime import datetime
 import tensorflow as tf
 from rebyval.train.student import Student
 from rebyval.dataloader.weights_loader import DNNWeightsLoader
+from rebyval.dataloader.chain_loader import ChainLoader
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 # model
 from rebyval.model.dnn import DNN
@@ -44,7 +45,9 @@ class Supervisor:
         
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
-        dataloader = DNNWeightsLoader(dataset_args)
+        
+        # dataloader = DNNWeightsLoader(dataset_args)
+        dataloader = ChainLoader(dataset_args)
         
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_students = new_students)
         return train_dataset, valid_dataset, test_dataset, dataloader

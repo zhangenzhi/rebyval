@@ -5,7 +5,6 @@ import tensorflow as tf
 from rebyval.tools.utils import get_yml_content, print_green
 from rebyval.dataloader.utils import glob_tfrecords
 from rebyval.dataloader.base_dataloader import BaseDataLoader
-from rebyval.train.student import Student
 
 
 class DNNWeightsLoader(BaseDataLoader):

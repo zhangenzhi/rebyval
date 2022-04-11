@@ -39,6 +39,9 @@ class Cifar10Student(Student):
     def weightspace_loss(self, weights):
         # label
         flat_vars = []
+        
+        # chian-valid
+        flat_vars.append(tf.reshape(self.previous_loss, shape=(-1)))
         for var in weights:
             flat_vars.append(tf.reshape(var, shape=(-1)))
         inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
@@ -115,6 +118,7 @@ class Cifar10Student(Student):
         
         # metrics reset
         self.metrics.reset_states()
+        self.previous_loss = tf.constant(5.0)
         
         # import pdb
         # pdb.set_trace()
@@ -151,7 +155,9 @@ class Cifar10Student(Student):
                                 ev_loss = self.mv_loss_fn.result()
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
+                                                              previous_loss = self.previous_loss,
                                                               weight_space = valid_args['weight_space'])
+                                self.previous_loss = ev_loss
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
                                 
