@@ -27,7 +27,8 @@ class Cifar10Supervisor(Supervisor):
         # inputs
         flat_vars = []
         for feat, tensor in raw_inputs.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+            sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
+            flat_vars.append(tf.reshape(sum_reduce, shape=(tensor.shape[0], -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
         return inputs, labels

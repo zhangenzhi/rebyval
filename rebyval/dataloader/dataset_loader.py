@@ -29,7 +29,7 @@ class Cifar10DataLoader(BaseDataLoader):
         valid_size = int(0.2 * full_size)
 
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
-        full_dataset = full_dataset.shuffle(self.dataloader_args['batch_size'])
+        full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])

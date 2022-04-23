@@ -40,7 +40,8 @@ class Cifar10Student(Student):
         # label
         flat_vars = []
         for var in weights:
-            flat_vars.append(tf.reshape(var, shape=(-1)))
+            sum_reduce = tf.math.reduce_sum(var, axis= -1)
+            flat_vars.append(tf.reshape(sum_reduce, shape=(-1)))
         inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
         s_loss = self.supervisor(inputs)
         s_loss = tf.squeeze(s_loss)
