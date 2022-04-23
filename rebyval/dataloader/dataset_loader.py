@@ -35,7 +35,8 @@ class Cifar10DataLoader(BaseDataLoader):
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         train_dataset = train_dataset.repeat(epochs)
 
-        valid_dataset = full_dataset.skip(train_size).repeat(epochs)
+        valid_dataset = full_dataset.skip(train_size)
+        valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
