@@ -170,7 +170,7 @@ class Cifar10Student(Student):
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
-                    tf.summary.scalar("ett_metric", ett_loss, step=epoch)
+                    tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                 
                 
         
