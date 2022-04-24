@@ -156,11 +156,6 @@ class Cifar10Student(Student):
                                                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
-                                
-                with self.logger.as_default():
-                    tf.summary.scalar("et_loss", et_loss, step=epoch)
-                    tf.summary.scalar("ev_loss", ev_loss, step=epoch)
-                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
         
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mv_loss_fn.reset_states()
@@ -171,6 +166,11 @@ class Cifar10Student(Student):
                     ett_loss = self.mv_loss_fn.result()
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
+                with self.logger.as_default():
+                    tf.summary.scalar("et_loss", et_loss, step=epoch)
+                    tf.summary.scalar("ev_loss", ev_loss, step=epoch)
+                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
+                    tf.summary.scalar("ett_metric", ev_metric, step=epoch)
                 
                 
         
