@@ -92,6 +92,7 @@ class Cifar10Student(Student):
         try:
             predictions = self.model(inputs, training=False)
             loss = self.loss_fn(labels, predictions)
+            self.mv_loss_fn.update_state(loss)
         except:
             print_error("test step error")
             raise
@@ -156,16 +157,20 @@ class Cifar10Student(Student):
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
                                 
-                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), metric=ev_metric.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
         
-        with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
-            for test_step in t:
-                data = test_iter.get_next()
-                t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
-                t.set_postfix(test_loss=t_loss.numpy())
+                with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
+                    self.mv_loss_fn.reset_states()
+                    for test_step in t:
+                        data = test_iter.get_next()
+                        t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
+                        t.set_postfix(test_loss=t_loss.numpy())
+                    ett_loss = self.mv_loss_fn.result()
+                    
+                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
+                
                 
         

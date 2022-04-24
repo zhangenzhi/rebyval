@@ -1,5 +1,7 @@
+from json.tool import main
 import os
 import random
+from unicodedata import name
 import numpy as np
 import tensorflow as tf
 from rebyval.dataloader.utils import glob_tfrecords
@@ -40,7 +42,7 @@ class Cifar10DataLoader(BaseDataLoader):
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(1)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(epochs)
 
         return train_dataset, valid_dataset, test_dataset
 
