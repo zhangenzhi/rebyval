@@ -12,9 +12,9 @@ class Cifar10DataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
         super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
         self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
-                     'train_step': int(40000/dataloader_args['batch_size']),
-                     'valid_step': int(10000/dataloader_args['batch_size']),
-                     'test_step': int(10000/dataloader_args['batch_size']),
+                     'train_step': int(50000/dataloader_args['batch_size']),
+                     'valid_step': int(5000/dataloader_args['batch_size']),
+                     'test_step': int(5000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
     def load_dataset(self, epochs=-1, format=None):
@@ -27,8 +27,10 @@ class Cifar10DataLoader(BaseDataLoader):
         y_test = y_test.astype(np.float32)
 
         full_size = len(x_train)
-        train_size = int(0.8 * full_size)
-        valid_size = int(0.2 * full_size)
+        test_size = len(x_test)
+        
+        train_size = int(1.0 * full_size)
+        valid_size = int(0.5 * test_size)
 
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
         full_dataset = full_dataset.shuffle(full_size)
@@ -37,12 +39,13 @@ class Cifar10DataLoader(BaseDataLoader):
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         train_dataset = train_dataset.repeat(epochs)
 
-        valid_dataset = full_dataset.skip(train_size)
-        valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
-        valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
+        # valid_dataset = full_dataset.skip(train_size)
+        # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
+        # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
 
         return train_dataset, valid_dataset, test_dataset
 
