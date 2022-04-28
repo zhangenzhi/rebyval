@@ -171,7 +171,7 @@ class DatasetWrapper:
 
     def __init__(self, data_dict):
         self.data = data_dict["inputs"]
-        self.label = data_dict["label"]
+        self.label = data_dict["labels"]
         
         self.data_size = self.data.shape.as_list()[0]
         self.label_size = self.label.shape.as_list()[0]
@@ -207,7 +207,7 @@ class DatasetWrapper:
             step = self.step % self.steps_per_epoch
             data = self.data[step*self.batch_size:(step+1)*self.batch_size]
             label = self.label[step*self.batch_size:(step+1)*self.batch_size]
-            x = {"inputs":data, "label":label}
+            x = {"inputs":data, "labels":label}
             self.step += 1
         else:
             print("Out of Sequence.")
