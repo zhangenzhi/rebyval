@@ -41,15 +41,15 @@ class Cifar10DataLoader(BaseDataLoader):
             test_data = tf.constant(x_test)
             test_label = tf.constant(y_test)
         
-        train_set = DatasetWrapper({"data": train_data, "label": train_label})
+        train_set = DatasetWrapper({"inputs": train_data, "label": train_label})
         train_set.batch(batch_size=self.dataloader_args['batch_size'])
         train_set.repeat(repeat_nums=epoch)
         
-        valid_set = DatasetWrapper({"data": valid_data, "label": valid_label})
+        valid_set = DatasetWrapper({"inputs": valid_data, "label": valid_label})
         valid_set.batch(batch_size=self.dataloader_args['batch_size'])
         valid_set.repeat(repeat_nums=epoch)
 
-        test_set = DatasetWrapper({"data": test_data, "label": test_label})
+        test_set = DatasetWrapper({"inputs": test_data, "label": test_label})
         test_set.batch(batch_size=self.dataloader_args['batch_size'])
         test_set.repeat(repeat_nums=epoch)
 

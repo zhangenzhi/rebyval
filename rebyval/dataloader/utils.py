@@ -170,7 +170,7 @@ def _image_example(image_string, label):
 class DatasetWrapper:
 
     def __init__(self, data_dict):
-        self.data = data_dict["data"]
+        self.data = data_dict["inputs"]
         self.label = data_dict["label"]
         
         self.data_size = self.data.shape.as_list()[0]
@@ -207,7 +207,7 @@ class DatasetWrapper:
             step = self.step % self.steps_per_epoch
             data = self.data[step*self.batch_size:(step+1)*self.batch_size]
             label = self.label[step*self.batch_size:(step+1)*self.batch_size]
-            x = {"data":data, "label":label}
+            x = {"inputs":data, "label":label}
             self.step += 1
         else:
             print("Out of Sequence.")
