@@ -41,8 +41,6 @@ class Cifar10DataLoader(BaseDataLoader):
             test_data = tf.constant(x_test)
             test_label = tf.constant(y_test)
         
-        ForkedPdb().set_trace()
-        
         train_set = DatasetWrapper({"data": train_data, "label": train_label})
         train_set.batch(batch_size=self.dataloader_args['batch_size'])
         train_set.repeat(repeat_nums=epoch)

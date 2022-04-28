@@ -4,6 +4,8 @@ import random
 import fnmatch
 import os
 import tensorflow as tf
+from rebyval.train.utils import ForkedPdb
+
 from tensorflow.io import gfile
 from scipy import io as scipy_io
 
@@ -170,6 +172,9 @@ class DatasetWrapper:
     def __init__(self, data_dict):
         self.data = data_dict["data"]
         self.label = data_dict["label"]
+        
+                
+        ForkedPdb().set_trace()
         
         self.data_size = self.data.shape(0)
         self.label_size = self.label.shape(0)
