@@ -23,18 +23,23 @@ class Cifar10DataLoader(BaseDataLoader):
     def load_dataset_to_device(self, epoch=1, device_name="/GPU:0"):
         # if your gpu mem enough, try it.
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        
+        x_train = x_train.astype(np.float32)
+        y_train = y_train.astype(np.float32)
+
+        x_test = x_test.astype(np.float32)
+        y_test = y_test.astype(np.float32)
+        
         full_size = len(x_train)
         train_size = int(0.8 * full_size)
         valid_size = int(0.2 * full_size)
         with tf.device(device_name=device_name):
-            train_data = tf.Variable(x_train[:train_size])
-            train_label = tf.Variable(y_train[:train_size])
-            valid_data = tf.Variable(x_train[train_size:])
-            valid_label = tf.Variable(y_train[train_size:])
-            test_data = tf.Variable(x_test)
-            test_label = tf.Variable(y_test)
-        
-        ForkedPdb().set_trace()
+            train_data = tf.constant(x_train[:train_size])
+            train_label = tf.constant(y_train[:train_size])
+            valid_data = tf.constant(x_train[train_size:])
+            valid_label = tf.constant(y_train[train_size:])
+            test_data = tf.constant(x_test)
+            test_label = tf.constant(y_test)
         
         train_set = DatasetWrapper({"data": train_data, "label": train_label})
         train_set.batch(batch_size=self.dataloader_args['batch_size'])
