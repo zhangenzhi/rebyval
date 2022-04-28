@@ -1,7 +1,7 @@
 experiment:
   context:
     name: ondevice-mp-v1
-    multi-p: True
+    multi-p: False
 
   main_loop:
     warmup: 
