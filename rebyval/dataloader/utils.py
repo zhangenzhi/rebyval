@@ -1,7 +1,8 @@
 import re
 import tarfile
 import random
-import fnmatch, os
+import fnmatch
+import os
 import tensorflow as tf
 from tensorflow.io import gfile
 from scipy import io as scipy_io
@@ -61,7 +62,8 @@ def convert_imagenet_validset_to_tfrecords(input_dirs, output_dirs, config_path=
 
     for img in image_jpegs:
         img_path = os.path.join(input_dirs, img)
-        image_strings_buffer.append((open(img_path, 'rb').read(), valid_labels[img]-1))
+        image_strings_buffer.append(
+            (open(img_path, 'rb').read(), valid_labels[img]-1))
 
         if len(image_strings_buffer) == 5000:
             num_tfrecords = len(os.listdir(output_dirs))
@@ -69,7 +71,8 @@ def convert_imagenet_validset_to_tfrecords(input_dirs, output_dirs, config_path=
             record_file = os.path.join(output_dirs, record_file)
             with tf.io.TFRecordWriter(record_file) as writer:
                 for image_string, label in image_strings_buffer:
-                    tf_example = _image_example(image_string=image_string, label=label)
+                    tf_example = _image_example(
+                        image_string=image_string, label=label)
                     writer.write(tf_example.SerializeToString())
             print("{} convert finished.".format(record_file))
             image_strings_buffer = []
@@ -81,7 +84,8 @@ def convert_imagenet_validset_to_tfrecords(input_dirs, output_dirs, config_path=
         record_file = os.path.join(output_dirs, record_file)
         with tf.io.TFRecordWriter(record_file) as writer:
             for image_string, label in image_strings_buffer:
-                tf_example = _image_example(image_string=image_string, label=label)
+                tf_example = _image_example(
+                    image_string=image_string, label=label)
                 writer.write(tf_example.SerializeToString())
         print("{} is the last and convert finished.".format(record_file))
 
@@ -112,10 +116,12 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
         tmp_buffer.append((open(img_path, mode='rb').read(), label))
         if len(tmp_buffer) == 5000:
             num_tfrecords = len(os.listdir(output_dirs))
-            record_file = os.path.join(output_dirs, "{}.tfrecords".format(num_tfrecords))
+            record_file = os.path.join(
+                output_dirs, "{}.tfrecords".format(num_tfrecords))
             with tf.io.TFRecordWriter(record_file) as writer:
                 for image_string, label in tmp_buffer:
-                    tf_example = _image_example(image_string=image_string, label=label)
+                    tf_example = _image_example(
+                        image_string=image_string, label=label)
                     writer.write(tf_example.SerializeToString())
             print("{} convert finished.".format(record_file))
             tmp_buffer = []
@@ -123,10 +129,12 @@ def convert_imagenet_trainset_to_tfrecords(input_dirs, output_dirs):
     # last tfrecord
     if len(tmp_buffer) != 0:
         num_tfrecords = len(os.listdir(output_dirs))
-        record_file = os.path.join(output_dirs, "{}.tfrecords".format(num_tfrecords))
+        record_file = os.path.join(
+            output_dirs, "{}.tfrecords".format(num_tfrecords))
         with tf.io.TFRecordWriter(record_file) as writer:
             for image_string, label in tmp_buffer:
-                tf_example = _image_example(image_string=image_string, label=label)
+                tf_example = _image_example(
+                    image_string=image_string, label=label)
                 writer.write(tf_example.SerializeToString())
         print("{} is the last and convert finished.".format(record_file))
 
@@ -155,6 +163,51 @@ def _image_example(image_string, label):
         'image_raw': _bytes_feature(image_string)
     }
     return tf.train.Example(features=tf.train.Features(feature=feature))
+
+
+class DatasetWrapper:
+
+    def __init__(self, data_dict):
+        self.data = data_dict["data"]
+        self.label = data_dict["label"]
+        
+        self.data_size = self.data.shape(0)
+        self.label_size = self.label.shape(0)
+        if self.data_size != self.label_size:
+            print("data size is not compatibale to label size: {} vs {}".format(
+                self.data_size, self.label_size))
+            raise
+        
+        self.batch_size = 1
+        
+        self.step = 0
+        self.steps_per_epoch = int(self.data_size/self.batch_size)
+        self.repeat_nums = 1
+        self.total_steps = self.repeat_nums * self.steps_per_epoch
+
+    def batch(self, batch_size=1):
+        self.batch_size = batch_size
+        self.steps_per_epoch = int(self.data_size/self.batch_size)
+        self.total_steps = self.repeat_nums * self.steps_per_epoch
+
+    def repeat(self, nums=1):
+        self.repeat_nums = 1
+        self.total_steps = self.repeat_nums * self.steps_per_epoch
+        
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.step < self.total_steps:
+            step = self.steps % self.steps_per_epoch
+            data = self.data[step*self.batch_size:(step+1)*self.batch_size]
+            label = self.label[step*self.batch_size:(step+1)*self.batch_size]
+            x = {"data":data, "label":label}
+            self.step += 1
+        else:
+            print("Out of Sequence.")
+            raise
+        return x
 
 
 if __name__ == '__main__':

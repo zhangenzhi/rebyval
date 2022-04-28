@@ -1,52 +1,94 @@
+from json.tool import main
 import os
 import random
+from timeit import repeat
 import numpy as np
 import tensorflow as tf
-from rebyval.dataloader.utils import glob_tfrecords
+
+from rebyval.dataloader.utils import glob_tfrecords, DatasetWrapper
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
 
 class Cifar10DataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
-        super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
-        self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
+        super(Cifar10DataLoader, self).__init__(
+            dataloader_args=dataloader_args)
+        self.info = {'train_size': 50000, 'test_size': 10000, 'image_size': [32, 32, 3],
                      'train_step': int(40000/dataloader_args['batch_size']),
                      'valid_step': int(10000/dataloader_args['batch_size']),
                      'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
-    def load_dataset(self, epochs=-1, format=None):
+    def load_dataset_to_device(self, epoch=1, device_name="/GPU:0"):
+        # if your gpu mem enough, try it.
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
-        
-        x_train = x_train.astype(np.float32)
-        y_train = y_train.astype(np.float32)
-        
-        x_test = x_test.astype(np.float32)
-        y_test = y_test.astype(np.float32)
-
         full_size = len(x_train)
         train_size = int(0.8 * full_size)
         valid_size = int(0.2 * full_size)
+        with tf.device(device_name=device_name):
+            train_data = tf.Variable(x_train[:train_size])
+            train_label = tf.Variable(y_train[:train_size])
+            valid_data = tf.Variable(x_train[train_size:])
+            valid_label = tf.Variable(y_train[train_size:])
+            test_data = tf.Variable(x_test)
+            test_label = tf.Variable(y_test)
+        
+        import pdb
+        pdb.set_trace()
+        
+        train_set = DatasetWrapper({"data": train_data, "label": train_label})
+        train_set.batch(batch_size=self.dataloader_args['batch_size'])
+        train_set.repeat(repeat_nums=epoch)
 
-        full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
-        full_dataset = full_dataset.shuffle(self.dataloader_args['batch_size'])
+        valid_set = DatasetWrapper({"data": valid_data, "label": valid_label})
+        valid_set.batch(batch_size=self.dataloader_args['batch_size'])
+        valid_set.repeat(repeat_nums=epoch)
 
-        train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
-        train_dataset = train_dataset.repeat(epochs)
+        test_set = DatasetWrapper({"data": test_data, "label": test_label})
+        test_set.batch(batch_size=self.dataloader_args['batch_size'])
+        test_set.repeat(repeat_nums=epoch)
 
-        valid_dataset = full_dataset.skip(train_size).repeat(epochs)
-        valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
+        return train_set, valid_set, test_set
 
-        test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(1)
+    def load_dataset(self, epochs=-1, on_device=True, format=None):
+        if on_device:
+            train_dataset, valid_dataset, test_dataset = self.load_dataset_to_device()
+        else:
+            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
+            x_train = x_train.astype(np.float32)
+            y_train = y_train.astype(np.float32)
+
+            x_test = x_test.astype(np.float32)
+            y_test = y_test.astype(np.float32)
+
+            full_size = len(x_train)
+            train_size = int(0.8 * full_size)
+            valid_size = int(0.2 * full_size)
+
+            full_dataset = tf.data.Dataset.from_tensor_slices(
+                {'inputs': x_train, 'labels': y_train})
+            full_dataset = full_dataset.shuffle(self.dataloader_args['batch_size'])
+
+            train_dataset = full_dataset.take(train_size)
+            train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+            train_dataset = train_dataset.repeat(epochs)
+
+            valid_dataset = full_dataset.skip(train_size).repeat(epochs)
+            valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
+
+            test_dataset = tf.data.Dataset.from_tensor_slices(
+                {'inputs': x_test, 'labels': y_test})
+            test_dataset = test_dataset.batch(
+                self.dataloader_args['batch_size']).repeat(1)
 
         return train_dataset, valid_dataset, test_dataset
 
 
 class ImageNetDataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
-        super(ImageNetDataLoader, self).__init__(dataloader_args=dataloader_args)
+        super(ImageNetDataLoader, self).__init__(
+            dataloader_args=dataloader_args)
 
     def _make_imagenet_describs(self, analyse_feature=None):
         if analyse_feature == None:
@@ -87,26 +129,34 @@ class ImageNetDataLoader(BaseDataLoader):
             num_parallel_calls=28,
             deterministic=False)
 
-        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
+        raw_analyse_dataset = raw_analyse_dataset.batch(
+            self.dataloader_args['batch_size'], drop_remainder=True)
         analyse_feature_describ = self._make_imagenet_describs()
 
         def _parse_analyse_function(example_proto):
-            example = tf.io.parse_example(example_proto, analyse_feature_describ)
+            example = tf.io.parse_example(
+                example_proto, analyse_feature_describ)
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:
                     parsed_single_example = []
                     for i in range(self.dataloader_args['batch_size']):
-                        parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
-                        resized_image = tf.image.resize(parsed_analyse_image, [224, 224])
-                        resized_image = tf.image.random_crop(resized_image, [224, 224, 3])
-                        resized_image = tf.image.random_brightness(resized_image, 0.1)
-                        resized_image = tf.image.random_flip_left_right(resized_image)
+                        parsed_analyse_image = tf.io.decode_jpeg(
+                            example[feat][i], channels=3)
+                        resized_image = tf.image.resize(
+                            parsed_analyse_image, [224, 224])
+                        resized_image = tf.image.random_crop(
+                            resized_image, [224, 224, 3])
+                        resized_image = tf.image.random_brightness(
+                            resized_image, 0.1)
+                        resized_image = tf.image.random_flip_left_right(
+                            resized_image)
                         resized_image = tf.cast(resized_image, tf.float32)
                         resized_image = (resized_image / 127.5) - 1.0
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
-                    parsed_single_example = tf.concat(parsed_single_example, axis=0)
+                    parsed_single_example = tf.concat(
+                        parsed_single_example, axis=0)
                     parsed_example[feat] = parsed_single_example
                 else:
                     parsed_example[feat] = example[feat]
@@ -115,7 +165,8 @@ class ImageNetDataLoader(BaseDataLoader):
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=28, deterministic=False)
 
-        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
+        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(
+            tf.data.AUTOTUNE)
 
         return parsed_analyse_dataset
 
@@ -129,23 +180,28 @@ class ImageNetDataLoader(BaseDataLoader):
             num_parallel_calls=28,
             deterministic=False)
 
-        raw_analyse_dataset = raw_analyse_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
+        raw_analyse_dataset = raw_analyse_dataset.batch(
+            self.dataloader_args['batch_size'], drop_remainder=True)
         analyse_feature_describ = self._make_imagenet_describs()
 
         def _parse_analyse_function(example_proto):
-            example = tf.io.parse_example(example_proto, analyse_feature_describ)
+            example = tf.io.parse_example(
+                example_proto, analyse_feature_describ)
             parsed_example = {}
             for feat, tensor in analyse_feature_describ.items():
                 if example[feat].dtype == tf.string:
                     parsed_single_example = []
                     for i in range(self.dataloader_args['batch_size']):
-                        parsed_analyse_image = tf.io.decode_jpeg(example[feat][i], channels=3)
-                        resized_image = tf.image.resize(parsed_analyse_image, [224, 224])
+                        parsed_analyse_image = tf.io.decode_jpeg(
+                            example[feat][i], channels=3)
+                        resized_image = tf.image.resize(
+                            parsed_analyse_image, [224, 224])
                         resized_image = tf.cast(resized_image, tf.float32)
                         resized_image = (resized_image / 127.5) - 1.0
                         resized_image = tf.expand_dims(resized_image, axis=0)
                         parsed_single_example.append(resized_image)
-                    parsed_single_example = tf.concat(parsed_single_example, axis=0)
+                    parsed_single_example = tf.concat(
+                        parsed_single_example, axis=0)
                     parsed_example[feat] = parsed_single_example
                 else:
                     parsed_example[feat] = example[feat]
@@ -154,19 +210,25 @@ class ImageNetDataLoader(BaseDataLoader):
         parsed_analyse_dataset = raw_analyse_dataset.map(_parse_analyse_function,
                                                          num_parallel_calls=28, deterministic=False)
 
-        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
+        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(
+            tf.data.AUTOTUNE)
 
         return parsed_analyse_dataset
 
     def load_dataset(self, format=None):
 
-        train_dataset_path = os.path.join(self.dataloader_args['datapath'], 'train_shuffled')
-        valid_dataset_path = os.path.join(self.dataloader_args['datapath'], 'valid_shuffled')
+        train_dataset_path = os.path.join(
+            self.dataloader_args['datapath'], 'train_shuffled')
+        valid_dataset_path = os.path.join(
+            self.dataloader_args['datapath'], 'valid_shuffled')
 
-        train_filelist = glob_tfrecords(train_dataset_path, glob_pattern='*.tfrecords')
-        test_filelist = valid_filelist = glob_tfrecords(valid_dataset_path, glob_pattern='*.tfrecords')
+        train_filelist = glob_tfrecords(
+            train_dataset_path, glob_pattern='*.tfrecords')
+        test_filelist = valid_filelist = glob_tfrecords(
+            valid_dataset_path, glob_pattern='*.tfrecords')
         if self.dataloader_args.get('sample_of_curves'):
-            train_filelist = train_filelist[(len(train_filelist) - self.dataloader_args['sample_of_curves']):]
+            train_filelist = train_filelist[(
+                len(train_filelist) - self.dataloader_args['sample_of_curves']):]
             if train_filelist == []:
                 raise ('no files included.')
 
@@ -174,11 +236,14 @@ class ImageNetDataLoader(BaseDataLoader):
         print(len(valid_filelist), valid_filelist)
         print(len(test_filelist), test_filelist)
 
-        train_dataset = self._load_train_imagenet_from_tfrecord(filelist=train_filelist)
+        train_dataset = self._load_train_imagenet_from_tfrecord(
+            filelist=train_filelist)
 
-        valid_dataset = self._load_test_imagenet_from_tfrecord(filelist=valid_filelist)
+        valid_dataset = self._load_test_imagenet_from_tfrecord(
+            filelist=valid_filelist)
 
-        test_dataset = self._load_test_imagenet_from_tfrecord(filelist=test_filelist)
+        test_dataset = self._load_test_imagenet_from_tfrecord(
+            filelist=test_filelist)
 
         train_dataset = train_dataset.repeat(-1)
         valid_dataset = valid_dataset.repeat(-1)

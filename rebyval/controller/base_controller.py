@@ -45,7 +45,7 @@ class BaseController:
         parser.add_argument(
             '--config',
             type=str,
-            default='./scripts/configs/cifar10/rebyval.yaml',
+            default='./scripts/configs/cifar10/multi-p.yaml',
             help='yaml config file path')
         args = parser.parse_args()
         return args
