@@ -57,7 +57,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
     def load_dataset(self, epochs=-1, on_device=True, format=None):
         if on_device:
-            train_dataset, valid_dataset, test_dataset = self.load_dataset_to_device()
+            train_dataset, valid_dataset, test_dataset = self.load_dataset_to_device(epoch=150)
         else:
             (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
 
