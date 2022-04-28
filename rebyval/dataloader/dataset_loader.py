@@ -45,6 +45,8 @@ class Cifar10DataLoader(BaseDataLoader):
         train_set.batch(batch_size=self.dataloader_args['batch_size'])
         train_set.repeat(repeat_nums=epoch)
 
+        ForkedPdb().set_trace()
+        
         valid_set = DatasetWrapper({"data": valid_data, "label": valid_label})
         valid_set.batch(batch_size=self.dataloader_args['batch_size'])
         valid_set.repeat(repeat_nums=epoch)

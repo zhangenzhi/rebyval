@@ -194,8 +194,8 @@ class DatasetWrapper:
         self.steps_per_epoch = int(self.data_size/self.batch_size)
         self.total_steps = self.repeat_nums * self.steps_per_epoch
 
-    def repeat(self, nums=1):
-        self.repeat_nums = 1
+    def repeat(self, repeat_nums=1):
+        self.repeat_nums = repeat_nums
         self.total_steps = self.repeat_nums * self.steps_per_epoch
         
     def __iter__(self):
