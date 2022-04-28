@@ -176,8 +176,8 @@ class DatasetWrapper:
                 
         ForkedPdb().set_trace()
         
-        self.data_size = self.data.shape(0)
-        self.label_size = self.label.shape(0)
+        self.data_size = self.data.shape().as_list[0]
+        self.label_size = self.label.shape.as_list[0]
         if self.data_size != self.label_size:
             print("data size is not compatibale to label size: {} vs {}".format(
                 self.data_size, self.label_size))
