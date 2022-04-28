@@ -203,7 +203,7 @@ class DatasetWrapper:
 
     def __next__(self):
         if self.step < self.total_steps:
-            step = self.steps % self.steps_per_epoch
+            step = self.step % self.steps_per_epoch
             data = self.data[step*self.batch_size:(step+1)*self.batch_size]
             label = self.label[step*self.batch_size:(step+1)*self.batch_size]
             x = {"data":data, "label":label}
