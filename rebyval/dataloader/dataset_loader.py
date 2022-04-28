@@ -5,6 +5,7 @@ from timeit import repeat
 import numpy as np
 import tensorflow as tf
 
+from rebyval.train.utils import ForkedPdb
 from rebyval.dataloader.utils import glob_tfrecords, DatasetWrapper
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
@@ -33,8 +34,7 @@ class Cifar10DataLoader(BaseDataLoader):
             test_data = tf.Variable(x_test)
             test_label = tf.Variable(y_test)
         
-        import pdb
-        pdb.set_trace()
+        ForkedPdb.set_trace()
         
         train_set = DatasetWrapper({"data": train_data, "label": train_label})
         train_set.batch(batch_size=self.dataloader_args['batch_size'])
