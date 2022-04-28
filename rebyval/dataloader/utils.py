@@ -173,8 +173,6 @@ class DatasetWrapper:
         self.data = data_dict["data"]
         self.label = data_dict["label"]
         
-        ForkedPdb().set_trace()
-        
         self.data_size = self.data.shape.as_list()[0]
         self.label_size = self.label.shape.as_list()[0]
         if self.data_size != self.label_size:
