@@ -197,7 +197,10 @@ class DatasetWrapper:
     def repeat(self, repeat_nums=1):
         self.repeat_nums = repeat_nums
         self.total_steps = self.repeat_nums * self.steps_per_epoch
-        
+    
+    def get_next(self):
+        return self.__next__()
+    
     def __iter__(self):
         return self
 
