@@ -87,6 +87,7 @@ class Cifar10Student(Student):
         #     tf.summary.scalar("valid_loss", loss, step=step)
         return loss
     
+    @tf.function
     def _test_step(self, inputs, labels, test_step=0):
         try:
             predictions = self.model(inputs, training=False)
