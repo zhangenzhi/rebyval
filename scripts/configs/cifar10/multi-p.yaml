@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       on_device: True
-      batch_size: 1024
+      batch_size: 256
       epochs: 150
     model:
       name: dnn # default dnn
@@ -24,10 +24,10 @@ experiment:
       name: SparseCategoricalAccuracy
     optimizer:
       name: Adam # default SGD
-      learning_rate: 0.01 # default 0.01
+      learning_rate: 0.001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 5
+          valid_gap: 20
 
   supervisor:
     dataloader:
