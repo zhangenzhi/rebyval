@@ -1,7 +1,7 @@
 experiment:
   context:
     name: ondevice-mp-v1
-    multi-p: False
+    multi-p: True
 
   main_loop:
     warmup: 
@@ -14,6 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       on_device: True
+      batch_size: 1024
       epochs: 150
     model:
       name: dnn # default dnn
@@ -26,7 +27,7 @@ experiment:
       learning_rate: 0.0001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 100
+          valid_gap: 5
 
   supervisor:
     dataloader:
