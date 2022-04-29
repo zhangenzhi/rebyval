@@ -47,7 +47,7 @@ class Cifar10DataLoader(BaseDataLoader):
         
         valid_set = DatasetWrapper({"inputs": valid_data, "labels": valid_label})
         valid_set.batch(batch_size=self.dataloader_args['batch_size'])
-        valid_set.repeat(repeat_nums=epoch)
+        valid_set.repeat(repeat_nums=1000000)
 
         test_set = DatasetWrapper({"inputs": test_data, "labels": test_label})
         test_set.batch(batch_size=self.dataloader_args['batch_size'])
