@@ -26,9 +26,15 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_train = x_train.astype(np.float32)
         y_train = y_train.astype(np.float32)
+        train_bundle = list(zip(x_train, y_train))
+        shuffled_bundel = np.random.shuffle(train_bundle)
+        x_train, y_train = zip(*shuffled_bundel)
 
         x_test = x_test.astype(np.float32)
         y_test = y_test.astype(np.float32)
+        test_bundle = list(zip(x_test, y_test))
+        shuffled_bundel = np.random.shuffle(test_bundle)
+        x_test, y_test = zip(*shuffled_bundel)
         
         full_size = len(x_train)
         train_size = int(0.8 * full_size)
