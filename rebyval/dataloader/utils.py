@@ -203,7 +203,7 @@ class DatasetWrapper:
         return self
 
     def __next__(self):
-        ForkedPdb().set_trace()
+        
         if self.step < self.total_steps:
             step = self.step % self.steps_per_epoch
             data = self.data[step*self.batch_size:(step+1)*self.batch_size]
