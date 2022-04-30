@@ -20,6 +20,7 @@ class Cifar10DataLoader(BaseDataLoader):
                      'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def load_dataset_to_device(self, epoch=1, device_name="/GPU:0"):
         # if your gpu mem enough, try it.
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
