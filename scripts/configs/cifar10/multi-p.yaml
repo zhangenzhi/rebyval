@@ -13,7 +13,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
+      batch_size: 1024
       epochs: 150
     model:
       name: dnn # default dnn
@@ -26,7 +26,7 @@ experiment:
       learning_rate: 0.001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 100
+          valid_gap: 10
 
   supervisor:
     dataloader:
