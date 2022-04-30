@@ -21,10 +21,10 @@ class Cifar10DataLoader(BaseDataLoader):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
         x_train = x_train.astype(np.float32) / 255.0
-        y_train = y_train.astype(np.float32) /255.0
+        y_train = y_train.astype(np.float32)
         
         x_test = x_test.astype(np.float32) / 255.0
-        y_test = y_test.astype(np.float32) / 255.0
+        y_test = y_test.astype(np.float32)
 
         full_size = len(x_train)
         test_size = len(x_test)
