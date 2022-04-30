@@ -24,10 +24,10 @@ experiment:
       name: SparseCategoricalAccuracy
     optimizer:
       name: SGD # default SGD
-      learning_rate: 0.0001 # default 0.01
+      learning_rate: 0.001 # default 0.01
     train_loop:
         valid:
-          valid_gap: 100
+          valid_gap: 10
 
   supervisor:
     dataloader:
