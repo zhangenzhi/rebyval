@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       on_device: True
-      batch_size: 128
+      batch_size: 1024
       epochs: 150
     model:
       name: dnn # default dnn

@@ -61,7 +61,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
         return train_set, valid_set, test_set
 
-    def load_dataset(self, epochs=-1, on_device=True, format=None):
+    def load_dataset(self, epochs=-1, on_device=False, format=None):
         if on_device:
             train_dataset, valid_dataset, test_dataset = self.load_dataset_to_device(epoch=150)
         else:
