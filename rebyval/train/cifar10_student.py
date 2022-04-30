@@ -15,7 +15,7 @@ class Cifar10Student(Student):
         # self.supervisor_vars = supervisor_vars
         # self.supervisor = self._build_supervisor_from_vars()
     
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
         try:
             with tf.GradientTape() as tape:
@@ -100,7 +100,6 @@ class Cifar10Student(Student):
             
         return loss
     
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def train(self, new_student=None, supervisor_vars=None):
         
         # parse train loop control args
