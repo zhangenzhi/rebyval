@@ -71,6 +71,7 @@ class Cifar10Supervisor(Supervisor):
 
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
+        print(loss)
         
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
