@@ -26,7 +26,7 @@ experiment:
       learning_rate: 0.01 # default 0.01
     train_loop:
         valid:
-          valid_gap: 10
+          valid_gap: 100
 
   supervisor:
     dataloader:
