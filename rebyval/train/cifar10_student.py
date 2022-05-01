@@ -22,8 +22,8 @@ class Cifar10Student(Student):
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            if epoch == 50:
-                self.optimizer.learning_rate = 0.001
+            if (epoch+1)%50 == 0:
+                self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
         except:
