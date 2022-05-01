@@ -157,7 +157,8 @@ class Cifar10Student(Student):
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
-                                self.supervisor.update(self.model.trainable_variables, ev_loss)
+                                if self.supervisor != None:
+                                    self.supervisor.update(self.model.trainable_variables, ev_loss)
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
