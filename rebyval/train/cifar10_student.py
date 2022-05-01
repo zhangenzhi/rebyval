@@ -17,6 +17,11 @@ class Cifar10Student(Student):
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
+        
+        step = train_step+epoch*self.dataloader.info['train_step']
+        if step < 5*self.dataloader.info['train_step']:
+            self.optimizer.learning_rate = 0.1
+            
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
@@ -30,7 +35,7 @@ class Cifar10Student(Student):
             raise
         
         with self.logger.as_default():
-            step = train_step+epoch*self.dataloader.info['train_step']
+            # step = train_step+epoch*self.dataloader.info['train_step']
             # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
             #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
             tf.summary.scalar("learning_rate", self.optimizer.learning_rate, step=step)
