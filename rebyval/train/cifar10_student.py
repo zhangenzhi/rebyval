@@ -19,10 +19,10 @@ class Cifar10Student(Student):
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
         
         step = train_step+epoch*self.dataloader.info['train_step']
-        if step < 20*self.dataloader.info['train_step']:
+        if step < 30*self.dataloader.info['train_step']:
             self.optimizer.learning_rate = 0.1
         else:
-            self.optimizer.learning_rate = 1.0
+            self.optimizer.learning_rate = 0.8
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
