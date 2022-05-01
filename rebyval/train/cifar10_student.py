@@ -21,6 +21,7 @@ class Cifar10Student(Student):
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
+                print(loss)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
