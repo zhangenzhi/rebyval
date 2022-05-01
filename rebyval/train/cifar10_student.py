@@ -32,7 +32,7 @@ class Cifar10Student(Student):
         
         with self.logger.as_default():
             step = train_step+epoch*self.dataloader.info['train_step']
-            tf.summary.scalar("train_loss", loss, step=step)
+            tf.summary.scalar("learning_rate", self.optimizer.learning_rate, step=step)
             
         self.mt_loss_fn.update_state(loss)
         
