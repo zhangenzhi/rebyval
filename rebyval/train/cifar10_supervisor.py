@@ -54,7 +54,24 @@ class Cifar10Supervisor(Supervisor):
             tf.summary.scalar("train_loss", loss, step=step) 
             
         return loss
+    
+    def update(self, inputs, labels):
+        flat_vars = []
+        for tensor in inputs:
+            sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
+            flat_vars.append(tf.reshape(sum_reduce, shape=(tensor.shape[0], -1)))
+        inputs = tf.concat(flat_vars, axis=1)
+        
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
 
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
+        
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
         try:

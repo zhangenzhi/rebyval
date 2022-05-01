@@ -87,6 +87,7 @@ class Cifar10Student(Student):
         except:
             print_error("valid step error")
             raise
+          
         # with self.logger.as_default():
         #     step = valid_step+epoch*self.dataloader.info['valid_step']
         #     tf.summary.scalar("valid_loss", loss, step=step)
@@ -155,6 +156,8 @@ class Cifar10Student(Student):
                                                                 weight_space=valid_args['weight_space'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
+                                # online update supervisor
+                                self.supervisor.update(self.model.trainable_variables, ev_loss)
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
