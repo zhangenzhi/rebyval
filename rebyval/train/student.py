@@ -96,7 +96,7 @@ class Student:
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         lr = LinearScalingWithWarmupSchedule(linear_scaling=8, base_learning_rate=optimizer_args['learning_rate'],
-                                             warmup_steps=1200, gradual_steps=2400)
+                                             warmup_steps=2500, gradual_steps=2500)
         optimizer.learning_rate = lr
         return optimizer
 
