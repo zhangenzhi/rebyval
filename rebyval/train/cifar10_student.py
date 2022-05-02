@@ -23,9 +23,9 @@ class Cifar10Student(Student):
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
                 # print(loss)
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
+            # gradients = tape.gradient(loss, self.model.trainable_variables)
+            # self.optimizer.apply_gradients(
+            #     zip(gradients, self.model.trainable_variables))
         except:
             print_error("train step error")
             raise
