@@ -5,16 +5,16 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 1
+      student_nums: 5
       supervisor_trains: 1
-    nums: 0
+    nums: 10
     student_nums: 1
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 150
+      epochs: 15
     model:
       name: dnn # default dnn
     loss:
@@ -26,7 +26,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         valid:
-          valid_gap: 1000
+          valid_gap: 100
 
   supervisor:
     dataloader:
