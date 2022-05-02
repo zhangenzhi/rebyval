@@ -123,8 +123,6 @@ class Cifar10Student(Student):
         # metrics reset
         self.metrics.reset_states()
         
-        # import pdb
-        # pdb.set_trace()
         if supervisor_vars != None:
             # ForkedPdb().set_trace()
             self.supervisor_vars = supervisor_vars
@@ -139,10 +137,8 @@ class Cifar10Student(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_time = time.time()
                             train_loss = self._train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
-                            print(time.time() - train_time)
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
