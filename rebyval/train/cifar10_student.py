@@ -21,9 +21,9 @@ class Cifar10Student(Student):
     
         try:
             # with tf.GradientTape() as tape:
-            start_time = time.time()
+            train_step_time = time.time()
             predictions = self.model(inputs, training=True)
-            print(time.time() - start_time)
+            # print(time.time() - train_step_time)
                 # loss = self.loss_fn(labels, predictions)
                 # print(loss)
             # gradients = tape.gradient(loss, self.model.trainable_variables)
@@ -137,6 +137,7 @@ class Cifar10Student(Student):
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
+                epoch_step_time = time.time()
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
@@ -165,6 +166,7 @@ class Cifar10Student(Student):
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
+                    print(time.time() - epoch_step_time)
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
         
