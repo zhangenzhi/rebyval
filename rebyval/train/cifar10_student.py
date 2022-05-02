@@ -166,10 +166,12 @@ class Cifar10Student(Student):
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
-                    print(time.time() - epoch_step_time)
+                
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
-        
+                    
+                print(time.time() - epoch_step_time)
+                
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mv_loss_fn.reset_states()
                     for test_step in t:
