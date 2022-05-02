@@ -35,7 +35,7 @@ class Cifar10DataLoader(BaseDataLoader):
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
         full_dataset = full_dataset.shuffle(full_size)
 
-        train_dataset = full_dataset.take(train_size).cache()
+        train_dataset = full_dataset.take(train_size)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 

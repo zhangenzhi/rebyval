@@ -44,6 +44,8 @@ class Student:
             flat_vars.append(tf.reshape(sum_reduce, shape=(1, -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
+        ForkedPdb().set_trace()
+        
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs, training=True)
             predictions = tf.squeeze(predictions)
