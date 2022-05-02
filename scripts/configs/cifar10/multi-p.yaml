@@ -6,15 +6,15 @@ experiment:
   main_loop:
     warmup: 
       student_nums: 5
-      supervisor_trains: 1
-    nums: 10
-    student_nums: 1
+      supervisor_trains: 2
+    nums: 100
+    student_nums: 5
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 15
+      epochs: 150
     model:
       name: dnn # default dnn
     loss:
@@ -33,7 +33,7 @@ experiment:
       name: dnn_weights
       replay_window: 30
       batch_size: 128
-      epochs: 10
+      epochs: 100
     model:
       name: dnn # default dnn
     optimizer:
