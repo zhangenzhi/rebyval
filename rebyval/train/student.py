@@ -48,7 +48,6 @@ class Student:
         
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs, training=True)
-            predictions = tf.squeeze(predictions)
             loss = supervisor_loss_fn(labels, predictions)
 
             gradients = tape.gradient(loss, self.supervisor.trainable_variables)
