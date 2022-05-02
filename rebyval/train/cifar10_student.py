@@ -20,15 +20,12 @@ class Cifar10Student(Student):
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
     
         try:
-            # with tf.GradientTape() as tape:
-            train_step_time = time.time()
-            predictions = self.model(inputs, training=True)
-            # print(time.time() - train_step_time)
-                # loss = self.loss_fn(labels, predictions)
-                # print(loss)
-            # gradients = tape.gradient(loss, self.model.trainable_variables)
-            # self.optimizer.apply_gradients(
-            #     zip(gradients, self.model.trainable_variables))
+            with tf.GradientTape() as tape:
+                predictions = self.model(inputs, training=True)
+                loss = self.loss_fn(labels, predictions)
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            self.optimizer.apply_gradients(
+                zip(gradients, self.model.trainable_variables))
         except:
             print_error("train step error")
             raise
@@ -38,7 +35,7 @@ class Cifar10Student(Student):
         #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
         #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
         #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate, step=step)
-        loss = tf.constant(0)    
+        # loss = tf.constant(0)    
         self.mt_loss_fn.update_state(loss)
         
         return loss
@@ -137,14 +134,15 @@ class Cifar10Student(Student):
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
-                epoch_step_time = time.time()
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
+                            train_time = time.time()
                             train_loss = self._train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
+                            print(time.time() - train_time)
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
@@ -166,11 +164,8 @@ class Cifar10Student(Student):
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
-                
                     et_loss = self.mt_loss_fn.result()
                     ev_metric = self.metrics.result()
-                    
-                print(time.time() - epoch_step_time)
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mv_loss_fn.reset_states()
