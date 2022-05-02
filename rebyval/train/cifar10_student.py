@@ -22,7 +22,7 @@ class Cifar10Student(Student):
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
-                print(loss)
+                # print(loss)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(
                 zip(gradients, self.model.trainable_variables))
@@ -30,11 +30,11 @@ class Cifar10Student(Student):
             print_error("train step error")
             raise
         
-        with self.logger.as_default():
-            step = train_step+epoch*self.dataloader.info['train_step']
-            # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
-            #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
-            tf.summary.scalar("learning_rate", self.optimizer.learning_rate, step=step)
+        # with self.logger.as_default():
+        #     step = train_step+epoch*self.dataloader.info['train_step']
+        #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
+        #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
+        #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate, step=step)
             
         self.mt_loss_fn.update_state(loss)
         
