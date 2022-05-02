@@ -37,6 +37,7 @@ class Student:
     
     def update_supervisor(self, inputs, labels):
         supervisor_opt = tf.keras.optimizers.SGD(0.01)
+        supervisor_loss_fn = tf.keras.losses.mae()
         flat_vars = []
         for tensor in inputs:
             sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
@@ -46,7 +47,7 @@ class Student:
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs, training=True)
             predictions = tf.squeeze(predictions)
-            loss = self.loss_fn(labels, predictions)
+            loss = supervisor_loss_fn(labels, predictions)
 
             gradients = tape.gradient(loss, self.supervisor.trainable_variables)
 
