@@ -27,13 +27,33 @@ class Student:
         model = None
         if self.supervisor_vars != None:
             #TODO: need model registry
-            model = DNN(units=[128, 64, 32, 16, 1],
-                    activations=['relu', 'relu', 'relu', 'relu', 'softplus'],
+            model = DNN(units=[64, 32, 16, 1],
+                    activations=['relu', 'relu', 'relu', 'softplus'],
                     use_bn=False,
                     initial_value=self.supervisor_vars,
                     seed=None)
             
         return model
+    
+    def update_supervisor(self, inputs, labels):
+        supervisor_opt = tf.keras.optimizers.SGD(0.01)
+        flat_vars = []
+        for tensor in inputs:
+            sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
+            flat_vars.append(tf.reshape(sum_reduce, shape=(tensor.shape[0], -1)))
+        inputs = tf.concat(flat_vars, axis=1)
+        
+        with tf.GradientTape() as tape:
+            predictions = self.supervisor(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
+
+            gradients = tape.gradient(loss, self.supervisor.trainable_variables)
+
+            supervisor_opt.apply_gradients(
+                zip(gradients, self.supervisor.trainable_variables))
+        print(loss)
+        
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
