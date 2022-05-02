@@ -40,7 +40,7 @@ class Student:
         flat_vars = []
         for tensor in inputs:
             sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
-            flat_vars.append(tf.reshape(sum_reduce, shape=(tensor.shape[0], -1)))
+            flat_vars.append(tf.reshape(sum_reduce, shape=(-1)))
         inputs = tf.concat(flat_vars, axis=1)
         
         with tf.GradientTape() as tape:
