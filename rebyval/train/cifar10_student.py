@@ -3,6 +3,7 @@ from tqdm import trange
 import tensorflow as tf
 
 # others
+import time
 from rebyval.model.dnn import DNN
 from rebyval.train.student import Student
 from rebyval.train.utils import ForkedPdb
@@ -20,7 +21,9 @@ class Cifar10Student(Student):
     
         try:
             # with tf.GradientTape() as tape:
+            start_time = time.time()
             predictions = self.model(inputs, training=True)
+            print(time.time() - start_time)
                 # loss = self.loss_fn(labels, predictions)
                 # print(loss)
             # gradients = tape.gradient(loss, self.model.trainable_variables)
