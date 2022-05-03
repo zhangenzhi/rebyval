@@ -30,11 +30,11 @@ class Cifar10Student(Student):
             print_error("train step error")
             raise
         
-        with self.logger.as_default():
-            step = train_step+epoch*self.dataloader.info['train_step']
-            # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
-            #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
-            tf.summary.scalar("learning_rate", self.optimizer.learning_rate.current_lr, step=step)
+        # with self.logger.as_default():
+        #     step = train_step+epoch*self.dataloader.info['train_step']
+        #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
+        #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
+        #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate.current_lr, step=step)
         self.mt_loss_fn.update_state(loss)
         
         return loss
@@ -54,56 +54,41 @@ class Cifar10Student(Student):
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.01):
         
         step = train_step+epoch*self.dataloader.info['train_step']
-        
-        with tf.GradientTape() as tape:
+
+        with tf.GradientTape() as tape_t:
             predictions = self.model(inputs, training=True)
-            if step % self.dataloader.info['train_step'] == 0:
-                self.s_loss = self.weightspace_loss(self.model.trainable_variables)
             t_loss = self.loss_fn(labels, predictions)
-            if self.id % 10 == 0:
-                loss = t_loss
-            else:
-                loss = t_loss + self.s_loss
-            
-        gradients = tape.gradient(loss, self.model.trainable_variables)
+        
+        with tf.GradientTape() as tape_s:
+            s_loss = self.weightspace_loss(self.model.trainable_variables)
+
+        s_grad = tape_s.gradient(s_loss, self.model.trainable_variables)
+        t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
+        gradients = [s+t for s,t in zip(s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
         with self.logger.as_default():
-        #     tf.summary.scalar("train_loss", t_loss, step=step)
-            tf.summary.scalar("surrogate_loss", self.s_loss, step=step)
+            tf.summary.scalar("surrogate_loss", s_loss, step=step)
+            if step % self.dataloader.info['train_step'] ==0:
+                tf.summary.histogram("t_gard", t_grad[0], step=step)
+                tf.summary.histogram("s_gard", s_grad[0], step=step)
             
         self.mt_loss_fn.update_state(t_loss)
         
         return t_loss
 
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0, weight_space=None):
-        try:
-            predictions = self.model(inputs, training=False)
-            loss = self.loss_fn(labels, predictions)
-            self.metrics.update_state(labels, predictions)
-            self.mv_loss_fn.update_state(loss)
-        except:
-            print_error("valid step error")
-            raise
-          
-        # with self.logger.as_default():
-        #     step = valid_step+epoch*self.dataloader.info['valid_step']
-        #     tf.summary.scalar("valid_loss", loss, step=step)
+        predictions = self.model(inputs, training=False)
+        loss = self.loss_fn(labels, predictions)
+        self.mv_loss_fn.update_state(loss)
         return loss
     
     def _test_step(self, inputs, labels, test_step=0):
-        try:
-            predictions = self.model(inputs, training=False)
-            loss = self.loss_fn(labels, predictions)
-            self.mv_loss_fn.update_state(loss)
-        except:
-            print_error("test step error")
-            raise
-        
-        # with self.logger.as_default():
-        #     tf.summary.scalar("test_loss", loss, step=test_step)
-            
+        predictions = self.model(inputs, training=False)
+        loss = self.loss_fn(labels, predictions)
+        self.metrics.update_state(labels, predictions)
+        self.mv_loss_fn.update_state(loss)
         return loss
 
     def train(self, new_student=None, supervisor_vars=None):
@@ -160,7 +145,6 @@ class Cifar10Student(Student):
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
-                    ev_metric = self.metrics.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mv_loss_fn.reset_states()
@@ -169,13 +153,14 @@ class Cifar10Student(Student):
                         t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
                         t.set_postfix(test_loss=t_loss.numpy())
                     ett_loss = self.mv_loss_fn.result()
+                    ett_metric = self.metrics.result()
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
-                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
+                    tf.summary.scalar("ett_mtric", ett_metric, step=epoch)
                 
                 
         

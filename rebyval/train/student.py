@@ -95,9 +95,7 @@ class Student:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        lr = LinearScalingWithWarmupSchedule(linear_scaling=8, base_learning_rate=optimizer_args['learning_rate'],
-                                             warmup_steps=1500, gradual_steps=400)
-        optimizer.learning_rate = lr
+        optimizer.learning_rate = optimizer_args['learning_rate']
         return optimizer
 
     def _build_logger(self):
