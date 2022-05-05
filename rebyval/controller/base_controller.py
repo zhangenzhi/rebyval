@@ -1,10 +1,18 @@
 import time
 import argparse
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices("GPU")
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
+from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
-from rebyval.train.trainer import TargetTrainer, SurrogateTrainer
-from rebyval.train.imagenet_trainer import ImageNetTrainer
+from rebyval.train.cifar10_student import Cifar10Student
+from rebyval.train.cifar10_supervisor import Cifar10Supervisor
 
 
 class BaseController:
@@ -18,110 +26,121 @@ class BaseController:
             command_args = self._args_parser()
             self.yaml_configs = get_yml_content(command_args.config)
 
-        print_dict(self.yaml_configs)
+        
+        self.yaml_configs = check_args_from_input_config(self.yaml_configs)
 
         self._build_enviroment()
+        self.queue = Queue(maxsize=100)
+        weight_dir = os.path.join(self.log_path, "weight_space")
+        if os.path.exists(weight_dir):
+            self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
+        else:
+            self._student_ids = 0
+        self._supervisor_ids = 0
+        
+        self.supervisor = self._build_supervisor()
 
     def _args_parser(self):
         parser = argparse.ArgumentParser('autosparsedl_config')
         parser.add_argument(
             '--config',
             type=str,
-            default='./examples/experiment_configs/template/rebyval.yaml',
+            default='./scripts/configs/cifar10/rebyval.yaml',
             help='yaml config file path')
         args = parser.parse_args()
         return args
 
     def _build_enviroment(self):
-
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+            
         self.args = self.yaml_configs['experiment']
-        check_args_from_yaml_content(self.args)
+        self.context = self.args['context']
+        self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
-    def _build_target_trainer(self, rebyval=False):
-        target_trainer_args = self.args["target_trainer"]
+    def _build_student(self, supervisor=None, supervisor_vars = None):
+        student_args = self.args["student"]
+        student_args['log_path'] = self.log_path
+        student = Cifar10Student(student_args=student_args, 
+                                 supervisor = supervisor,
+                                 supervisor_vars = supervisor_vars,
+                                 id = self._student_ids)
+        self._student_ids += 1
+        return student
 
-        if target_trainer_args['name'] == 'ImageNetTrainer':
-            Trainer = ImageNetTrainer
+    def _build_supervisor(self):
+        supervisor_args = self.args["supervisor"]
+        supervisor_args['log_path'] = self.log_path
+        supervisor = Cifar10Supervisor(supervisor_args=supervisor_args,
+                                       id = self._supervisor_ids)
+        self._supervisor_ids += 1
+        return supervisor
+        
+    def warmup(self, warmup):
+        init_samples = warmup['student_nums']
+        supervisor_trains = warmup['supervisor_trains']
+        
+        if self.context["multi-p"]:
+            processes = []
+            for i in range(init_samples):
+                student = self._build_student()
+                p = Process(target = student.run, args=(self.queue,))
+                p.start()
+                processes.append(p)
+                time.sleep(2)
+            pres = [p.join() for p in processes]
+            new_students = [self.queue.get() for _ in range(self.queue.qsize())]
         else:
-            Trainer = TargetTrainer
+            for i in range(init_samples):
+                student = self._build_student()
+                student.run()
+            
+        
+        for j in range(supervisor_trains):
+            keep_train = False if j == 0 else True
+            self.supervisor.run(keep_train=keep_train, new_students=[])
 
-        try:
-            if rebyval:
-                target_trainer = Trainer(trainer_args=target_trainer_args,
-                                         surrogate_model=self.surrogate_trainer.model)
+    def main_loop(self):
+
+        main_loop = self.args['main_loop']
+
+        # init weights pool
+        if 'warmup' in main_loop:
+            self.warmup(main_loop['warmup'])
+
+        # main loop
+        for j in range(main_loop['nums']):
+            if self.context["multi-p"]:
+                # mp students with supervisor
+                processes = []
+                for i in range(main_loop['student_nums']):
+                    student = self._build_student()
+                    # student = self._build_student(supervisor_model=self.supervisor.model) # mp not work with  model
+                    supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
+                    p = Process(target = student.run, args=(self.queue, supervisor_vars))
+                    p.start()
+                    processes.append(p)
+                    time.sleep(3)
+                pres = [p.join() for p in processes]
+                new_students = [self.queue.get() for _ in range(self.queue.qsize())]
             else:
-                target_trainer = Trainer(trainer_args=target_trainer_args)
-        except:
-            print_error("build target trainer failed.")
-            raise
-
-        return target_trainer
-
-    def _build_surrogate_trainer(self):
-        surrogate_trainer = self.args["surrogate_trainer"]
-        try:
-            surrogate_trainer = SurrogateTrainer(trainer_args=surrogate_trainer)
-        except:
-            print_error("build suroragte trainer failed.")
-            raise
-
-        return surrogate_trainer
-
-    def before_experiment(self):
-        pass
-
-    def warmup_stage(self, warmup_steps):
-        target_model_samples = warmup_steps['target_model_samples']
-        for i in range(target_model_samples):
-            target_trainer = self._build_target_trainer()
-            target_trainer.run_with_weights_collect()
-
-        # TODO: add validation for training surrogate model
-        try:
-            valid_weights_pool(self.surrogate_trainer.args)
-        except:
-            print_error("No weights in the pool")
-            raise
-
-        self.surrogate_trainer.run()
-
-    def main_loop_for_experiment(self):
-        main_loop_args = self.args['main_loop_control']
-
-        if main_loop_args.get('warmup_stage'):
-            self.warmup_stage(main_loop_args['warmup_stage'])
-
-        for j in range(main_loop_args['main_loop_times']):
-            for i in range(main_loop_args['target_samples_per_iter']):
-                target_trainer = self._build_target_trainer(rebyval=True)
-                target_trainer.run_with_weights_collect()
-
-            # TODO: add validation for training surrogate model
-            try:
-                valid_weights_pool(self.surrogate_trainer.args)
-            except:
-                print_error("No weights in the pool")
-                raise
-            self.surrogate_trainer.run_with_refreshed_dataset()
-
-    def main_loop_for_train_target(self):
-        target_trainer = self._build_target_trainer()
-        target_trainer.run()
+                new_students = []
+                for i in range(main_loop['student_nums']):
+                    student = self._build_student(supervisor=self.supervisor)
+                    new_students.append[student.run()]
+                    
+            # supervisor
+            print_green("new_student:{}, welcome!".format(new_students))
+            self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
-        context_args = self.args['context']
-
+        
         print_green("Start to run!")
-        if context_args['experiment_type'] == 'train_target_model':
-            self.main_loop_for_train_target()
-
-        elif context_args['experiment_type'] == 'rebyval':
-            print_green("build from surrogate trainer")
-            self.surrogate_trainer = self._build_surrogate_trainer()
-            self.main_loop_for_experiment()
+        
+        self.main_loop()
 
         print_green('[Task Status]: Task done! Time cost: {:}')
 
+    
 
-if __name__ == '__main__':
-    BaseController().run()

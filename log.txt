@@ -1,0 +1,207 @@
+INFO:  parse config from command line.
+[32mexperiment: [39m
+[32m	context: [39m
+		name: multi-p-v9
+		multi-p: True
+		author: Enzhi Zhang & Ruqin Wang
+		log_path: ./log
+[32m	main_loop: [39m
+[32m		warmup: [39m
+			student_nums: 0
+			supervisor_trains: 1
+		nums: 100
+		student_nums: 5
+[32m	student: [39m
+[32m		dataloader: [39m
+			name: cifar10
+			batch_size: 128
+			epochs: 15
+			path: ~/.keras/dataset/cifar10
+[32m		model: [39m
+			name: dnn
+			dims: 64,32,16,10
+			activations: relu,relu,relu,softmax
+[32m		loss: [39m
+			name: SparseCategoricalCrossentropy
+			metrics: SparseCategoricalAccuracy
+[32m		metrics: [39m
+			name: SparseCategoricalAccuracy
+[32m		optimizer: [39m
+			name: sgd
+			learning_rate: 0.1
+[32m		train_loop: [39m
+[32m			valid: [39m
+[32m				weight_space: [39m
+					format: sum_reduce
+				valid_gap: 10
+[32m				save_model: [39m
+					save_in: student
+					save_after_epoch: 1
+[32m			train: [39m
+				epochs: 10
+[32m			test: [39m
+				epoch: 10
+[32m	supervisor: [39m
+[32m		dataloader: [39m
+			name: dnn_weights
+			format: sum_reduce
+			replay_window: 1000
+			batch_size: 128
+			epochs: 100
+[32m		model: [39m
+			name: dnn
+			dims: 64,32,16,1
+			activations: relu,relu,relu,relu
+[32m		optimizer: [39m
+			name: sgd
+			learning_rate: 0.01
+[32m		loss: [39m
+			name: MeanAbsoluteError
+[32m		train_loop: [39m
+[32m			valid: [39m
+				valid_gap: 100
+[32m				save_model: [39m
+					save_in: supvervisor
+					save_after_epochs: 1
+[32m			preprocess: [39m
+				name: normal
+[32m			train: [39m
+				epochs: 10
+[32m			test: [39m
+				epoch: 10
+[32m		metrics: [39m
+			name: MeanSquaredError
+[32mStart to run![39m
+[32m[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 115
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/supervisor-20220505-103649, but we made.[39m
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-115-20220505-104502, but we made.[39m
+Finished training student 115
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-116-20220505-104505, but we made.[39m
+Finished training student 116
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-117-20220505-104510, but we made.[39m
+Finished training student 117
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-118-20220505-104514, but we made.[39m
+Finished training student 118
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-119-20220505-104519, but we made.[39m
+Finished training student 119
+[32mnew_student:['./log/multi-p-v9/weight_space/115.tfrecords', './log/multi-p-v9/weight_space/116.tfrecords', './log/multi-p-v9/weight_space/117.tfrecords', './log/multi-p-v9/weight_space/118.tfrecords', './log/multi-p-v9/weight_space/119.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 120
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-120-20220505-110028, but we made.[39m
+Finished training student 120
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-121-20220505-110033, but we made.[39m
+Finished training student 121
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-122-20220505-110038, but we made.[39m
+Finished training student 122
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-123-20220505-110043, but we made.[39m
+Finished training student 123
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-124-20220505-110048, but we made.[39m
+Finished training student 124
+[32mnew_student:['./log/multi-p-v9/weight_space/120.tfrecords', './log/multi-p-v9/weight_space/121.tfrecords', './log/multi-p-v9/weight_space/122.tfrecords', './log/multi-p-v9/weight_space/123.tfrecords', './log/multi-p-v9/weight_space/124.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 125
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-125-20220505-111513, but we made.[39m
+Finished training student 125
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-126-20220505-111517, but we made.[39m
+Finished training student 126
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-127-20220505-111522, but we made.[39m
+Finished training student 127
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-128-20220505-111527, but we made.[39m
+Finished training student 128
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-129-20220505-111532, but we made.[39m
+Finished training student 129
+[32mnew_student:['./log/multi-p-v9/weight_space/125.tfrecords', './log/multi-p-v9/weight_space/126.tfrecords', './log/multi-p-v9/weight_space/127.tfrecords', './log/multi-p-v9/weight_space/128.tfrecords', './log/multi-p-v9/weight_space/129.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 130
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-130-20220505-113019, but we made.[39m
+Finished training student 130
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-131-20220505-113024, but we made.[39m
+Finished training student 131
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-132-20220505-113028, but we made.[39m
+Finished training student 132
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-133-20220505-113033, but we made.[39m
+Finished training student 133
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-134-20220505-113038, but we made.[39m
+Finished training student 134
+[32mnew_student:['./log/multi-p-v9/weight_space/130.tfrecords', './log/multi-p-v9/weight_space/131.tfrecords', './log/multi-p-v9/weight_space/132.tfrecords', './log/multi-p-v9/weight_space/133.tfrecords', './log/multi-p-v9/weight_space/134.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 135
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-135-20220505-114505, but we made.[39m
+Finished training student 135
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-136-20220505-114510, but we made.[39m
+Finished training student 136
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-137-20220505-114515, but we made.[39m
+Finished training student 137
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-138-20220505-114520, but we made.[39m
+Finished training student 138
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-139-20220505-114525, but we made.[39m
+Finished training student 139
+[32mnew_student:['./log/multi-p-v9/weight_space/135.tfrecords', './log/multi-p-v9/weight_space/136.tfrecords', './log/multi-p-v9/weight_space/137.tfrecords', './log/multi-p-v9/weight_space/138.tfrecords', './log/multi-p-v9/weight_space/139.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 140
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-140-20220505-120008, but we made.[39m
+Finished training student 140
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-141-20220505-120013, but we made.[39m
+Finished training student 141
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-142-20220505-120018, but we made.[39m
+Finished training student 142
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-143-20220505-120022, but we made.[39m
+Finished training student 143
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-144-20220505-120027, but we made.[39m
+Finished training student 144
+[32mnew_student:['./log/multi-p-v9/weight_space/140.tfrecords', './log/multi-p-v9/weight_space/141.tfrecords', './log/multi-p-v9/weight_space/142.tfrecords', './log/multi-p-v9/weight_space/143.tfrecords', './log/multi-p-v9/weight_space/144.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 145
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-145-20220505-121504, but we made.[39m
+Finished training student 145
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-146-20220505-121509, but we made.[39m
+Finished training student 146
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-147-20220505-121514, but we made.[39m
+Finished training student 147
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-148-20220505-121519, but we made.[39m
+Finished training student 148
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-149-20220505-121523, but we made.[39m
+Finished training student 149
+[32mnew_student:['./log/multi-p-v9/weight_space/145.tfrecords', './log/multi-p-v9/weight_space/146.tfrecords', './log/multi-p-v9/weight_space/147.tfrecords', './log/multi-p-v9/weight_space/148.tfrecords', './log/multi-p-v9/weight_space/149.tfrecords'], welcome![39m
+[32mweight_space_path:./log/multi-p-v9/weight_space[39m
+filelist length: 150
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/multi-p-v9/tensorboard/student-150-20220505-123045, but we made.[39m
+Finished training student 150

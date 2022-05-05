@@ -15,14 +15,10 @@ class LinearScalingWithWarmupSchedule(tf.keras.optimizers.schedules.LearningRate
 
         self.warmup_steps = warmup_steps
         self.gradual_steps = gradual_steps
+        
+        self.current_lr = 0.0
 
     def __call__(self, step):
-        # constant linear scaling
-
-        # arg1 = tf.math.sign(step - self.warmup_steps)
-        # arg2 = self.linear_scaling * arg1
-        #
-        # return self.base_learning_rate * tf.math.maximum(arg1, arg2) * arg1
 
         # gradual linear scaling
 
@@ -32,4 +28,5 @@ class LinearScalingWithWarmupSchedule(tf.keras.optimizers.schedules.LearningRate
         gradual_factor = arg1 + (self.linear_scaling - 1) * tf.math.minimum((step - self.warmup_steps)/self.gradual_steps, 1)
         arg2 = gradual_factor
 
-        return self.base_learning_rate * tf.math.maximum(arg1, arg2) * arg1
+        self.current_lr = self.base_learning_rate * tf.math.maximum(arg1, arg2) * arg1
+        return self.current_lr

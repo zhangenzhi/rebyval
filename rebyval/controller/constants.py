@@ -1,18 +1,19 @@
-default_values_dict ={ 
+default_parameters ={ 
 
     'experiment': {
         'context': {
-            'name': "None",
-            'author': "None",
+            'name': "rebyval",
+            'author': "Enzhi Zhang && Ruqin Wang",
             'log_path': "./",
         },
         'main_loop_control': {
-            'warmup_steps': {
+            'warmup': {
+                'init_samples': 10,
                 'target_model_samples': 15
             },
             'target_samples_per_iter': 3
         },
-        'target_trainer': {
+        'student': {
             'dataloader': {
                 'name': "cifar10"
             },

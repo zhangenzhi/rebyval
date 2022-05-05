@@ -1,8 +1,7 @@
 experiment:
 
   context:
-    name: "001"
-    experiment_type: train_surrogate_model
+    experiment_type: train_supervisor
     log_path: ./
 
   surrogate_trainer:
@@ -24,16 +23,4 @@ experiment:
       metric: mean_squared_logarithmic_error
     train_loop_control:
       train:
-        check_should_train: True
-        max_training_steps: 1000 # default inf
         max_training_epochs: 10 # default inf
-      valid:
-        check_should_valid: True # default False for no validation step
-        valid_gap: 1000 # default 1000 training steps
-        valid_steps: 100 # default valid for 100 steps
-        log_path: ./log
-        save_model:
-          save_in: "001" # or name as your wish, default None
-          save_after_step: 1000 # save latest and best model per 1000 steps
-      test:
-        check_should_test: True # default False for no test step

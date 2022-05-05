@@ -2,7 +2,7 @@ import argparse
 import os
 import pkg_resources
 from colorama import init
-from rebyval.tools.utilis import print_error
+from rebyval.tools.utils import print_error
 from .launcher import create_experiment, view_experiment
 from .constants import DEFAULT_REST_PORT
 

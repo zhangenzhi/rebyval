@@ -1,6 +1,6 @@
 import tensorflow as tf
 from rebyval.tools.utils import *
-from rebyval.train.base_trainer import BaseTrainer
+from rebyval.train.student import BaseTrainer
 
 
 class TargetTrainer(BaseTrainer):
@@ -257,11 +257,6 @@ class SurrogateTrainer(BaseTrainer):
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         flat_vars = tf.concat(flat_vars, axis=1)
         flat_input = {'inputs': flat_vars}
-
-        # import pdb
-        # pdb.set_trace()
-
-
         try:
             with tf.GradientTape() as tape:
                 # import pdb
