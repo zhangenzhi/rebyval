@@ -129,7 +129,6 @@ class Student:
         save_msg = '\033[33m[Model Status]: Saving {} model at step:{:08d} in {:}.\033[0m'.format(
             name, self.global_step, save_path)
         print(save_msg)
-
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
@@ -183,7 +182,6 @@ class Student:
         # build losses and metrics
         self.loss_fn, self.mt_loss_fn, self.mv_loss_fn = self._build_loss_fn()
         self.metrics = self._build_metrics()
-
         # build weights save writter
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
