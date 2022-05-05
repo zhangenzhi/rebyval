@@ -3,7 +3,7 @@ from datetime import datetime
 
 import tensorflow as tf
 from rebyval.train.student import Student
-from rebyval.dataloader.weights_loader import DNNWeightsLoader
+from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 # model
 from rebyval.model.dnn import DNN
@@ -44,7 +44,10 @@ class Supervisor:
         
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
-        dataloader = DNNWeightsLoader(dataset_args)
+        if dataset_args["format"] == "sum_reduce":
+            dataloader = DNNSumReduce(dataloader_args=dataset_args)
+        else:
+            dataloader = DNNWeightsLoader(dataset_args)
         
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_students = new_students)
         return train_dataset, valid_dataset, test_dataset, dataloader
