@@ -3,10 +3,13 @@ from datetime import datetime
 
 import tensorflow as tf
 from rebyval.train.student import Student
+
+from rebyval.dataloader.factory import dataset_factory
 from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
+
 # model
-from rebyval.model.dnn import DNN
+from rebyval.model.factory import model_factory
 
 # others
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir
@@ -29,10 +32,8 @@ class Supervisor:
             
     def _build_model(self):
         #TODO: need model registry
-        model = DNN(units=[128,64,32,16,1],
-                    activations=['relu', 'relu', 'relu', 'relu', 'softplus'],
-                    use_bn=False,
-                    seed=None)
+        model = model_factory(self.args['model'])
+
         # model restore
         if self.args['model'].get('restore_model'):
             self.model = self.model_restore(self.model)
@@ -44,10 +45,7 @@ class Supervisor:
         
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
-        if dataset_args["format"] == "sum_reduce":
-            dataloader = DNNSumReduce(dataloader_args=dataset_args)
-        else:
-            dataloader = DNNWeightsLoader(dataset_args)
+        dataloader = dataset_factory(dataset_args)
         
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_students = new_students)
         return train_dataset, valid_dataset, test_dataset, dataloader

@@ -11,16 +11,14 @@ from rebyval.train.student import Student
 from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
-class Cifar10Student(Student):
+class MnistStudent(Student):
     
-    def __init__(self, student_args, supervisor = None, id = 0):
-        super(Cifar10Student, self).__init__(student_args, supervisor,id)
+    def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
+        super(MnistStudent, self).__init__(student_args, supervisor, supervisor_vars,id)
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_min = 0
 
-        # self.supervisor_vars = supervisor_vars
-        # self.supervisor = self._build_supervisor_from_vars()
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, train_step = 0, epoch=0):
@@ -37,11 +35,6 @@ class Cifar10Student(Student):
             print_error("train step error")
             raise
         
-        # with self.logger.as_default():
-        #     step = train_step+epoch*self.dataloader.info['train_step']
-        #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
-        #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
-        #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate.current_lr, step=step)
         self.mt_loss_fn.update_state(loss)
         
         return loss
@@ -56,80 +49,6 @@ class Cifar10Student(Student):
         s_loss = self.supervisor(inputs)
         s_loss = tf.squeeze(s_loss)
         return s_loss
-
-    def _rl_train_step(self, inputs, labels, train_step = 0, epoch=0, action_space=[0.01, 1.5]):
-        
-        step = train_step+epoch*self.dataloader.info['train_step']
-
-        # base direction 
-        with tf.GradientTape() as tape_t:
-            predictions = self.model(inputs, training=True)
-            t_loss = self.loss_fn(labels, predictions)
-        t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        norm_gard = [g/(1e-8+tf.norm(g)) for g in t_grad]
-        
-        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in norm_gard]
-        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
-        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
-        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
-
-        # sample action
-        action_sample = tf.random.uniform(minval=action_space[0], maxval=action_space[1], shape=(100,1))
-        scaled_gards = flat_grad * action_sample
-        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-        scaled_vars = var_copy - scaled_gards * 0.1
-        values = self.supervisor(scaled_vars)
-        index_min = min(range(len(values)), key=values.__getitem__)
-
-        # next state
-        gradients = [g*action_sample[index_min] for g in norm_gard]
-        self.optimizer.apply_gradients(
-            zip(gradients, self.model.trainable_variables))
-        
-        with self.logger.as_default():
-            tf.summary.scalar("surrogate_loss", values[index_min], step=step)
-            tf.summary.scalar("action", action_space[index_min], step=step)
-            tf.summary.histogram("values", values, step=step)
-            
-        self.mt_loss_fn.update_state(t_loss)
-        return t_loss
-
-    def _reval_train_step(self, inputs, labels, train_step = 0, epoch=0, actions=[0.0, 2.0]):
-        
-        step = train_step+epoch*self.dataloader.info['train_step']
-
-        # base direction 
-        with tf.GradientTape() as tape_t:
-            predictions = self.model(inputs, training=True)
-            t_loss = self.loss_fn(labels, predictions)
-        t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        norm_gard = [g/(1e-8+tf.norm(g)) for g in t_grad]
-        
-        # sample actions per 10 steps, add baseline per 10 samples 
-        if self.id % 10 != 0:
-            if (step+1) % 10 == 0:
-                values = []
-                self.action_space = np.random.uniform(low=actions[0], high=actions[1], size=100)
-                for action in self.action_space:
-                    scaled_grad = [g*action for g in norm_gard]
-                    n_s = [s - 0.1*g*10 for s,g in zip(self.model.trainable_variables, scaled_grad)]
-                    v = self.weightspace_loss(n_s)
-                    values.append(v)
-                self.index_min = min(range(len(values)), key=values.__getitem__)
-                with self.logger.as_default():
-                    tf.summary.scalar("surrogate_loss", values[self.index_min], step=step)
-                    tf.summary.histogram("values", tf.concat(values, axis=0), step=step)
-    
-        # next_state
-        gradients = [g*self.action_space[self.index_min] for g in norm_gard]
-        self.optimizer.apply_gradients(
-            zip(gradients, self.model.trainable_variables))
-        
-        with self.logger.as_default():
-            tf.summary.scalar("action", self.action_space[self.index_min], step=step)
-
-        self.mt_loss_fn.update_state(t_loss)
-        return t_loss
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.01):
@@ -177,7 +96,7 @@ class Cifar10Student(Student):
         self.mv_loss_fn.update_state(loss)
         return loss
 
-    def train(self, new_student=None, supervisor_info=None):
+    def train(self, new_student=None, supervisor_vars=None):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
@@ -193,10 +112,10 @@ class Cifar10Student(Student):
         # metrics reset
         self.metrics.reset_states()
         
-        if supervisor_info != None:
+        if supervisor_vars != None:
             # ForkedPdb().set_trace()
-            # self.supervisor_info = supervisor_info
-            self.supervisor = self._build_supervisor_from_vars(supervisor_info)
+            self.supervisor_vars = supervisor_vars
+            self.supervisor = self._build_supervisor_from_vars()
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
@@ -210,7 +129,7 @@ class Cifar10Student(Student):
                             train_loss = self._train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
                         else:
-                            train_loss = self._reval_train_step(data['inputs'], data['labels'], 
+                            train_loss = self._train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         

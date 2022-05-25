@@ -44,6 +44,7 @@ class Linear(keras.layers.Layer):
             )
         
     def call(self, inputs):
+        # ForkedPdb().set_trace()
         outputs = tf.matmul(inputs, self.w) + self.b
         return outputs
 
@@ -54,7 +55,8 @@ class DNN(tf.keras.Model):
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
                  use_bn=False,
                  seed=100000,
-                 initial_value=None
+                 initial_value=None,
+                 **kwargs
                 ):
         super(DNN, self).__init__()
 

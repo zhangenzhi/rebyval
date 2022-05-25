@@ -20,7 +20,7 @@ experiment:
       batch_size: 128
     model:
       name: dnn # default dnn
-      dims: 64,32,16,10 # default 128,64,64,32
+      units: 64,32,16,10 # default 128,64,64,32
       activations: relu,relu,relu,softmax # default relu
     loss:
       name: SparseCategoricalCrossentropy

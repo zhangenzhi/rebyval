@@ -1,14 +1,13 @@
-
 import os
 from datetime import datetime
 import tensorflow as tf
 
 # dataloader
+from rebyval.dataloader.factory import dataset_factory
 from rebyval.dataloader.dataset_loader import Cifar10DataLoader
 
 # model
-from rebyval.model.dnn import DNN
-from rebyval.model.cnn import CNN
+from rebyval.model.factory import model_factory
 
 # others
 from rebyval.optimizer.scheduler.linear_scaling_with_warmup import LinearScalingWithWarmupSchedule
@@ -18,23 +17,15 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student:
-    def __init__(self, student_args, supervisor=None, supervisor_vars=None, id=0):
+    def __init__(self, student_args, supervisor=None, id=0):
         self.args = student_args
         self.supervisor = supervisor
-        self.supervisor_vars = supervisor_vars
         self.id = id
 
-    def _build_supervisor_from_vars(self):
+    def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
-        if self.supervisor_vars != None:
-            # TODO: need model registry
-            model = DNN(units=[128, 64, 32, 16, 1],
-                        activations=['relu', 'relu',
-                                     'relu', 'relu', 'softplus'],
-                        use_bn=False,
-                        initial_value=self.supervisor_vars,
-                        seed=None)
-
+        if supervisor_info != None:
+            model = model_factory(supervisor_info)
         return model
 
     def update_supervisor(self, inputs, labels):
@@ -64,16 +55,15 @@ class Student:
     def _build_dataset(self):
         # TODO: need dataloader registry
         dataset_args = self.args['dataloader']
-        dataloader = Cifar10DataLoader(dataset_args)
+        dataloader = dataset_factory(dataset_args)
 
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
 
     def _build_model(self):
-        # TODO: need model registry
-        model = DNN(units=[64, 32, 16, 10],
-                    activations=['relu', 'relu', 'relu', 'softmax'])
-        # model = CNN()
+        # TODO: need model registry\
+        model = model_factory(self.args['model'])
+  
         # model restore
         if self.args['model'].get('restore_model'):
             self.model = self.model_restore(self.model)
@@ -164,7 +154,7 @@ class Student:
 
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, new_student=None, supervisor_vars=None):
+    def run(self, new_student=None, supervisor_info=None):
 
         # set enviroment
         self._build_enviroment()
@@ -191,7 +181,7 @@ class Student:
         # pdb.set_trace()
 
         # self.supervisor = self._build_supervisor_from_vars()
-        self.train(supervisor_vars=supervisor_vars)
+        self.train(supervisor_info=supervisor_info)
 
         self.writter.close()
         print('Finished training student {}'.format(self.id))
