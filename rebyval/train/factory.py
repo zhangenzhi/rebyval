@@ -1,14 +1,17 @@
 from .cifar10_student import Cifar10Student
 from .cifar10_supervisor import Cifar10Supervisor
 
-from .minist_student import MnistStudent
+from .mnist_student import MnistStudent
 from .mnist_supervisor import MnistSupervisor
+
+from .cifar100_student import Cifar100Student
+from .cifar100_supervisor import Cifar100Supervisor
 
 
 
 class StudentFactory():
     def __init__(self) -> None:
-        self.student_list = {'cifar10': Cifar10Student, 'minist': MnistStudent}
+        self.student_list = {'cifar100':Cifar100Student, 'cifar10': Cifar10Student, 'mnist': MnistStudent}
 
     def __call__(self, student_args, supervisor = None, id = 0):
         return self.get_student(student_args=student_args, 
@@ -24,7 +27,7 @@ class StudentFactory():
 
 class SupervisorFactory():
     def __init__(self) -> None:
-        self.supervisor_list = {'cifar10': Cifar10Supervisor, 'minist': MnistSupervisor}
+        self.supervisor_list = {'cifar100':Cifar100Supervisor, 'cifar10': Cifar10Supervisor, 'mnist': MnistSupervisor}
     
     def __call__(self, supervisor_args, student_task='', id = 0):
         return self.get_supervisor(supervisor_args=supervisor_args, student_task=student_task, id=id)

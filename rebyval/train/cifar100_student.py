@@ -11,10 +11,10 @@ from rebyval.train.student import Student
 from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
-class MnistStudent(Student):
+class Cifar100Student(Student):
     
-    def __init__(self, student_args, supervisor = None, supervisor_vars=None, id = 0):
-        super(MnistStudent, self).__init__(student_args, supervisor, supervisor_vars,id)
+    def __init__(self, student_args, supervisor = None, id = 0):
+        super(Cifar100Student, self).__init__(student_args, supervisor,id)
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_min = 0
@@ -96,7 +96,7 @@ class MnistStudent(Student):
         self.mv_loss_fn.update_state(loss)
         return loss
 
-    def train(self, new_student=None, supervisor_vars=None):
+    def train(self, new_student=None, supervisor_info=None):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
@@ -112,10 +112,8 @@ class MnistStudent(Student):
         # metrics reset
         self.metrics.reset_states()
         
-        if supervisor_vars != None:
-            # ForkedPdb().set_trace()
-            self.supervisor_vars = supervisor_vars
-            self.supervisor = self._build_supervisor_from_vars()
+        if supervisor_info != None:
+            self.supervisor = self._build_supervisor_from_vars(supervisor_info)
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger

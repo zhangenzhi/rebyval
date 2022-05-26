@@ -1,11 +1,12 @@
 from mimetypes import init
 from unicodedata import name
-from .dataset_loader import Cifar10DataLoader,MinistDataLoader,ImageNetDataLoader
+from .dataset_loader import Cifar10DataLoader, MinistDataLoader, ImageNetDataLoader, Cifar100DataLoader
 from .weights_loader import DNNWeightsLoader, DNNSumReduce
 
 class DatasetFactory():
     def __init__(self) -> None:
         self.dataset_list = {'cifar10':Cifar10DataLoader, 
+                             'cifar100':Cifar100DataLoader, 
                              'mnist':MinistDataLoader, 
                              'imagenet': ImageNetDataLoader,
                              
