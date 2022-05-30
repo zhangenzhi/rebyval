@@ -16,7 +16,7 @@ experiment:
       batch_size: 128
       epochs: 15
     model:
-      name: resnet # default dnn
+      name: dnn # default dnn
       classes: 10
     loss:
       name: SparseCategoricalCrossentropy
