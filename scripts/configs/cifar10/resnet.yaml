@@ -13,8 +13,8 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
-      epochs: 15
+      batch_size: 32
+      epochs: 150
     model:
       name: resnet # default dnn
       classes: 10
@@ -24,12 +24,12 @@ experiment:
       name: SparseCategoricalAccuracy
     optimizer:
       name: sgd # default SGD
-      learning_rate: 0.1 # default 0.01
+      learning_rate: 0.01 # default 0.01
     train_loop:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 10
+          valid_gap: 100
 
   supervisor:
     dataloader:
