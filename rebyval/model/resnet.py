@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 
 class ResNet(Model):
     def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000, preact=False,
-                 regularizer=tf.keras.regularizers.l2(l2=0.0001)):
+                 regularizer=tf.keras.regularizers.l2(l2=0.0001), name='resnet', **kwargs):
         super(ResNet, self).__init__()
 
         self.use_bias = use_bias
@@ -158,8 +158,10 @@ class ResNet(Model):
 
 
 class ResNet50(ResNet):
-    def __init__(self, use_bias=True, pooling=None, classes=1000, regularizer=tf.keras.regularizers.l2(l2=0.0000125)):
-        super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes, regularizer=regularizer)
+    def __init__(self, use_bias=True, pooling=None, classes=1000, 
+                 regularizer=tf.keras.regularizers.l2(l2=0.0000125), name='renet50',
+                 **kwargs):
+        super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes, regularizer=regularizer, name=name)
 
     def _build_stack_fn(self, name='resnet50'):
         seq_layer_stacks = []
