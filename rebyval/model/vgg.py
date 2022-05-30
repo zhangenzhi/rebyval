@@ -16,9 +16,9 @@ class VGG16(tf.keras.Model):
         self.classes = classes
         self.classifier_activation = classifier_activation
         
-        self.build()
+        self._build()
         
-    def build(self, input_shape):
+    def _build(self):
         
         self.block_1 = []
         self.block_1.append(layers.Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv1'))
