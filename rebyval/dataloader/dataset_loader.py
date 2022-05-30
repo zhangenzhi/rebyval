@@ -72,10 +72,10 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_train,x_test = normalization(x_train, x_test)
         
-        data_augmentation = tf.keras.Sequential([
-                            preprocessing.RandomFlip("horizontal_and_vertical"),
-                            preprocessing.RandomRotation(0.2),
-                            ])
+        def _prepreocess(x):
+            x = preprocessing.RandomFlip("horizontal_and_vertical")(x)
+            x = preprocessing.RandomRotation(0.2)(x)
+            return x
 
         full_size = len(x_train)
         test_size = len(x_test)
@@ -87,7 +87,7 @@ class Cifar10DataLoader(BaseDataLoader):
         full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.map(lambda x:data_augmentation(x['inputs']), num_parallel_calls=16)
+        train_dataset = train_dataset.map(lambda x:_prepreocess(x['inputs']), num_parallel_calls=16)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 
