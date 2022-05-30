@@ -4,7 +4,7 @@ import random
 from unicodedata import name
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
+from tensorflow.keras.layers.experimental import preprocessing
 from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
@@ -73,8 +73,8 @@ class Cifar10DataLoader(BaseDataLoader):
         x_train,x_test = normalization(x_train, x_test)
         
         data_augmentation = tf.keras.Sequential([
-                            layers.RandomFlip("horizontal_and_vertical"),
-                            layers.RandomRotation(0.2),
+                            preprocessing.RandomFlip("horizontal_and_vertical"),
+                            preprocessing..RandomRotation(0.2),
                             ])
 
         full_size = len(x_train)
