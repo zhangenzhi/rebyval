@@ -7,6 +7,8 @@ import tensorflow as tf
 from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 class MinistDataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
         super().__init__(dataloader_args)
@@ -68,6 +70,21 @@ class Cifar10DataLoader(BaseDataLoader):
         y_test = y_test.astype(np.float32)
         
         x_train,x_test = normalization(x_train, x_test)
+        
+        # data augmentation
+        datagen = ImageDataGenerator(
+            featurewise_center=False,  # set input mean to 0 over the dataset
+            samplewise_center=False,  # set each sample mean to 0
+            featurewise_std_normalization=False,  # divide inputs by std of the dataset
+            samplewise_std_normalization=False,  # divide each input by its std
+            zca_whitening=False,  # apply ZCA whitening
+            rotation_range=15,  # randomly rotate images in the range (degrees, 0 to 180)
+            width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+            height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+            horizontal_flip=True,  # randomly flip images
+            vertical_flip=False)  # randomly flip images
+        # (std, mean, and principal components if ZCA whitening is applied).
+        datagen.fit(x_train)
 
         full_size = len(x_train)
         test_size = len(x_test)
