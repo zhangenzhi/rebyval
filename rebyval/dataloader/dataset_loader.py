@@ -4,6 +4,7 @@ import random
 from unicodedata import name
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras import layers
 from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
@@ -71,20 +72,10 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_train,x_test = normalization(x_train, x_test)
         
-        # data augmentation
-        datagen = ImageDataGenerator(
-            featurewise_center=False,  # set input mean to 0 over the dataset
-            samplewise_center=False,  # set each sample mean to 0
-            featurewise_std_normalization=False,  # divide inputs by std of the dataset
-            samplewise_std_normalization=False,  # divide each input by its std
-            zca_whitening=False,  # apply ZCA whitening
-            rotation_range=15,  # randomly rotate images in the range (degrees, 0 to 180)
-            width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
-            height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
-            horizontal_flip=True,  # randomly flip images
-            vertical_flip=False)  # randomly flip images
-        # (std, mean, and principal components if ZCA whitening is applied).
-        datagen.fit(x_train)
+        data_augmentation = tf.keras.Sequential([
+                            layers.RandomFlip("horizontal_and_vertical"),
+                            layers.RandomRotation(0.2),
+                            ])
 
         full_size = len(x_train)
         test_size = len(x_test)
@@ -96,7 +87,7 @@ class Cifar10DataLoader(BaseDataLoader):
         full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.map(lambda x:x, num_parallel_calls=16)
+        train_dataset = train_dataset.map(lambda x,y:(data_augmentation(x),y), num_parallel_calls=16)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 
