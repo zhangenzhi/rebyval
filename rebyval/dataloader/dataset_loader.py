@@ -4,7 +4,7 @@ import random
 from unicodedata import name
 import numpy as np
 import tensorflow as tf
-from rebyval.dataloader.utils import glob_tfrecords
+from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
 class MinistDataLoader(BaseDataLoader):
@@ -66,6 +66,8 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
+        
+        x_train,x_test = normalization(x_train, x_test)
 
         full_size = len(x_train)
         test_size = len(x_test)
