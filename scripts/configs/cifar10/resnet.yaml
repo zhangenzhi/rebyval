@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 150
+      epochs: 450
     model:
       name: resnet # default dnn
       classes: 10
@@ -29,7 +29,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 100
+          valid_gap: 1000
 
   supervisor:
     dataloader:
