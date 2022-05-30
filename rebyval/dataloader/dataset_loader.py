@@ -73,8 +73,9 @@ class Cifar10DataLoader(BaseDataLoader):
         x_train,x_test = normalization(x_train, x_test)
         
         def _prepreocess(x):
-            x = preprocessing.RandomFlip("horizontal_and_vertical")(x)
-            x = preprocessing.RandomRotation(0.2)(x)
+            x = tf.image.random_flip_left_right(x)
+            x = tf.image.random_flip_up_down(x)
+            # x = tf.image.
             return x
 
         full_size = len(x_train)
