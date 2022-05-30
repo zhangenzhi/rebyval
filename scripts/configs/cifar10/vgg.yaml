@@ -16,7 +16,7 @@ experiment:
       batch_size: 128
       epochs: 150
     model:
-      name: resnet # default dnn
+      name: vgg # default dnn
       classes: 10
     loss:
       name: SparseCategoricalCrossentropy
@@ -29,7 +29,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 1000
+          valid_gap: 10000
 
   supervisor:
     dataloader:

@@ -55,7 +55,7 @@ class Cifar10DataLoader(BaseDataLoader):
         self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
                      'train_step': int(50000/dataloader_args['batch_size']),
                      'valid_step': int(5000/dataloader_args['batch_size']),
-                     'test_step': int(5000/dataloader_args['batch_size']),
+                     'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
     def load_dataset(self, epochs=-1, format=None):
@@ -77,6 +77,7 @@ class Cifar10DataLoader(BaseDataLoader):
         full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
+        train_dataset = train_dataset.map(lambda x:x, num_parallel_calls=16)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 
@@ -85,9 +86,13 @@ class Cifar10DataLoader(BaseDataLoader):
         # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
-        test_dataset = test_dataset.shuffle(test_size)
-        valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
-        test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # all 1w test
+        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset
+        
+        # test_dataset = test_dataset.shuffle(test_size)
+        # valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
 
         return train_dataset, valid_dataset, test_dataset
 

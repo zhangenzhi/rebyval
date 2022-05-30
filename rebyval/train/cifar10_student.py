@@ -161,13 +161,13 @@ class Cifar10Student(Student):
 
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0, weight_space=None):
         
-        step = valid_step + epoch*self.dataloader.info['valid_step']
+        # step = valid_step + epoch*self.dataloader.info['valid_step']
 
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
         self.mv_loss_fn.update_state(loss)
-        with self.logger.as_default():
-            tf.summary.scalar("v_loss", loss, step=step)
+        # with self.logger.as_default():
+        #     tf.summary.scalar("v_loss", loss, step=step)
         return loss
     
     def _test_step(self, inputs, labels, test_step=0):
@@ -227,9 +227,9 @@ class Cifar10Student(Student):
                                 # online update supervisor
                                 # if self.supervisor != None:
                                 #     self.update_supervisor(self.model.trainable_variables, ev_loss)
-                                self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
-                                                              valid_loss = ev_loss,
-                                                              weight_space = valid_args['weight_space'])
+                                # self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
+                                #                               valid_loss = ev_loss,
+                                #                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
