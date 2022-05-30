@@ -3,6 +3,7 @@ import tarfile
 import random
 import fnmatch, os
 import tensorflow as tf
+import numpy as np
 from tensorflow.io import gfile
 from scipy import io as scipy_io
 
