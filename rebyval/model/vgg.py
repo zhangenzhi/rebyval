@@ -16,6 +16,8 @@ class VGG16(tf.keras.Model):
         self.classes = classes
         self.classifier_activation = classifier_activation
         
+        self.build()
+        
     def build(self, input_shape):
         
         self.block_1 = []
@@ -74,7 +76,7 @@ class VGG16(tf.keras.Model):
         for layer in self.top:
             x = layer(x)
             
-        return X
+        return x
             
     
     
