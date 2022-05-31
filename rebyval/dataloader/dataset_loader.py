@@ -73,8 +73,9 @@ class Cifar10DataLoader(BaseDataLoader):
         x_train,x_test = normalization(x_train, x_test)
         
         data_augmentation = tf.keras.Sequential([
-                            preprocessing.RandomFlip("horizontal_and_vertical"),
+                            preprocessing.RandomFlip("horizontal"),
                             preprocessing.RandomRotation(0.2),
+                            preprocessing.RandomZoom(0.1)
                             ])
 
         full_size = len(x_train)
