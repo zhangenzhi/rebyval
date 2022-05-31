@@ -86,9 +86,9 @@ class Student:
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
-        # optimizer.momentum = 0.9
-        # optimizer.nesterov = True
-        # optimizer.decay = 1e-6
+        optimizer.momentum = 0.9
+        optimizer.nesterov = True
+        optimizer.decay = 1e-6
         return optimizer
 
     def _build_logger(self):
