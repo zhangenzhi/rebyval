@@ -16,12 +16,12 @@ experiment:
       batch_size: 128
       epochs: 150
     model:
-      name: resnet # default dnn
+      name: resnet50 # default dnn
       classes: 10
     loss:
-      name: SparseCategoricalCrossentropy
+      name: CategoricalCrossentropy
     metrics: 
-      name: SparseCategoricalAccuracy
+      name: CategoricalAccuracy
     optimizer:
       name: sgd # default SGD
       learning_rate: 0.1 # default 0.01

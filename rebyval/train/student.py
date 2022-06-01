@@ -74,21 +74,24 @@ class Student:
         loss_fn = tf.keras.losses.get(self.args['loss']['name'])
         mt_loss_fn = tf.keras.metrics.Mean()
         mv_loss_fn = tf.keras.metrics.Mean()
-        return loss_fn, mt_loss_fn, mv_loss_fn
+        mtt_loss_fn = tf.keras.metrics.Mean()
+        return loss_fn, mt_loss_fn, mv_loss_fn, mtt_loss_fn
 
     def _build_metrics(self):
-        metrics = {}
+        # metrics = {}
         metrics = self.args['metrics']
-        metrics = tf.keras.metrics.get(metrics['name'])
-        return metrics
+        train_metrics = tf.keras.metrics.get(metrics['name'])
+        valid_metrics = tf.keras.metrics.get(metrics['name'])
+        test_metrics = tf.keras.metrics.get(metrics['name'])
+        return train_metrics,valid_metrics,test_metrics
 
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
-        # optimizer.momentum = 0.9
-        # optimizer.nesterov = True
-        # optimizer.decay = 1e-6
+        optimizer.momentum = 0.9
+        optimizer.nesterov = True
+        optimizer.decay = 1e-4
         return optimizer
 
     def _build_logger(self):
@@ -173,8 +176,8 @@ class Student:
         self.model = self._build_model()
 
         # build losses and metrics
-        self.loss_fn, self.mt_loss_fn, self.mv_loss_fn = self._build_loss_fn()
-        self.metrics = self._build_metrics()
+        self.loss_fn, self.mt_loss_fn, self.mv_loss_fn, self.mtt_loss_fn = self._build_loss_fn()
+        self.train_metrics,self.valid_metrics,self.test_metrics = self._build_metrics()
         # build weights save writter
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()

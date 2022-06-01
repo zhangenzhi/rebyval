@@ -1,31 +1,31 @@
 INFO:  parse config from command line.
 [32mexperiment: [39m
 [32m	context: [39m
-		name: multi-p-test
+		name: cifar10-mlp-sum_reduce
 		multi-p: True
 		author: Enzhi Zhang & Ruqin Wang
 		log_path: ./log
 [32m	main_loop: [39m
 [32m		warmup: [39m
-			student_nums: 0
+			student_nums: 5
 			supervisor_trains: 1
-		nums: 1
-		student_nums: 1
+		nums: 50
+		student_nums: 3
 [32m	student: [39m
 [32m		dataloader: [39m
 			name: cifar10
 			batch_size: 128
-			epochs: 15
+			epochs: 100
 			path: ~/.keras/dataset/cifar10
 [32m		model: [39m
 			name: dnn
-			units: [64, 32, 16, 10]
+			units: [128, 64, 32, 10]
 			activations: ['relu', 'relu', 'relu', 'softmax']
 [32m		loss: [39m
-			name: SparseCategoricalCrossentropy
+			name: CategoricalCrossentropy
 			metrics: SparseCategoricalAccuracy
 [32m		metrics: [39m
-			name: SparseCategoricalAccuracy
+			name: CategoricalAccuracy
 [32m		optimizer: [39m
 			name: sgd
 			learning_rate: 0.1
@@ -33,7 +33,7 @@ INFO:  parse config from command line.
 [32m			valid: [39m
 [32m				weight_space: [39m
 					format: sum_reduce
-				valid_gap: 10
+				valid_gap: 100
 [32m				save_model: [39m
 					save_in: student
 					save_after_epoch: 1
@@ -46,11 +46,11 @@ INFO:  parse config from command line.
 			name: dnn_sumreduce
 			replay_window: 1000
 			batch_size: 128
-			epochs: 100
+			epochs: 200
 			format: tensor
 [32m		model: [39m
 			name: dnn
-			units: [64, 32, 16, 1]
+			units: [128, 64, 32, 1]
 			activations: ['relu', 'relu', 'relu', 'softplus']
 			dims: 64,32,16,1
 [32m		optimizer: [39m
@@ -73,14 +73,663 @@ INFO:  parse config from command line.
 [32m		metrics: [39m
 			name: MeanSquaredError
 [32mStart to run![39m
-[32m[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
-[32mweight_space_path:./log/multi-p-test/weight_space[39m
-filelist length: 20
-[33mWARNING: no such path: ./log/multi-p-test/tensorboard/supervisor-20220525-135127, but we made.[39m
 [32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
-[33mWARNING: no such path: ./log/multi-p-test/tensorboard/student-20-20220525-135235, but we made.[39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-0-20220601-094608, but we made.[39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/weight_space, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 0
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-1-20220601-094611, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 1
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-3-20220601-094616, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 3
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-2-20220601-094613, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 2
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-4-20220601-094617, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 4
+[32m[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 5
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/supervisor-20220601-095526, but we made.[39m
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-5-20220601-095553, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 5
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-6-20220601-095558, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 6
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-7-20220601-095603, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 7
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/5.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/6.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/7.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 8
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-8-20220601-100551, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 8
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-10-20220601-100600, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 10
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-9-20220601-100555, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 9
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/8.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/10.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/9.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 11
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-11-20220601-101543, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 11
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-12-20220601-101548, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 12
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-13-20220601-101552, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 13
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/11.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/12.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/13.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 14
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-14-20220601-102538, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 14
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-15-20220601-102543, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 15
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-16-20220601-102547, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 16
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/14.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/15.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/16.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 17
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-17-20220601-103534, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 17
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-18-20220601-103539, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 18
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-19-20220601-103544, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 19
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/17.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/18.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/19.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 20
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-20-20220601-104532, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
 Finished training student 20
-[32mnew_student:['./log/multi-p-test/weight_space/20.tfrecords'], welcome![39m
-[32mweight_space_path:./log/multi-p-test/weight_space[39m
-filelist length: 21
-[32m[Task Status]: Task done! Time cost: {:}[39m
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-21-20220601-104537, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 21
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-22-20220601-104542, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 22
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/20.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/21.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/22.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 23
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-24-20220601-105536, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 24
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-23-20220601-105531, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 23
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-25-20220601-105541, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 25
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/24.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/23.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/25.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 26
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-26-20220601-110530, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 26
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-27-20220601-110534, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 27
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-28-20220601-110539, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 28
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/26.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/27.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/28.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 29
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-29-20220601-111533, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 29
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-31-20220601-111542, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 31
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-30-20220601-111537, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 30
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/29.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/31.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/30.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 32
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-32-20220601-112538, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 32
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-33-20220601-112542, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 33
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-34-20220601-112547, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 34
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/32.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/33.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/34.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 35
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-35-20220601-113542, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 35
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-36-20220601-113546, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 36
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-37-20220601-113551, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 37
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/35.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/36.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/37.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 38
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-38-20220601-114550, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 38
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-39-20220601-114555, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 39
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-40-20220601-114600, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 40
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/38.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/39.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/40.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 41
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-41-20220601-115604, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 41
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-42-20220601-115609, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 42
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-43-20220601-115614, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 43
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/41.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/42.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/43.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 44
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-44-20220601-120613, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 44
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-45-20220601-120617, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 45
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-46-20220601-120622, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 46
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/44.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/45.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/46.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 47
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-47-20220601-121623, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 47
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-48-20220601-121627, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 48
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-49-20220601-121632, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 49
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/47.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/48.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/49.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 50
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-50-20220601-122634, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 50
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-51-20220601-122639, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 51
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-52-20220601-122644, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 52
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/50.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/51.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/52.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 53
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-53-20220601-123648, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 53
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-54-20220601-123653, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 54
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-55-20220601-123658, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 55
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/53.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/54.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/55.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 56
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-56-20220601-124701, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 56
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-57-20220601-124706, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 57
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-58-20220601-124711, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 58
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/56.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/57.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/58.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 59
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-59-20220601-125717, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 59
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-60-20220601-125722, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 60
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-61-20220601-125726, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 61
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/59.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/60.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/61.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 62
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-62-20220601-130728, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 62
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-64-20220601-130738, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 64
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-63-20220601-130733, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 63
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/62.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/64.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/63.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 65
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-65-20220601-131740, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 65
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-66-20220601-131745, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 66
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-67-20220601-131750, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 67
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/65.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/66.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/67.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 68
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-68-20220601-132751, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 68
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-69-20220601-132756, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 69
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-70-20220601-132801, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 70
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/68.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/69.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/70.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 71
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-71-20220601-133813, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 71
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-72-20220601-133818, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 72
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-73-20220601-133822, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 73
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/71.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/72.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/73.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 74
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-74-20220601-134830, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 74
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-75-20220601-134835, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 75
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-76-20220601-134840, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 76
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/74.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/75.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/76.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 77
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-77-20220601-135845, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 77
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-78-20220601-135850, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 78
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-79-20220601-135855, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 79
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/77.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/78.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/79.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 80
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-80-20220601-140921, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 80
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-81-20220601-140926, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 81
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-82-20220601-140931, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 82
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/80.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/81.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/82.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 83
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-83-20220601-141953, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 83
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-84-20220601-141958, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 84
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-85-20220601-142003, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 85
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/83.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/84.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/85.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 86
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-86-20220601-143018, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 86
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-87-20220601-143023, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 87
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-88-20220601-143028, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 88
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/86.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/87.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/88.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 89
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-89-20220601-144049, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 89
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-90-20220601-144054, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 90
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-91-20220601-144059, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 91
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/89.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/90.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/91.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 92
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-92-20220601-145145, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 92
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-93-20220601-145150, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 93
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-94-20220601-145155, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 94
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/92.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/93.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/94.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 95
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-95-20220601-150244, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 95
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-96-20220601-150249, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 96
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-97-20220601-150254, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 97
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/95.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/96.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/97.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 98
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-98-20220601-151324, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 98
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-99-20220601-151328, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 99
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-100-20220601-151333, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 100
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/98.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/99.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/100.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 101
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-101-20220601-152358, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 101
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-102-20220601-152403, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 102
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-103-20220601-152408, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 103
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/101.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/102.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/103.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 104
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-104-20220601-153442, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 104
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-105-20220601-153447, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 105
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-106-20220601-153452, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 106
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/104.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/105.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/106.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 107
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-107-20220601-154532, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 107
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-109-20220601-154541, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 109
+[32mdevices: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')][39m
+[33mWARNING: no such path: ./log/cifar10-mlp-sum_reduce/tensorboard/student-108-20220601-154536, but we made.[39m
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.010000001>
+Current decayed learning rate is <tf.Variable 'SGD/learning_rate:0' shape=() dtype=float32, numpy=0.001>
+Finished training student 108
+[32mnew_student:['./log/cifar10-mlp-sum_reduce/weight_space/107.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/109.tfrecords', './log/cifar10-mlp-sum_reduce/weight_space/108.tfrecords'], welcome![39m
+[32mweight_space_path:./log/cifar10-mlp-sum_reduce/weight_space[39m
+filelist length: 110
