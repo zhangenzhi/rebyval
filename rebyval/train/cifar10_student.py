@@ -133,7 +133,7 @@ class Cifar10Student(Student):
         return t_loss
     
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.01):
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.1):
         
         step = train_step+epoch*self.dataloader.info['train_step']
 
@@ -235,8 +235,8 @@ class Cifar10Student(Student):
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
-                                # if self.supervisor != None:
-                                #     self.update_supervisor(self.model.trainable_variables, ev_loss)
+                                if self.supervisor != None:
+                                    self.update_supervisor(self.model.trainable_variables, ev_loss)
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
