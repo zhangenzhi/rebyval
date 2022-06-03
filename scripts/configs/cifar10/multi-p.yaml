@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar10-mlp-online
+    name: cifar10-mlp-online-normed-grads
     multi-p: True
 
   main_loop:
