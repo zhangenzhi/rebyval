@@ -27,6 +27,12 @@ class MinistDataLoader(BaseDataLoader):
         
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
+        
+        x_train,x_test = normalization(x_train, x_test)
+        
+        #on-hot
+        y_train = tf.keras.utils.to_categorical(y_train, 10)
+        y_test = tf.keras.utils.to_categorical(y_test, 10)
 
         full_size = len(x_train)
         test_size = len(x_test)
