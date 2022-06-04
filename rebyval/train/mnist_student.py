@@ -98,9 +98,10 @@ class MnistStudent(Student):
     def _test_step(self, inputs, labels, test_step=0):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        self.metrics.update_state(labels, predictions)
-        self.mv_loss_fn.update_state(loss)
+        self.test_metrics.update_state(labels, predictions)
+        self.mtt_loss_fn.update_state(loss)
         return loss
+
 
     def train(self, new_student=None, supervisor_info=None):
         
