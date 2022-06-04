@@ -29,7 +29,7 @@ class MinistDataLoader(BaseDataLoader):
         y_test = y_test.astype(np.float32)
         
         x_train = np.reshape(x_train, [60000,28,28,1])
-        x_test = np.reshape(x_test, [60000,28,28,1])
+        x_test = np.reshape(x_test, [10000,28,28,1])
         x_train,x_test = normalization(x_train, x_test)
         
         #on-hot
