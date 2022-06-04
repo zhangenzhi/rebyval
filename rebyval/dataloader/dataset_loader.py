@@ -13,7 +13,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 class MinistDataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
         super().__init__(dataloader_args)
-        self.info = {'train_size':50000,'test_size':10000,'image_size':[28,28,1],
+        self.info = {'train_size':50000,'test_size':10000,'image_size':[28, 28, 1],
                 'train_step': int(50000/dataloader_args['batch_size']),
                 'valid_step': int(5000/dataloader_args['batch_size']),
                 'test_step': int(5000/dataloader_args['batch_size']),
@@ -28,6 +28,8 @@ class MinistDataLoader(BaseDataLoader):
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
         
+        x_train = np.reshape(x_train, [60000,28,28,1])
+        x_test = np.reshape(x_test, [60000,28,28,1])
         x_train,x_test = normalization(x_train, x_test)
         
         #on-hot
