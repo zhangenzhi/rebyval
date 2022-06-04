@@ -35,6 +35,11 @@ class MnistStudent(Student):
             print_error("train step error")
             raise
         
+        # with self.logger.as_default():
+        #     step = train_step+epoch*self.dataloader.info['train_step']
+        #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
+        #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
+        #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate.current_lr, step=step)
         self.mt_loss_fn.update_state(loss)
         
         return loss
@@ -58,21 +63,22 @@ class MnistStudent(Student):
         with tf.GradientTape() as tape_t:
             predictions = self.model(inputs, training=True)
             t_loss = self.loss_fn(labels, predictions)
-        
-        with tf.GradientTape() as tape_s:
-            s_loss = self.weightspace_loss(self.model.trainable_variables)
+        if train_step % 100 == 0:
+            with tf.GradientTape() as tape_s:
+                self.s_loss = self.weightspace_loss(self.model.trainable_variables)
+            self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
 
-        s_grad = tape_s.gradient(s_loss, self.model.trainable_variables)
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        gradients = [(s/(1e-12 + tf.norm(s)) + t/(1e-8 + tf.norm(t)))/2 for s,t in zip(s_grad,t_grad)]
+        # gradients = [(s/(1e-12 + tf.norm(s)) + t/(1e-8 + tf.norm(t)))/2 for s,t in zip(self.s_grad,t_grad)]
+        gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor+t for s,t in zip(self.s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
         with self.logger.as_default():
-            tf.summary.scalar("surrogate_loss", s_loss, step=step)
-            if step % self.dataloader.info['train_step'] == 0:
-                tf.summary.histogram("t_gard_0", t_grad[0], step=step)
-                tf.summary.histogram("s_gard_0", s_grad[0], step=step)
+            tf.summary.scalar("surrogate_loss", self.s_loss, step=step)
+            # if step % self.dataloader.info['train_step'] == 0:
+            #     tf.summary.histogram("t_gard_0", t_grad[0], step=step)
+            #     tf.summary.histogram("s_gard_0", self.s_grad[0], step=step)
             
         self.mt_loss_fn.update_state(t_loss)
         
@@ -98,7 +104,7 @@ class MnistStudent(Student):
 
     def train(self, new_student=None, supervisor_info=None):
         
-        # parse train loop control args
+         # parse train loop control args
         train_loop_args = self.args['train_loop']
         train_args = train_loop_args['train']
         valid_args = train_loop_args['valid']
@@ -110,15 +116,25 @@ class MnistStudent(Student):
         test_iter = iter(self.test_dataset)
         
         # metrics reset
-        self.metrics.reset_states()
+        # self.test_metrics.reset_states()
         
         if supervisor_info != None:
+            # self.supervisor_info = supervisor_info
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
+
+                # lr decay
+                if epoch/self.dataloader.info['epochs'] == 0.5:
+                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                elif epoch/self.dataloader.info['epochs'] == 0.75:
+                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
@@ -127,7 +143,7 @@ class MnistStudent(Student):
                             train_loss = self._train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
                         else:
-                            train_loss = self._train_step(data['inputs'], data['labels'], 
+                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
@@ -142,21 +158,22 @@ class MnistStudent(Student):
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
-                                # if self.supervisor != None:
-                                #     self.update_supervisor(self.model.trainable_variables, ev_loss)
+                                if self.supervisor != None:
+                                    self.update_supervisor(self.model.trainable_variables, ev_loss)
                                 self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
                                                               valid_loss = ev_loss,
                                                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
-                    self.mv_loss_fn.reset_states()
+                    self.mtt_loss_fn.reset_states()
+                    self.test_metrics.reset_states()
                     for test_step in t:
                         data = test_iter.get_next()
                         t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
                         t.set_postfix(test_loss=t_loss.numpy())
-                    ett_loss = self.mv_loss_fn.result()
-                    ett_metric = self.metrics.result()
+                    ett_loss = self.mtt_loss_fn.result()
+                    ett_metric = self.test_metrics.result()
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
