@@ -82,7 +82,7 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_train,x_test = normalization(x_train, x_test)
         
-        #on-hot
+        #one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test = tf.keras.utils.to_categorical(y_test, 10)
         
@@ -142,6 +142,10 @@ class Cifar100DataLoader(BaseDataLoader):
         y_test = y_test.astype(np.float32)
         
         x_train,x_test = normalization(x_train, x_test)
+        
+        #one-hot
+        y_train = tf.keras.utils.to_categorical(y_train, 10)
+        y_test = tf.keras.utils.to_categorical(y_test, 10)
 
         full_size = len(x_train)
         test_size = len(x_test)
