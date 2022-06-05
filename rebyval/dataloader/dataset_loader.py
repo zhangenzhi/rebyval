@@ -128,8 +128,8 @@ class Cifar100DataLoader(BaseDataLoader):
         super(Cifar100DataLoader, self).__init__(dataloader_args=dataloader_args)
         self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
                      'train_step': int(50000/dataloader_args['batch_size']),
-                     'valid_step': int(5000/dataloader_args['batch_size']),
-                     'test_step': int(5000/dataloader_args['batch_size']),
+                     'valid_step': int(10000/dataloader_args['batch_size']),
+                     'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
     def load_dataset(self, epochs=-1, format=None):
@@ -140,6 +140,8 @@ class Cifar100DataLoader(BaseDataLoader):
         
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
+        
+        x_train,x_test = normalization(x_train, x_test)
 
         full_size = len(x_train)
         test_size = len(x_test)
@@ -159,9 +161,13 @@ class Cifar100DataLoader(BaseDataLoader):
         # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
-        test_dataset = test_dataset.shuffle(test_size)
-        valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
-        test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # all 1w test
+        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset
+        
+        # test_dataset = test_dataset.shuffle(test_size)
+        # valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
 
         return train_dataset, valid_dataset, test_dataset
 
