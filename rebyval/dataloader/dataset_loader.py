@@ -144,8 +144,8 @@ class Cifar100DataLoader(BaseDataLoader):
         x_train,x_test = normalization(x_train, x_test)
         
         #one-hot
-        y_train = tf.keras.utils.to_categorical(y_train, 10)
-        y_test = tf.keras.utils.to_categorical(y_test, 10)
+        y_train = tf.keras.utils.to_categorical(y_train, 100)
+        y_test = tf.keras.utils.to_categorical(y_test, 100)
 
         full_size = len(x_train)
         test_size = len(x_test)
