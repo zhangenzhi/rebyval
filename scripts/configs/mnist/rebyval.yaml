@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: mnist-mlp-online-v2
+    name: mnist-mlp-online-v3
     multi-p: True
 
   main_loop:
