@@ -69,8 +69,8 @@ class MnistStudent(Student):
             self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
 
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        gradients = [s/(1e-12 + tf.norm(s))*decay_factor + t/(1e-8 + tf.norm(t)) for s,t in zip(self.s_grad,t_grad)]
-        # gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor+t for s,t in zip(self.s_grad,t_grad)]
+        # gradients = [s/(1e-12 + tf.norm(s))*decay_factor + t/(1e-8 + tf.norm(t)) for s,t in zip(self.s_grad,t_grad)]
+        gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor+t for s,t in zip(self.s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
@@ -128,13 +128,13 @@ class MnistStudent(Student):
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
 
-                # lr decay
-                if epoch/self.dataloader.info['epochs'] == 0.5:
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                elif epoch/self.dataloader.info['epochs'] == 0.75:
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                # # lr decay
+                # if epoch/self.dataloader.info['epochs'] == 0.5:
+                #     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                #     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                # elif epoch/self.dataloader.info['epochs'] == 0.75:
+                #     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                #     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
