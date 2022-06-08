@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar100-mlp-online-normed-grads
+    name: cifar100-mlp-online-decay0001
     multi-p: True
 
   main_loop:
