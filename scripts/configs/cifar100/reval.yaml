@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar100-mlp-online-decay00001
+    name: cifar100-mlp-double-decay00001
     multi-p: True
 
   main_loop:
