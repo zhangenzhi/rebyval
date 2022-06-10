@@ -28,7 +28,6 @@ class Cifar10Student(Student):
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
-                # ForkedPdb().set_trace()
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             norm_gard = gradients
