@@ -28,7 +28,8 @@ class Cifar100Student(Student):
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
+            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
+            norm_gard = gradients
             self.optimizer.apply_gradients(
                 zip(norm_gard, self.model.trainable_variables))
         except:

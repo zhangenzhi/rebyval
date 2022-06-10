@@ -142,7 +142,7 @@ class ResNet(Model):
 
         x = inputs
 
-        # x = self._preprocess(x, self.preprocess_layers)
+        x = self._preprocess(x, self.preprocess_layers)
 
         x = self.stack_fn(x, self.stack_fn_stacks)
 
