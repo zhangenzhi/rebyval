@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 
 class ResNet(Model):
     def __init__(self, use_bias=True, pooling=None, include_top=True, classes=1000, preact=False,
-                 regularizer=None, name='resnet', **kwargs):
+                 regularizer=tf.keras.regularizers.l2(l2=0.0001), name='resnet', **kwargs):
         super(ResNet, self).__init__()
 
         self.use_bias = use_bias
