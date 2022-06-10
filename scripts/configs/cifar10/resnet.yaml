@@ -13,8 +13,8 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 256
-      epochs: 100
+      batch_size: 128
+      epochs: 300
     model:
       name: resnet50 # default dnn
       classes: 10

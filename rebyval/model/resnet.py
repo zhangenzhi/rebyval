@@ -142,8 +142,8 @@ class ResNet(Model):
 
         x = inputs
         
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
 
         x = self._preprocess(x, self.preprocess_layers)
 
