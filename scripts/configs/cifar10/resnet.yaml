@@ -13,7 +13,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
+      batch_size: 256
       epochs: 100
     model:
       name: resnet50 # default dnn
@@ -23,8 +23,8 @@ experiment:
     metrics: 
       name: CategoricalAccuracy
     optimizer:
-      name: sgd # default SGD
-      learning_rate: 0.1 # default 0.01
+      name: Adam # default SGD
+      learning_rate: 0.001 # default 0.01
     train_loop:
         valid:
           weight_space:
