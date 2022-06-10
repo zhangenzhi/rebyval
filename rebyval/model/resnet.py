@@ -133,9 +133,6 @@ class ResNet(Model):
         for layer in seq_layer_shortcut:
             shortcut = layer(shortcut)
 
-        # import pdb
-        # pdb.set_trace()
-
         for layer in seq_layers_block:
             x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
 
@@ -145,7 +142,7 @@ class ResNet(Model):
 
         x = inputs
 
-        x = self._preprocess(x, self.preprocess_layers)
+        # x = self._preprocess(x, self.preprocess_layers)
 
         x = self.stack_fn(x, self.stack_fn_stacks)
 
