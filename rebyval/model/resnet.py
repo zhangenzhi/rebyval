@@ -141,6 +141,9 @@ class ResNet(Model):
     def call(self, inputs):
 
         x = inputs
+        
+        import pdb
+        pdb.set_trace()
 
         x = self._preprocess(x, self.preprocess_layers)
 
@@ -153,7 +156,7 @@ class ResNet(Model):
 
 class ResNet50(ResNet):
     def __init__(self, use_bias=True, pooling=None, classes=1000, 
-                 regularizer=tf.keras.regularizers.l2(l2=0.0001), name='resnet50',
+                 regularizer=tf.keras.regularizers.l2(l2=0.0001), name='ResNet50',
                  **kwargs):
         super(ResNet50, self).__init__(use_bias=use_bias, pooling=pooling, classes=classes, regularizer=regularizer, name=name)
 
