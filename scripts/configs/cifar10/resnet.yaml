@@ -23,7 +23,7 @@ experiment:
     metrics: 
       name: CategoricalAccuracy
     optimizer:
-      name: Adam # default SGD
+      name: sgd # default SGD
       learning_rate: 0.1 # default 0.01
     train_loop:
         valid:
