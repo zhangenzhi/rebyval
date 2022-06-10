@@ -31,7 +31,8 @@ class Cifar10Student(Student):
                 # ForkedPdb().set_trace()
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
+            norm_gard = gradients
+            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
             self.optimizer.apply_gradients(
                 zip(norm_gard, self.model.trainable_variables))
         except:
@@ -237,9 +238,9 @@ class Cifar10Student(Student):
                                 # online update supervisor
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
-                                self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
-                                                              valid_loss = ev_loss,
-                                                              weight_space = valid_args['weight_space'])
+                                # self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
+                                #                               valid_loss = ev_loss,
+                                #                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
