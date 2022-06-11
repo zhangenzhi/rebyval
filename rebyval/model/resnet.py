@@ -194,7 +194,6 @@ class ResNetV2(Model):
         self.include_top = include_top
         self.classes = classes
         self.regularizer = regularizer
-        self.name = name
 
         self.preprocess_layers = self._build_preprocess()
         self.stack_fn_stacks = self._build_stack_fn()
