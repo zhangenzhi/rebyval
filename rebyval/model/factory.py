@@ -18,6 +18,7 @@ class ModelFactory():
     
     def get_model(self, model_args):
         model_cls = self.model_list[model_args['name']]
+        model_args.pop('name')
         model = model_cls(**model_args)
         return model
   
