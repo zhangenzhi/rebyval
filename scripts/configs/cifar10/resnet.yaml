@@ -16,8 +16,10 @@ experiment:
       batch_size: 128
       epochs: 300
     model:
-      name: resnet50 # default dnn
+      name: keras-resnet50 # default dnn
       classes: 10
+      weights: None
+      input_shape: [32,32,3]
     loss:
       name: CategoricalCrossentropy
     metrics: 
