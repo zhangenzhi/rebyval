@@ -187,7 +187,7 @@ class ResNetV2(Model):
                  regularizer=None, 
                  name='resnetv2', 
                  **kwargs):
-        super(ResNet, self).__init__()
+        super(ResNetV2, self).__init__()
 
         self.use_bias = use_bias
         self.pooling = pooling
