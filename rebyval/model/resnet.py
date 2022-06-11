@@ -228,6 +228,11 @@ class ResNetV2(Model):
             inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
         return inference_layer
     
+    def _dense_inference(self, x, dense_inference_layers):
+        for layer in dense_inference_layers:
+            x = layer(x)
+        return x
+    
     def _build_stack1(self, filters, blocks, name=None):
         seq_layers_stack1 = []
         seq_layers_stack1.append(self._build_block1(filters, kernel_size=1, strides=2, name=name + '_block1'))
