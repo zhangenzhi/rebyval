@@ -174,3 +174,131 @@ class ResNet50(ResNet):
         for stack in stack_fn_stacks:
             x = self.stack1(x, stack)
         return x
+
+
+class ResNetV2(Model):
+    # For cifar10 training.
+    def __init__(self, 
+                 use_bias=True, 
+                 pooling=None, 
+                 include_top=True, 
+                 classes=10, 
+                 preact=False,
+                 regularizer=None, 
+                 name='resnetv2', 
+                 **kwargs):
+        super(ResNet, self).__init__()
+
+        self.use_bias = use_bias
+        self.pooling = pooling
+        self.include_top = include_top
+        self.classes = classes
+        self.regularizer = regularizer
+        self.name = name
+
+        self.preprocess_layers = self._build_preprocess()
+        self.stack_fn_stacks = self._build_stack_fn()
+        self.dense_inference_layers = self._build_dense_inference()
+    
+    def _build_stack_fn(self, num_stacks=None, channels=None, name=None):
+        raise NotImplementedError
+
+    def stack_fn(self, x, stack1s):
+        raise NotImplementedError
+    
+    def _build_preprocess(self):
+        preprocess_layers = []
+        preprocess_layers.append(
+            layers.Conv2D(16, kernel_size=(3,3), padding='same', kernel_initializer='he_normal', use_bias=self.use_bias,
+                          kernel_regularizer=self.regularizer, name='pre_conv'))
+        preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='pre_conv_bn'))
+        preprocess_layers.append(layers.Activation('relu', name='pre_act_relu'))
+        return preprocess_layers 
+    
+    def _preprocess(self, x, process_layers):
+        for pre_layer in process_layers:
+            x = pre_layer(x)
+        return x
+    
+    def _build_dense_inference(self):
+        inference_layer = []
+        if self.include_top:
+            inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
+            inference_layer.append(
+                layers.Dense(self.classes, activation='softmax', name='prediction', kernel_initializer='he_normal',
+                             kernel_regularizer=self.regularizer))
+        else:
+            inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
+        return inference_layer
+    
+    def _build_stack1(self, filters, blocks, name=None):
+        seq_layers_stack1 = []
+        seq_layers_stack1.append(self._build_block1(filters, kernel_size=1, strides=2, name=name + '_block1'))
+        for i in range(2, blocks + 1):
+            seq_layers_stack1.append(
+                self._build_block1(filters, kernel_size=3, strides=1, name=name + '_block' + str(i)))
+        return seq_layers_stack1
+
+    def stack1(self, x, seq_layers_stack1):
+        for block, shortcut in seq_layers_stack1:
+            x = self.block1(x, block, shortcut)
+        return x
+    
+    def _build_block1(self, filters, kernel_size=3, strides=1, name=None):
+        seq_layers_block = []
+        seq_layer_shortcut = []
+        bn_axis = 3
+
+        if strides == 2:
+            seq_layer_shortcut.append(layers.Conv2D(filters, kernel_size=(1,1), padding='same', strides=strides,
+                                                    name=name + '_downsampling_skip', 
+                                                    kernel_initializer='he_normal',
+                                                    kernel_regularizer=self.regularizer))
+        else:
+            seq_layer_shortcut.append(layers.Lambda(lambda x: x))
+
+        seq_layers_block.append(
+            layers.Conv2D(filters, kernel_size=(3,3), padding='same', name=name + '_1_conv', strides=strides, kernel_initializer='he_normal',
+                          kernel_regularizer=self.regularizer))
+        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
+
+        seq_layers_block.append(
+            layers.Conv2D(filters, kernel_size=(3,3), strides=1, padding='same', name=name + '_2_conv',
+                          kernel_initializer='he_normal',
+                          kernel_regularizer=self.regularizer))
+        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
+
+        seq_layers_block.append(layers.Add(name=name + '_add'))
+        seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
+
+        return seq_layers_block, seq_layer_shortcut
+
+class ResNet56(ResNetV2):
+    def __init__(self, 
+                 use_bias=True, 
+                 pooling=None, 
+                 classes=10, 
+                 regularizer=tf.keras.regularizers.l2(l2=1e-4), 
+                 name='ResNet56',
+                 **kwargs):
+        super(ResNet56, self).__init__(use_bias=use_bias, 
+                                       pooling=pooling, 
+                                       classes=classes, 
+                                       regularizer=regularizer, 
+                                       name=name)
+
+    def _build_stack_fn(self, name='ResNet56'):
+        seq_layer_stacks = []
+        
+        seq_layer_stacks.append(self._build_stack1(16, 9, name=name + '_stack1'))
+        seq_layer_stacks.append(self._build_stack1(32, 9, name=name + '_stack2'))
+        seq_layer_stacks.append(self._build_stack1(64, 9, name=name + '_stack3'))
+
+        return seq_layer_stacks
+
+    def stack_fn(self, x, stack_fn_stacks):
+        for stack in stack_fn_stacks:
+            x = self.stack1(x, stack)
+        return x
