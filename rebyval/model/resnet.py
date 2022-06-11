@@ -142,8 +142,6 @@ class ResNet(Model):
 
         x = inputs
         
-        # import pdb
-        # pdb.set_trace()
 
         x = self._preprocess(x, self.preprocess_layers)
 
@@ -273,6 +271,18 @@ class ResNetV2(Model):
         seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
 
         return seq_layers_block, seq_layer_shortcut
+    
+    def call(self, inputs):
+
+        x = inputs
+
+        x = self._preprocess(x, self.preprocess_layers)
+
+        x = self.stack_fn(x, self.stack_fn_stacks)
+
+        x = self._dense_inference(x, self.dense_inference_layers)
+
+        return x
 
 class ResNet56(ResNetV2):
     def __init__(self, 
