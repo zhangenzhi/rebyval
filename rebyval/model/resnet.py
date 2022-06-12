@@ -197,7 +197,7 @@ class ResNetV2(Model):
         self.stack_fn_stacks = self._build_stack_fn()
         self.dense_inference_layers = self._build_dense_inference()
     
-    def _build_stack_fn(self, num_stacks=None, channels=None, name=None):
+    def _build_stack_fn(self, name=None):
         raise NotImplementedError
 
     def stack_fn(self, x, stack1s):
@@ -246,7 +246,7 @@ class ResNetV2(Model):
             x = self.block1(x, block, shortcut)
         return x
     
-    def _build_block1(self, filters, kernel_size=3, strides=1, name=None):
+    def _build_block1(self, filters, kernel_size, strides, name=None):
         seq_layers_block = []
         seq_layer_shortcut = []
         bn_axis = 3
@@ -260,7 +260,8 @@ class ResNetV2(Model):
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 
         seq_layers_block.append(
-            layers.Conv2D(filters, kernel_size=(3,3), padding='same', name=name + '_1_conv', strides=strides, kernel_initializer='he_normal',
+            layers.Conv2D(filters, kernel_size=(3,3), padding='same', name=name + '_1_conv', strides=strides, 
+                          kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
@@ -270,7 +271,6 @@ class ResNetV2(Model):
                           kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
-        seq_layers_block.append(layers.Activation('relu', name=name + '_2_relu'))
 
         seq_layers_block.append(layers.Add(name=name + '_add'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
