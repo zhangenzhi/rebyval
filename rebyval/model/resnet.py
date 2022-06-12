@@ -233,9 +233,9 @@ class ResNetV2(Model):
             x = layer(x)
         return x
     
-    def _build_stack1(self, filters, blocks, name=None):
+    def _build_stack1(self, filters, blocks, s_downsampling=2, name=None):
         seq_layers_stack1 = []
-        seq_layers_stack1.append(self._build_block1(filters, kernel_size=1, strides=2, name=name + '_block1'))
+        seq_layers_stack1.append(self._build_block1(filters, kernel_size=1, strides=s_downsampling, name=name + '_block1'))
         for i in range(2, blocks + 1):
             seq_layers_stack1.append(
                 self._build_block1(filters, kernel_size=3, strides=1, name=name + '_block' + str(i)))
@@ -317,7 +317,7 @@ class ResNet56(ResNetV2):
     def _build_stack_fn(self, name='ResNet56'):
         seq_layer_stacks = []
         
-        seq_layer_stacks.append(self._build_stack1(16, 9, name=name + '_stack1'))
+        seq_layer_stacks.append(self._build_stack1(16, 9, s_downsampling=1, name=name + '_stack1'))
         seq_layer_stacks.append(self._build_stack1(32, 9, name=name + '_stack2'))
         seq_layer_stacks.append(self._build_stack1(64, 9, name=name + '_stack3'))
 
