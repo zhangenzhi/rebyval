@@ -87,8 +87,11 @@ class Cifar10DataLoader(BaseDataLoader):
         y_test = tf.keras.utils.to_categorical(y_test, 10)
         
         data_augmentation = tf.keras.Sequential([
-                            preprocessing.RandomFlip("horizontal"),
+                            preprocessing.RandomFlip(),
+                            preprocessing.RandomContrast(0.1),
                             # preprocessing.RandomWidth((0.1, 0.1)),
+                            preprocessing.RandomCrop(32, 32),
+                            preprocessing.RandomRotation(factor=(-0.1, 0.1)),
                             preprocessing.RandomZoom(0.1)
                             ])
 
