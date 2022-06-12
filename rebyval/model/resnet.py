@@ -324,8 +324,6 @@ class ResNet56(ResNetV2):
         return seq_layer_stacks
 
     def stack_fn(self, x, stack_fn_stacks):
-        import pdb
-        pdb.set_trace()
         for stack in stack_fn_stacks:
             x = self.stack1(x, stack)
         return x
