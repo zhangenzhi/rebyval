@@ -205,10 +205,10 @@ class Cifar10Student(Student):
 
                 # lr decay
                 if epoch/self.dataloader.info['epochs'] == 0.5:
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.5
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                 elif epoch/self.dataloader.info['epochs'] == 0.75:
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.5
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
@@ -223,7 +223,7 @@ class Cifar10Student(Student):
                                                         train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
-                        if train_step % valid_args['valid_gap'] == 0:
+                        if (train_step+1) % valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 for valid_step in v:
