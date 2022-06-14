@@ -330,7 +330,7 @@ class ResNet56(ResNetV2):
         return x
 
 class nResNet56():
-    def __init__(self, *kwargs) -> None:
+    def __init__(self, name, classes, *kwargs) -> None:
         self.model = self.build()
     
     def build(self):
