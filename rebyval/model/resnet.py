@@ -1,3 +1,4 @@
+from pyexpat import model
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras import layers
@@ -327,3 +328,45 @@ class ResNet56(ResNetV2):
         for stack in stack_fn_stacks:
             x = self.stack1(x, stack)
         return x
+
+class ResNet56():
+    def __init__(self, *kwargs) -> None:
+        self.model = self.build()
+    
+    def build(self):
+        from tensorflow.keras.layers import Conv2D, Dense, BatchNormalization, Activation, MaxPool2D, GlobalAveragePooling2D, Add, Input, Flatten
+        from tensorflow.keras import Model
+        from tensorflow.keras.regularizers import l2
+
+        n = 9 # 56 layers
+        channels = [16, 32, 64]
+
+        inputs = Input(shape=(32, 32, 3))
+        x = Conv2D(channels[0], kernel_size=(3, 3), padding="same", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4))(inputs)
+        x = BatchNormalization()(x)
+        x = Activation(tf.nn.relu)(x)
+
+        for c in channels:
+            for i in range(n):
+                subsampling = i == 0 and c > 16
+                strides = (2, 2) if subsampling else (1, 1)
+                y = Conv2D(c, kernel_size=(3, 3), padding="same", strides=strides, kernel_initializer="he_normal", kernel_regularizer=l2(1e-4))(x)
+                y = BatchNormalization()(y)
+                y = Activation(tf.nn.relu)(y)
+                y = Conv2D(c, kernel_size=(3, 3), padding="same", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4))(y)
+                y = BatchNormalization()(y)        
+                if subsampling:
+                    x = Conv2D(c, kernel_size=(1, 1), strides=(2, 2), padding="same", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4))(x)
+                x = Add()([x, y])
+                x = Activation(tf.nn.relu)(x)
+
+        x = GlobalAveragePooling2D()(x)
+        x = Flatten()(x)
+        outputs = Dense(10, activation=tf.nn.softmax, kernel_initializer="he_normal")(x)
+
+        model = Model(inputs=inputs, outputs=outputs)
+        model.type = "resnet" + str(6 * n + 2)
+        return model
+    
+    def __call__(self, x):
+        return self.model(x)
