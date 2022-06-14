@@ -368,5 +368,5 @@ class nResNet56():
         model.type = "resnet" + str(6 * n + 2)
         return model
     
-    def __call__(self, x):
+    def __call__(self, x, training=True):
         return self.model(x)
