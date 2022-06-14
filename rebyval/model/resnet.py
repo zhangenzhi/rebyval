@@ -221,6 +221,7 @@ class ResNetV2(Model):
         inference_layer = []
         if self.include_top:
             inference_layer.append(layers.GlobalAveragePooling2D(name='avg_pool'))
+            inference_layer.append(layers.Flatten())
             inference_layer.append(
                 layers.Dense(self.classes, activation='softmax', name='prediction', kernel_initializer='he_normal',
                              kernel_regularizer=self.regularizer))

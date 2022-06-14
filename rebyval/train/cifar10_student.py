@@ -204,10 +204,10 @@ class Cifar10Student(Student):
             for epoch in e:
 
                 # lr decay
-                if epoch/self.dataloader.info['epochs'] == 0.5:
+                if epoch == 100:
                     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                elif epoch/self.dataloader.info['epochs'] == 0.75:
+                elif epoch == 150:
                     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
