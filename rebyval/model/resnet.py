@@ -285,7 +285,11 @@ class ResNetV2(Model):
             shortcut = layer(shortcut)
 
         for layer in seq_layers_block:
-            x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
+            # residual
+            # x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
+            
+            # plain
+            x = layer(x)
 
         return x
     
