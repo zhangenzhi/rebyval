@@ -329,7 +329,7 @@ class ResNet56(ResNetV2):
             x = self.stack1(x, stack)
         return x
 
-class ResNet56():
+class nResNet56():
     def __init__(self, *kwargs) -> None:
         self.model = self.build()
     
