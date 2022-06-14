@@ -280,9 +280,9 @@ class ResNetV2(Model):
     
     def block1(self, x, seq_layers_block, seq_layer_shortcut):
 
-        shortcut = x
-        for layer in seq_layer_shortcut:
-            shortcut = layer(shortcut)
+        # shortcut = x
+        # for layer in seq_layer_shortcut:
+        #     shortcut = layer(shortcut)
 
         for layer in seq_layers_block:
             # residual
