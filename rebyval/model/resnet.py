@@ -289,7 +289,7 @@ class ResNetV2(Model):
             # x = layer(x) if layer.name[-3:] != 'add' else layer([shortcut, x])
             
             # plain
-            x = layer(x)
+            x = layer(x) if layer.name[-3:] != 'add' else layer([x])
 
         return x
     
