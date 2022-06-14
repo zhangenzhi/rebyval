@@ -273,7 +273,7 @@ class ResNetV2(Model):
                           kernel_regularizer=self.regularizer))
         seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
 
-        # seq_layers_block.append(layers.Add(name=name + '_add'))
+        seq_layers_block.append(layers.Add(name=name + '_add'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
 
         return seq_layers_block, seq_layer_shortcut
