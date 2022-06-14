@@ -332,6 +332,7 @@ class ResNet56(ResNetV2):
 class nResNet56():
     def __init__(self, name, classes, *kwargs) -> None:
         self.model = self.build()
+        return self.model
     
     def build(self):
         from tensorflow.keras.layers import Conv2D, Dense, BatchNormalization, Activation, MaxPool2D, GlobalAveragePooling2D, Add, Input, Flatten
