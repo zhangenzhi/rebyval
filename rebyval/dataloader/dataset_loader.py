@@ -102,10 +102,10 @@ class Cifar10DataLoader(BaseDataLoader):
         valid_size = int(0.5 * test_size)
 
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
-        full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True)
+        train_dataset = train_dataset.shuffle(train_size)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         # data augmentation
         train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
         train_dataset = train_dataset.prefetch(1)

@@ -181,7 +181,6 @@ class ResNetV2(Model):
                  pooling=None, 
                  include_top=True, 
                  classes=10, 
-                 preact=False,
                  regularizer=None, 
                  name='resnetv2', 
                  **kwargs):
@@ -208,7 +207,7 @@ class ResNetV2(Model):
         preprocess_layers.append(
             layers.Conv2D(16, kernel_size=(3,3), padding='same', kernel_initializer='he_normal', use_bias=self.use_bias,
                           kernel_regularizer=self.regularizer, name='pre_conv'))
-        preprocess_layers.append(layers.BatchNormalization(axis=3, epsilon=1.001e-5, name='pre_conv_bn'))
+        preprocess_layers.append(layers.BatchNormalization(name='pre_conv_bn'))
         preprocess_layers.append(layers.Activation('relu', name='pre_act_relu'))
         return preprocess_layers 
     
@@ -264,14 +263,14 @@ class ResNetV2(Model):
             layers.Conv2D(filters, kernel_size=(3,3), padding='same', name=name + '_1_conv', strides=strides, 
                           kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
-        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn'))
+        seq_layers_block.append(layers.BatchNormalization(name=name + '_1_bn'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_1_relu'))
 
         seq_layers_block.append(
             layers.Conv2D(filters, kernel_size=(3,3), strides=1, padding='same', name=name + '_2_conv',
                           kernel_initializer='he_normal',
                           kernel_regularizer=self.regularizer))
-        seq_layers_block.append(layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn'))
+        seq_layers_block.append(layers.BatchNormalization(name=name + '_2_bn'))
 
         seq_layers_block.append(layers.Add(name=name + '_add'))
         seq_layers_block.append(layers.Activation('relu', name=name + '_out'))
@@ -306,7 +305,7 @@ class ResNet56(ResNetV2):
                  use_bias=True, 
                  pooling=None, 
                  classes=10, 
-                 regularizer=tf.keras.regularizers.l2(l2=1e-4), 
+                 regularizer=None, 
                  name='ResNet56',
                  **kwargs):
         super(ResNet56, self).__init__(use_bias=use_bias, 
