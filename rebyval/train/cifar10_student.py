@@ -205,11 +205,11 @@ class Cifar10Student(Student):
             for epoch in e:
 
                 # lr decay
-                if epoch == int(self.dataloader.info['epochs']*0.5):
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                if int(self.dataloader.info['epochs']*0.5) <= epoch < int(self.dataloader.info['epochs']*0.75):
+                    self.optimizer.learning_rate = 0.01
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                elif epoch == int(self.dataloader.info['epochs']*0.75):
-                    self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                elif epoch >= int(self.dataloader.info['epochs']*0.75):
+                    self.optimizer.learning_rate = 0.001
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
@@ -227,8 +227,8 @@ class Cifar10Student(Student):
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 for valid_step in v:
-                                    data = valid_iter.get_next()
-                                    valid_loss = self._valid_step(data['inputs'], data['labels'],
+                                    v_data = valid_iter.get_next()
+                                    valid_loss = self._valid_step(v_data['inputs'], v_data['labels'],
                                                                 valid_step=valid_step, epoch=epoch, 
                                                                 weight_space=valid_args['weight_space'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
@@ -246,8 +246,8 @@ class Cifar10Student(Student):
                     tt_metrics = []
                     for test_step in t:
                         # self.test_metrics.reset_states()
-                        data = test_iter.get_next()
-                        t_loss,t_metric = self._test_step(data['inputs'], data['labels'])
+                        t_data = test_iter.get_next()
+                        t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
                         tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()

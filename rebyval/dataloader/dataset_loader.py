@@ -82,7 +82,7 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_train,x_test = normalization(x_train, x_test)
         
-        #one-hot
+        # one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test = tf.keras.utils.to_categorical(y_test, 10)
         
@@ -103,9 +103,9 @@ class Cifar10DataLoader(BaseDataLoader):
         valid_size = int(0.5 * test_size)
 
         full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
+        full_dataset = full_dataset.shuffle(train_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.shuffle(train_size)
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         # data augmentation
         train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
