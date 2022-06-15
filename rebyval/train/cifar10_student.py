@@ -243,9 +243,9 @@ class Cifar10Student(Student):
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    self.test_metrics.reset_states()
                     tt_metrics = []
                     for test_step in t:
+                        self.test_metrics.reset_states()
                         data = test_iter.get_next()
                         t_loss = self._test_step(data['inputs'], data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
