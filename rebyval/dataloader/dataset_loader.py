@@ -90,6 +90,7 @@ class Cifar10DataLoader(BaseDataLoader):
                             preprocessing.RandomFlip(mode="horizontal"),
                             preprocessing.RandomContrast(0.1),
                             # preprocessing.RandomWidth((0.1, 0.1)),
+                            preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
                             preprocessing.RandomCrop(32, 32),
                             preprocessing.RandomRotation(factor=(-0.1, 0.1)),
                             preprocessing.RandomZoom(0.1)
