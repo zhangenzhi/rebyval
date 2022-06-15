@@ -14,14 +14,14 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 200
+      epochs: 182
     model:
       name: resnet56 # default dnn
       classes: 10
     loss:
       name: CategoricalCrossentropy
     metrics: 
-      name: CategoricalAccuracy
+      name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
       learning_rate: 0.1 # default 0.01

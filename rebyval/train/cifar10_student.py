@@ -175,9 +175,9 @@ class Cifar10Student(Student):
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        self.test_metrics.update_state(labels, predictions)
+        test_metrics = self.test_metrics(labels, predictions)
         self.mtt_loss_fn.update_state(loss)
-        return loss
+        return loss, test_metrics
 
     def train(self, new_student=None, supervisor_info=None):
         
@@ -205,10 +205,10 @@ class Cifar10Student(Student):
             for epoch in e:
 
                 # lr decay
-                if epoch == 100:
+                if epoch == int(self.dataloader.info['epochs']*0.5):
                     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                elif epoch == 150:
+                elif epoch == int(self.dataloader.info['epochs']*0.75):
                     self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
@@ -245,11 +245,11 @@ class Cifar10Student(Student):
                     self.mtt_loss_fn.reset_states()
                     tt_metrics = []
                     for test_step in t:
-                        self.test_metrics.reset_states()
+                        # self.test_metrics.reset_states()
                         data = test_iter.get_next()
-                        t_loss = self._test_step(data['inputs'], data['labels'])
+                        t_loss,t_metric = self._test_step(data['inputs'], data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
-                        tt_metrics.append(self.test_metrics.result())
+                        tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     

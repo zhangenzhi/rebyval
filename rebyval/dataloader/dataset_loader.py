@@ -93,8 +93,7 @@ class Cifar10DataLoader(BaseDataLoader):
                             preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
                             preprocessing.RandomCrop(32, 32),
                             preprocessing.RandomRotation(factor=(-0.1, 0.1)),
-                            preprocessing.RandomZoom(0.1),
-                            preprocessing.Normalization()
+                            preprocessing.RandomZoom(0.1)
                             ])
 
         full_size = len(x_train)
