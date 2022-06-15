@@ -170,8 +170,9 @@ class Cifar10Student(Student):
         # with self.logger.as_default():
         #     tf.summary.scalar("v_loss", loss, step=step)
         return loss
-    
-    def _test_step(self, inputs, labels, test_step=0):
+
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
         self.test_metrics.update_state(labels, predictions)
@@ -243,12 +244,14 @@ class Cifar10Student(Student):
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
                     self.test_metrics.reset_states()
+                    tt_metrics = []
                     for test_step in t:
                         data = test_iter.get_next()
-                        t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
+                        t_loss = self._test_step(data['inputs'], data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
+                        tt_metrics.append(self.test_metrics.result())
                     ett_loss = self.mtt_loss_fn.result()
-                    ett_metric = self.test_metrics.result()
+                    ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
@@ -256,6 +259,7 @@ class Cifar10Student(Student):
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+        self.model.summary()
                 
                 
         

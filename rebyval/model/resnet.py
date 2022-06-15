@@ -257,7 +257,7 @@ class ResNetV2(Model):
                                                     name=name + '_downsampling_skip', 
                                                     kernel_initializer='he_normal',
                                                     kernel_regularizer=self.regularizer))
-            seq_layer_shortcut.append(layers.BatchNormalization(name=name + '_downsampling_skip_bn'))
+            # seq_layer_shortcut.append(layers.BatchNormalization(name=name + '_downsampling_skip_bn'))
         else:
             seq_layer_shortcut.append(layers.Lambda(lambda x: x))
 

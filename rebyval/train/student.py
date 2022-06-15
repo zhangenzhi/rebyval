@@ -83,7 +83,7 @@ class Student:
         train_metrics = tf.keras.metrics.get(metrics['name'])
         valid_metrics = tf.keras.metrics.get(metrics['name'])
         test_metrics = tf.keras.metrics.get(metrics['name'])
-        return train_metrics,valid_metrics,test_metrics
+        return train_metrics, valid_metrics, test_metrics
 
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
@@ -177,7 +177,7 @@ class Student:
 
         # build losses and metrics
         self.loss_fn, self.mt_loss_fn, self.mv_loss_fn, self.mtt_loss_fn = self._build_loss_fn()
-        self.train_metrics,self.valid_metrics,self.test_metrics = self._build_metrics()
+        self.train_metrics, self.valid_metrics, self.test_metrics = self._build_metrics()
         # build weights save writter
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
