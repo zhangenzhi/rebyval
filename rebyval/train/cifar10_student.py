@@ -175,7 +175,7 @@ class Cifar10Student(Student):
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        test_metrics = self.test_metrics(labels, predictions)
+        test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
         return loss, test_metrics
 
