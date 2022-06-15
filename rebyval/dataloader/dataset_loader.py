@@ -80,7 +80,7 @@ class Cifar10DataLoader(BaseDataLoader):
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
         
-        x_train,x_test = normalization(x_train, x_test)
+        # x_train,x_test = normalization(x_train, x_test)
         
         #one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)

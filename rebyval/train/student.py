@@ -90,6 +90,7 @@ class Student:
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
         optimizer.momentum = 0.9
+        optimizer.nesterov=False
         optimizer.decay = 1e-4
         return optimizer
 
