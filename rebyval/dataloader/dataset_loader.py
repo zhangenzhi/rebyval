@@ -93,7 +93,8 @@ class Cifar10DataLoader(BaseDataLoader):
                             preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
                             preprocessing.RandomCrop(32, 32),
                             preprocessing.RandomRotation(factor=(-0.1, 0.1)),
-                            preprocessing.RandomZoom(0.1)
+                            preprocessing.RandomZoom(0.1),
+                            preprocessing.Normalization()
                             ])
 
         full_size = len(x_train)
@@ -118,7 +119,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
         # all 1w test
-        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size'], drop_remainder=True).repeat(epochs)
+        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
         valid_dataset = test_dataset
         
         # test_dataset = test_dataset.shuffle(test_size)
