@@ -206,10 +206,10 @@ class Cifar10Student(Student):
 
                 # lr decay
                 if int(self.dataloader.info['epochs']*0.5) <= epoch < int(self.dataloader.info['epochs']*0.75):
-                    self.optimizer.learning_rate = 0.01
+                    self.optimizer.learning_rate = 0.0001
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                 elif epoch >= int(self.dataloader.info['epochs']*0.75):
-                    self.optimizer.learning_rate = 0.001
+                    self.optimizer.learning_rate = 0.00001
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
