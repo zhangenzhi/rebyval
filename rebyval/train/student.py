@@ -336,7 +336,7 @@ class Student:
         
                 
         import pdb
-        pdb.set_trace
+        pdb.set_trace()
         
         state = tf.concat([tf.math.reduce_sum(w, axis=-1) for w in states], axis=1)
         self.experience_buffer['states'].append(state)
