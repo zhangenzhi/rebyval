@@ -1,3 +1,4 @@
+from rebyval.train.cifar10_rl_student import Cifar10RLStudent
 from .cifar10_student import Cifar10Student
 from .cifar10_supervisor import Cifar10Supervisor
 
@@ -7,11 +8,13 @@ from .mnist_supervisor import MnistSupervisor
 from .cifar100_student import Cifar100Student
 from .cifar100_supervisor import Cifar100Supervisor
 
+from .cifar10_rl_student import Cifar10RLStudent
+from .cifar10_rl_supervisor import Cifar10RLSupervisor
 
 
 class StudentFactory():
     def __init__(self) -> None:
-        self.student_list = {'cifar100':Cifar100Student, 'cifar10': Cifar10Student, 'mnist': MnistStudent}
+        self.student_list = {'cifar100':Cifar100Student, 'cifar10': Cifar10Student, 'mnist': MnistStudent, 'rl-cifar10':Cifar10RLStudent}
 
     def __call__(self, student_args, supervisor = None, id = 0):
         return self.get_student(student_args=student_args, 
@@ -19,7 +22,11 @@ class StudentFactory():
                            id=id)
 
     def get_student(self, student_args, supervisor = None, id = 0):
-        student_cls = self.student_list.get(student_args['dataloader']['name'])
+        if student_args['dataloader'].get('task'):
+            student_cls = self.student_list.get('rl-cifar10')
+        else:
+            student_cls = self.student_list.get(student_args['dataloader']['name'])
+        
         return student_cls(student_args=student_args, 
                            supervisor=supervisor, 
                            id=id)
