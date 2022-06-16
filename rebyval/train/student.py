@@ -339,7 +339,7 @@ class Student:
         self.experience_buffer['states'].append(state)
         
         if reward > self.best_reward:
-            self.best = reward + 0.01
+            self.best_reward = reward + 0.01
         if reward <= 0.1:
              self.experience_buffer['rewards'].append(tf.constant(0.0))
         else:
