@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 186
+      epochs: 300
     model:
       name: resnet56 # default dnn
       classes: 10
