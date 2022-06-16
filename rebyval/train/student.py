@@ -351,7 +351,7 @@ class Student:
         self.experience_buffer['actions'].append(action)
         self.experience_buffer['steps'].append(step)
         
-    def save_experience(self, df=0.9):
+    def save_experience(self, df=0.5):
         s = len(self.experience_buffer['rewards'])
         Q = [self.experience_buffer['rewards'][-1]]
         for i in reversed(range(s-1)):
