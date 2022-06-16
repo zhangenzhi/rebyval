@@ -133,7 +133,7 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ett_metric = tf.reduce_mean(tt_metrics)
-                            self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=ett_metric, actions=action, step=self.gloabl_train_step)
+                            # self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=ett_metric, actions=action, step=self.gloabl_train_step)
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
