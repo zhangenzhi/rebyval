@@ -313,8 +313,8 @@ class Student:
 
         self.writter.write(example.SerializeToString())
         
-    def _write_trail_to_tfrecord(self, states, rewards, actions):
-        weight_loss = {'states': states, 'rewards': rewards, 'actions': actions}
+    def _write_trail_to_tfrecord(self, states, rewards, actions, step=0):
+        weight_loss = {'states': states, 'rewards': rewards, 'actions': actions, 'step':step}
         
         example, configs = self.rl_example(weight_loss)
         

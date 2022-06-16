@@ -27,10 +27,8 @@ class Cifar10RLStudent(Student):
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            norm_gard = gradients
-            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
             self.optimizer.apply_gradients(
-                zip(norm_gard, self.model.trainable_variables))
+                zip(gradients, self.model.trainable_variables))
         except:
             print_error("train step error")
             raise
@@ -134,6 +132,8 @@ class Cifar10RLStudent(Student):
                                     v.set_postfix(sv_loss=v_loss.numpy())
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
+                                ett_metric = tf.reduce_mean(tt_metrics)
+                            self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=ett_metric, actions=action, step=self.gloabl_train_step)
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
