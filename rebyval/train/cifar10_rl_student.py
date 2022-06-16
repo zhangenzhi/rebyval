@@ -133,7 +133,7 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ev_metric = tf.reduce_mean(v_metrics)
-                            self.mem_experience_buffer(states=self.model.trainable_weights, rewards=ev_metric, actions=action, step=self.gloabl_train_step)
+                            self.mem_experience_buffer(state=self.model.trainable_weights, reward=ev_metric, action=action, step=self.gloabl_train_step)
                             # self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=ev_metric, actions=action, step=self.gloabl_train_step)
                     et_loss = self.mt_loss_fn.result()
                 
@@ -155,6 +155,8 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+        import pdb
+        pdb.set_trace()
         self.model.summary()
         self.save_experience()
                 
