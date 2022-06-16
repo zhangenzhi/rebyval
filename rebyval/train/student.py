@@ -357,6 +357,8 @@ class Student:
         for i in reversed(range(s-1)):
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
+        import pdb
+        pdb.set_trace()
         self.experience_buffer['Q'] = Q
         
         
