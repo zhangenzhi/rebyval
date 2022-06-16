@@ -256,16 +256,13 @@ class Student:
                     float_list=tf.train.FloatList(value=value))
                 configs[feature_name] = {'type': 'float32', 'shape': [1]}
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
-
-    def sum_reduce_with_l2_example(self):
+    
+    def rl_example(self, weight_loss):
         feature = {}
-        for feature_name, value in self.during_value_dict.items():
+        configs = {}
+        for feature_name, value in weight_loss.items():
             if isinstance(value, list):
                 model_vars = []
-
-                # drop weights of first layer
-                value = value[2:]
-
                 for tensor in value:
                     axis = tensor.shape.rank - 1
                     compressed_tensor = tf.math.reduce_sum(
@@ -273,47 +270,35 @@ class Student:
                     model_vars.append(tf.reshape(
                         compressed_tensor, shape=(-1)))
                 model_vars = tf.concat(model_vars, axis=0)
-                value = tf.io.serialize_tensor(model_vars).numpy()
+                bytes_v = tf.io.serialize_tensor(model_vars).numpy()
+                #vars
                 feature[feature_name] = tf.train.Feature(
-                    bytes_list=tf.train.BytesList(value=[value]))
-
-            else:
-                value = [value.numpy()]
-                feature[feature_name] = tf.train.Feature(
-                    float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
-
-    def numpy_example(self):
-        feature = {}
-        for feature_name, value in self.during_value_dict.items():
-            if isinstance(value, list):
-                value = [v.numpy() for v in value]
-                v_len = len(value)
-                for i in range(v_len):
-                    feature[feature_name + "_{}".format(i)] = tf.train.Feature(
-                        float_list=tf.train.FloatList(value=[value[i]]))
+                    bytes_list=tf.train.BytesList(value=[bytes_v]))
+                configs[feature_name] = {'type': 'bytes', 'shape': model_vars.shape.as_list()}
+                #vars_length
                 feature[feature_name + "_length"] = tf.train.Feature(
-                    int64_list=tf.train.Int64List(value=[v_len])
+                    int64_list=tf.train.Int64List(value=[1])
                 )
+                configs[feature_name +
+                        "_length"] = {'type': 'int64', 'shape': [1], 'value': 1}
+
             else:
                 value = [value.numpy()]
                 feature[feature_name] = tf.train.Feature(
                     float_list=tf.train.FloatList(value=value))
-        return tf.train.Example(features=tf.train.Features(feature=feature))
+                configs[feature_name] = {'type': 'float32', 'shape': [1]}
+        return tf.train.Example(features=tf.train.Features(feature=feature)), configs
 
     def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
 
         weight_loss = {'vars': weights, 'valid_loss': valid_loss}
 
         if weight_space['format'] == 'tensor':
-            example, configs = self.tensor_example(
-                weight_loss)
+            example, configs = self.tensor_example(weight_loss)
         elif weight_space['format'] == 'sum_reduce':
             example, configs = self.sum_reduce_example(weight_loss)
-        elif weight_space['format'] == 'sum_reduce_l2':
-            example = self.sum_reduce_with_l2_example()
         else:
-            example = self.numpy_example()
+            example, configs = self.tensor_example(weight_loss)
 
         weight_dir = os.path.join(self.args['log_path'], 'weight_space')
         config_path = os.path.join(weight_dir, 'feature_configs.yaml')
@@ -327,3 +312,19 @@ class Student:
         save_yaml_contents(contents=configs, file_path=config_path)
 
         self.writter.write(example.SerializeToString())
+        
+    def _write_trail_to_tfrecord(self, states, rewards, actions):
+        weight_loss = {'states': states, 'rewards': rewards, 'actions': actions}
+        
+        example, configs = self.rl_example(weight_loss)
+        
+        weight_dir = os.path.join(self.args['log_path'], 'weight_space')
+        config_path = os.path.join(weight_dir, 'feature_configs.yaml')
+
+        configs['num_of_students'] = len(glob_tfrecords(
+            weight_dir, glob_pattern='*.tfrecords'))
+        configs['sample_per_student'] = int(
+            self.dataloader.info['train_step'] / self.args['train_loop']['valid']['valid_gap'] + 1) * self.dataloader.info['epochs']
+        configs['total_samples'] = configs['sample_per_student'] * \
+            configs['num_of_students']
+        save_yaml_contents(contents=configs, file_path=config_path)

@@ -36,12 +36,6 @@ class Cifar10Student(Student):
         except:
             print_error("train step error")
             raise
-        
-        # with self.logger.as_default():
-        #     step = train_step+epoch*self.dataloader.info['train_step']
-        #     # if (step+1)%(50*self.dataloader.info['train_step']) == 0:
-        #     #     self.optimizer.learning_rate = self.optimizer.learning_rate * 0.1
-        #     tf.summary.scalar("learning_rate", self.optimizer.learning_rate.current_lr, step=step)
         self.mt_loss_fn.update_state(loss)
         
         return loss
