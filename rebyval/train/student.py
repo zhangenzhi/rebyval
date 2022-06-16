@@ -23,7 +23,7 @@ class Student:
         self.id = id
         
         ## RL
-        self.best_reward = tf.constant(0.0)
+        self.best_reward = tf.constant(0.5)
         self.experience_buffer = {'states':[], 'rewards':[], 'actions':[], 'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
