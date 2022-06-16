@@ -334,14 +334,15 @@ class Student:
         
     def mem_experience_buffer(self, states, rewards, actions, step=0):
         
+                
+        import pdb
+        pdb.set_trace
+        
         state = tf.concat([tf.math.reduce_sum(w, axis=-1) for w in states], axis=1)
         self.experience_buffer['states'].append(state)
         self.experience_buffer['reward'].append(-tf.math.log(1-rewards))
         self.experience_buffer['actions'].append(actions)
         self.experience_buffer['step'].append(step)
-        
-        import pdb
-        pdb.set_trace
         
         
         
