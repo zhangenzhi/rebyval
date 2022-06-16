@@ -103,7 +103,7 @@ class Cifar10RLStudent(Student):
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
-
+                # Train
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
@@ -120,6 +120,7 @@ class Cifar10RLStudent(Student):
                                 tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
+                        # Validation
                         if train_step % valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
@@ -130,15 +131,16 @@ class Cifar10RLStudent(Student):
                                     v.set_postfix(sv_loss=v_loss.numpy())
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
-                                vv_metrics = tf.reduce_mean(vv_metrics)
-                            # self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=vv_metrics, actions=action, step=self.gloabl_train_step)
+                                ev_metric = tf.reduce_mean(v_metrics)
+                            self.mem_checkpoint(states=self.model.trainable_weights, rewards=ev_metric, actions=action, step=self.gloabl_train_step)
+                            # self._write_trail_to_tfrecord(states=self.model.trainable_weights, rewards=ev_metric, actions=action, step=self.gloabl_train_step)
                     et_loss = self.mt_loss_fn.result()
                 
+                # Test
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
                     tt_metrics = []
                     for test_step in t:
-                        # self.test_metrics.reset_states()
                         t_data = test_iter.get_next()
                         t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
@@ -149,10 +151,11 @@ class Cifar10RLStudent(Student):
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
-                    tf.summary.scalar("ev_loss", ev_loss, step=epoch)
+                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
         self.model.summary()
+        self.save_experience()
                 
                 
         
