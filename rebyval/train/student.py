@@ -23,7 +23,8 @@ class Student:
         self.id = id
         
         ## RL
-        self.experience_buffer = {'states':[], 'rewards':[], 'actions':[], 'step':[]}
+        self.best_reward = tf.constant(0.0)
+        self.experience_buffer = {'states':[], 'rewards':[], 'actions':[], 'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
@@ -332,17 +333,20 @@ class Student:
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
         
-    def mem_experience_buffer(self, states, rewards, actions, step=0):
-        
-                
-        import pdb
-        pdb.set_trace()
-                
-        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in states], axis=1)
+    def mem_experience_buffer(self, state, reward, action, step=0):
+                  
+        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in state], axis=1)
         self.experience_buffer['states'].append(state)
-        self.experience_buffer['reward'].append(-tf.math.log(1-rewards))
-        self.experience_buffer['actions'].append(actions)
-        self.experience_buffer['step'].append(step)
+        
+        if reward > self.best_reward:
+            self.best = reward + 0.01
+        if reward <= 0.1:
+             self.experience_buffer['rewards'].append(tf.constant(0.0))
+        else:
+            self.experience_buffer['rewards'].append(-tf.math.log(1.0-(reward-0.1)/(self.best_reward-0.1)))
+            
+        self.experience_buffer['actions'].append(action)
+        self.experience_buffer['steps'].append(step)
         
         
         
