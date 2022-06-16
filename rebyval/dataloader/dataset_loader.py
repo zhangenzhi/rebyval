@@ -89,8 +89,8 @@ class Cifar10DataLoader(BaseDataLoader):
         data_augmentation = tf.keras.Sequential([
                             preprocessing.RandomFlip(mode="horizontal"),
                             preprocessing.RandomContrast(0.1),
-                            preprocessing.RandomWidth((0.1, 0.1)),
-                            preprocessing.Resizing(32,32),
+                            # preprocessing.RandomWidth((0.1, 0.1)),
+                            # preprocessing.Resizing(32,32),
                             preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
                             preprocessing.RandomCrop(32, 32),
                             preprocessing.RandomRotation(factor=(-0.1, 0.1)),
