@@ -333,9 +333,9 @@ class Student:
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
         
-    def mem_experience_buffer(self, state, metric, action, step=0):
+    def mem_experience_buffer(self, weight, metric, action, step=0):
                   
-        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in state], axis=1)
+        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
         self.experience_buffer['states'].append(state)
         
         self.experience_buffer['metrics'].append(metric)
