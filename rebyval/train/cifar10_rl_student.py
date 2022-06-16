@@ -112,6 +112,7 @@ class Cifar10RLStudent(Student):
                         data = train_iter.get_next()
                         if self.supervisor == None:
                             train_loss = self._train_step(data['inputs'], data['labels'])
+                            action = 2
                         else:
                             train_loss, surrogate_loss, action, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
