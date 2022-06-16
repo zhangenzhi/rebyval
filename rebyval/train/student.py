@@ -337,8 +337,8 @@ class Student:
                 
         import pdb
         pdb.set_trace()
-        
-        state = tf.concat([tf.math.reduce_sum(w, axis=-1) for w in states], axis=1)
+                
+        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in states], axis=1)
         self.experience_buffer['states'].append(state)
         self.experience_buffer['reward'].append(-tf.math.log(1-rewards))
         self.experience_buffer['actions'].append(actions)
