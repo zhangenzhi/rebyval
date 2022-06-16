@@ -126,9 +126,7 @@ class Cifar10RLStudent(Student):
                                 vv_metrics = []
                                 for valid_step in v:
                                     v_data = valid_iter.get_next()
-                                    v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'],
-                                                                valid_step=valid_step, epoch=epoch, 
-                                                                weight_space=valid_args['weight_space'])
+                                    v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
                                     v.set_postfix(sv_loss=v_loss.numpy())
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
