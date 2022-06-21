@@ -226,9 +226,9 @@ class Cifar10Student(Student):
                 if int(self.dataloader.info['epochs']*0.5) <= epoch < int(self.dataloader.info['epochs']*0.75):
                     self.optimizer.learning_rate = 0.01
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                # elif int(self.dataloader.info['epochs']*0.75) <= epoch < int(self.dataloader.info['epochs']*0.95):
-                #     self.optimizer.learning_rate = 0.001
-                #     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                elif int(self.dataloader.info['epochs']*0.75) <= epoch < int(self.dataloader.info['epochs']*0.95):
+                    self.optimizer.learning_rate = 0.001
+                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                 # elif int(self.dataloader.info['epochs']*0.95) <= epoch:
                 #     self.optimizer.learning_rate = 0.0001
                 #     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
