@@ -12,7 +12,7 @@ experiment:
 
   student:
     dataloader:
-      name: cifar100 # default cifar10
+      name: cifar10 # default cifar10
       batch_size: 128
       epochs: 300
     model:
