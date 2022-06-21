@@ -50,7 +50,7 @@ class Cifar10Student(Student):
                 if loss < 1.0:
                     import pdb
                     pdb.set_trace()
-                    loss = -tf.math.log(self.loss_fn(labels, predictions)) * self.loss_fn(labels, predictions)
+                    loss = (1+-tf.math.log(self.loss_fn(labels, predictions))) * self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             norm_gard = gradients
             # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
