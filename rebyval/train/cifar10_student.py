@@ -204,9 +204,9 @@ class Cifar10Student(Student):
                 elif int(self.dataloader.info['epochs']*0.75) <= epoch < int(self.dataloader.info['epochs']*0.95):
                     self.optimizer.learning_rate = 0.001
                     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                # elif int(self.dataloader.info['epochs']*0.95) <= epoch:
-                #     self.optimizer.learning_rate = 0.0001
-                #     print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                elif int(self.dataloader.info['epochs']*0.95) <= epoch:
+                    self.optimizer.learning_rate = 0.0001
+                    print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
