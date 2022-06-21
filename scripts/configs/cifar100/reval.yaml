@@ -13,12 +13,12 @@ experiment:
   student:
     dataloader:
       name: cifar100 # default cifar10
-      batch_size: 128
+      batch_size: 1024
       epochs: 300
     model:
       name: dnn # default dnn
-      units: [1024,512,256,128,128,100] # default 128,64,64,32
-      activations: [relu,relu,relu,relu,relu,softmax] # default relu
+      units: [512,256,128,128,100] # default 128,64,64,32
+      activations: [relu,relu,relu,relu,softmax] # default relu
     loss:
       name: CategoricalCrossentropy
     metrics: 
