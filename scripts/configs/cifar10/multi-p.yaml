@@ -13,7 +13,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 512
+      batch_size: 128
       epochs: 300
     model:
       name: dnn # default dnn
