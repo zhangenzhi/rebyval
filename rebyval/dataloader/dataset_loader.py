@@ -151,6 +151,17 @@ class Cifar100DataLoader(BaseDataLoader):
         #one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 100)
         y_test = tf.keras.utils.to_categorical(y_test, 100)
+        
+        data_augmentation = tf.keras.Sequential([
+                    preprocessing.RandomFlip(mode="horizontal"),
+                    preprocessing.RandomContrast(0.1),
+                    # preprocessing.RandomWidth((0.1, 0.1)),
+                    # preprocessing.Resizing(32,32),
+                    preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                    preprocessing.RandomCrop(32, 32),
+                    preprocessing.RandomRotation(factor=(-0.1, 0.1)),
+                    preprocessing.RandomZoom(0.1)
+                    ])
 
         full_size = len(x_train)
         test_size = len(x_test)
@@ -162,7 +173,9 @@ class Cifar100DataLoader(BaseDataLoader):
         # full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+        train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+        train_dataset = train_dataset.prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 
         # valid_dataset = full_dataset.skip(train_size)
