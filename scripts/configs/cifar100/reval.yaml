@@ -17,7 +17,7 @@ experiment:
       epochs: 300
     model:
       name: dnn # default dnn
-      units: [512,256,128,64,100] # default 128,64,64,32
+      units: [1024,512,256,128,100] # default 128,64,64,32
       activations: [relu,relu,relu,relu,softmax] # default relu
     loss:
       name: CategoricalCrossentropy
