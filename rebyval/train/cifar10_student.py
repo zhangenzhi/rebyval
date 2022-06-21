@@ -49,7 +49,7 @@ class Cifar10Student(Student):
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
-                if loss < 0.1:
+                if loss < 1.0:
                     loss = -tf.math.log(self.loss_fn(labels, predictions)) * self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             norm_gard = gradients
