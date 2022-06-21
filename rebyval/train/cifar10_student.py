@@ -40,7 +40,7 @@ class Cifar10Student(Student):
         
         return loss
     
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _log_train_step(self, inputs, labels):
     
         try:
