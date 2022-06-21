@@ -155,8 +155,6 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
-        import pdb
-        pdb.set_trace()
         self.model.summary()
         self.save_experience()
                 

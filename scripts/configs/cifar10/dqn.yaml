@@ -1,11 +1,11 @@
 experiment:
   context:
     name: cifar10-rl
-    multi-p: False
+    multi-p: True
 
   main_loop:
     warmup: 
-      student_nums: 1
+      student_nums: 2
       supervisor_trains: 0
     nums: 0
     student_nums: 0
@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 50
+      epochs: 3
       task: RL
     model:
       name: dnn # default dnn

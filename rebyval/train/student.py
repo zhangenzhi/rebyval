@@ -17,13 +17,13 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student:
-    def __init__(self, student_args, supervisor=None, id=0):
+    def __init__(self, student_args, supervisor=None, id=0, best_metric=tf.constant(0.5)):
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
         
         ## RL
-        self.best_metric = tf.constant(0.5)
+        self.best_metric = best_metric
         self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
@@ -261,36 +261,17 @@ class Student:
                 configs[feature_name] = {'type': 'float32', 'shape': [1]}
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
     
-    def rl_example(self, weight_loss):
+    def rl_example(self, experience_buffer):
         feature = {}
         configs = {}
-        for feature_name, value in weight_loss.items():
-            if isinstance(value, list):
-                model_vars = []
-                for tensor in value:
-                    axis = tensor.shape.rank - 1
-                    compressed_tensor = tf.math.reduce_sum(
-                        tensor, axis=axis, keepdims=True)
-                    model_vars.append(tf.reshape(
-                        compressed_tensor, shape=(-1)))
-                model_vars = tf.concat(model_vars, axis=0)
-                bytes_v = tf.io.serialize_tensor(model_vars).numpy()
-                #vars
-                feature[feature_name] = tf.train.Feature(
-                    bytes_list=tf.train.BytesList(value=[bytes_v]))
-                configs[feature_name] = {'type': 'bytes', 'shape': model_vars.shape.as_list()}
-                #vars_length
-                feature[feature_name + "_length"] = tf.train.Feature(
-                    int64_list=tf.train.Int64List(value=[1])
-                )
-                configs[feature_name +
-                        "_length"] = {'type': 'int64', 'shape': [1], 'value': 1}
 
-            else:
-                value = [value.numpy()]
-                feature[feature_name] = tf.train.Feature(
-                    float_list=tf.train.FloatList(value=value))
-                configs[feature_name] = {'type': 'float32', 'shape': [1]}
+        for feature_name, value in experience_buffer.items():
+            values = tf.concat(value,axis=0)
+            bytes_v = tf.io.serialize_tensor(values).numpy()
+            feature[feature_name] = tf.train.Feature(
+                bytes_list=tf.train.BytesList(value=[bytes_v]))
+            configs[feature_name] = {'type': 'bytes', 'shape': values.shape.as_list()}
+    
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
 
     def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
@@ -317,10 +298,9 @@ class Student:
 
         self.writter.write(example.SerializeToString())
         
-    def _write_trail_to_tfrecord(self, states, rewards, actions, step=0):
-        weight_loss = {'states': states, 'rewards': rewards, 'actions': actions, 'step':step}
+    def _write_trail_to_tfrecord(self):
         
-        example, configs = self.rl_example(weight_loss)
+        example, configs = self.rl_example(self.experience_buffer)
         
         weight_dir = os.path.join(self.args['log_path'], 'weight_space')
         config_path = os.path.join(weight_dir, 'feature_configs.yaml')
@@ -332,6 +312,8 @@ class Student:
         configs['total_samples'] = configs['sample_per_student'] * \
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
+        
+        self.writter.write(example.SerializeToString())
         
     def mem_experience_buffer(self, weight, metric, action, step=0):
                   
@@ -357,9 +339,7 @@ class Student:
         for i in reversed(range(s-1)):
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
-        import pdb
-        pdb.set_trace()
         self.experience_buffer['Q'] = Q
-        
-        
-        
+        self._write_trail_to_tfrecord()
+        print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
+        return self.best_metric - 0.01                
