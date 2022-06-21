@@ -218,10 +218,9 @@ class Cifar10Student(Student):
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
-        self.train_loss = 10
+        self.et_loss = 10
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
-
                 # lr decay
                 if int(self.dataloader.info['epochs']*0.5) <= epoch < int(self.dataloader.info['epochs']*0.75):
                     self.optimizer.learning_rate = 0.01
@@ -239,11 +238,10 @@ class Cifar10Student(Student):
                         data = train_iter.get_next()
                         if self.supervisor == None:
                             # self.train_loss = self._train_step(data['inputs'], data['labels'])
-                            if self.train_loss < 1.0:
-                                self.train_loss = self._log_train_step(data['inputs'], data['labels'])
+                            if self.et_loss < 1.0:
+                                train_loss = self._log_train_step(data['inputs'], data['labels'])
                             else:
-                                self.train_loss = self._train_step(data['inputs'], data['labels'])
-                            train_loss = self.train_loss
+                                train_loss = self._train_step(data['inputs'], data['labels'])
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
@@ -266,6 +264,7 @@ class Cifar10Student(Student):
                                 #                               valid_loss = ev_loss,
                                 #                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
+                    self.et_loss = train_loss
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
