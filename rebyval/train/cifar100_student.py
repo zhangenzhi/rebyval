@@ -20,22 +20,21 @@ class Cifar100Student(Student):
         self.index_min = 0
 
     
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels, train_step = 0, epoch=0):
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _train_step(self, inputs, labels):
     
         try:
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
             norm_gard = gradients
+            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
             self.optimizer.apply_gradients(
                 zip(norm_gard, self.model.trainable_variables))
         except:
             print_error("train step error")
             raise
-        
         self.mt_loss_fn.update_state(loss)
         
         return loss
@@ -91,12 +90,13 @@ class Cifar100Student(Student):
             tf.summary.scalar("v_loss", loss, step=step)
         return loss
     
-    def _test_step(self, inputs, labels, test_step=0):
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        self.test_metrics.update_state(labels, predictions)
+        test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
-        return loss
+        return loss, test_metrics
 
     def train(self, new_student=None, supervisor_info=None):
         
@@ -136,8 +136,7 @@ class Cifar100Student(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss = self._train_step(data['inputs'], data['labels'], 
-                                                        train_step=train_step, epoch=epoch)
+                            train_loss = self._train_step(data['inputs'], data['labels'])
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
@@ -153,25 +152,27 @@ class Cifar100Student(Student):
                                                                 weight_space=valid_args['weight_space'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
-                                # online update supervisor
-                                if self.supervisor != None:
-                                    self.update_supervisor(self.model.trainable_variables, ev_loss)
-                                self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
-                                                              valid_loss = ev_loss,
-                                                              weight_space = valid_args['weight_space'])
+                                # # online update supervisor
+                                # if self.supervisor != None:
+                                #     self.update_supervisor(self.model.trainable_variables, ev_loss)
+                                # self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
+                                #                               valid_loss = ev_loss,
+                                #                               weight_space = valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    self.test_metrics.reset_states()
+                    tt_metrics = []
                     for test_step in t:
-                        data = test_iter.get_next()
-                        t_loss = self._test_step(data['inputs'], data['labels'], test_step = test_step)
+                        # self.test_metrics.reset_states()
+                        t_data = test_iter.get_next()
+                        t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
+                        tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
-                    ett_metric = self.test_metrics.result()
+                    ett_metric = tf.reduce_mean(tt_metrics)
                     
-                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
+                e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
