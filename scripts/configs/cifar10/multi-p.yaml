@@ -1,14 +1,14 @@
 experiment:
   context:
     name: cifar10-mlp-online-normed-grads
-    multi-p: True
+    multi-p: False
 
   main_loop:
     warmup: 
-      student_nums: 5
-      supervisor_trains: 1
-    nums: 100
-    student_nums: 3
+      student_nums: 1
+      supervisor_trains: 0
+    nums: 0
+    student_nums: 0
 
   student:
     dataloader:

@@ -40,6 +40,25 @@ class Cifar10Student(Student):
         
         return loss
     
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _log_train_step(self, inputs, labels):
+    
+        try:
+            with tf.GradientTape() as tape:
+                predictions = self.model(inputs, training=True)
+                loss = tf.math.log(self.loss_fn(labels, predictions)) * self.loss_fn(labels, predictions)
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            norm_gard = gradients
+            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
+            self.optimizer.apply_gradients(
+                zip(norm_gard, self.model.trainable_variables))
+        except:
+            print_error("train step error")
+            raise
+        self.mt_loss_fn.update_state(loss)
+        
+        return loss
+    
     def weightspace_loss(self, weights):
         # label
         flat_vars = []
@@ -214,7 +233,9 @@ class Cifar10Student(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss = self._train_step(data['inputs'], data['labels'])
+                            self.train_loss = self._train_step(data['inputs'], data['labels'])
+                            if train_loss < 1.0:
+                                self.train_loss = self._log_train_step(data['inputs'], data['labels'])
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
