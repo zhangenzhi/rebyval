@@ -13,7 +13,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
+      batch_size: 512
       epochs: 300
     model:
       name: dnn # default dnn
@@ -22,7 +22,7 @@ experiment:
     loss:
       name: CategoricalCrossentropy
     metrics: 
-      name: CategoricalAccuracy
+      name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
       learning_rate: 0.1 # default 0.01
@@ -30,7 +30,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 100
+          valid_gap: 10000
 
   supervisor:
     dataloader:
