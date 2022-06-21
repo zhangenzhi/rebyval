@@ -234,7 +234,7 @@ class Cifar10Student(Student):
                         data = train_iter.get_next()
                         if self.supervisor == None:
                             self.train_loss = self._train_step(data['inputs'], data['labels'])
-                            if train_loss < 1.0:
+                            if self.train_loss < 1.0:
                                 self.train_loss = self._log_train_step(data['inputs'], data['labels'])
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
