@@ -44,12 +44,12 @@ class Cifar10Student(Student):
     def _log_train_step(self, inputs, labels):
     
         try:
-            import pdb
-            pdb.set_trace()
             with tf.GradientTape() as tape:
                 predictions = self.model(inputs, training=True)
                 loss = self.loss_fn(labels, predictions)
                 if loss < 1.0:
+                    import pdb
+                    pdb.set_trace()
                     loss = -tf.math.log(self.loss_fn(labels, predictions)) * self.loss_fn(labels, predictions)
             gradients = tape.gradient(loss, self.model.trainable_variables)
             norm_gard = gradients
