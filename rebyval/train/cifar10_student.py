@@ -249,7 +249,7 @@ class Cifar10Student(Student):
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
-                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy(), ett_loss=ett_loss.numpy())
+                e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
