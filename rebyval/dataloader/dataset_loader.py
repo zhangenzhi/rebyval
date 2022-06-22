@@ -8,8 +8,6 @@ from tensorflow.keras.layers.experimental import preprocessing
 from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 class MinistDataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
         super().__init__(dataloader_args)
@@ -36,6 +34,17 @@ class MinistDataLoader(BaseDataLoader):
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test = tf.keras.utils.to_categorical(y_test, 10)
 
+        data_augmentation = tf.keras.Sequential([
+                    preprocessing.RandomFlip(mode="horizontal"),
+                    preprocessing.RandomContrast(0.1),
+                    # preprocessing.RandomWidth((0.1, 0.1)),
+                    # preprocessing.Resizing(32,32),
+                    preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                    preprocessing.RandomCrop(28, 28),
+                    preprocessing.RandomRotation(factor=(-0.1, 0.1)),
+                    preprocessing.RandomZoom(0.1)
+                    ])
+
         full_size = len(x_train)
         test_size = len(x_test)
         
@@ -46,8 +55,13 @@ class MinistDataLoader(BaseDataLoader):
         full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+        # data augmentation
+        if self.dataloader_args['da']:
+            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+        train_dataset = train_dataset.prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
+
 
         # valid_dataset = full_dataset.skip(train_size)
         # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
