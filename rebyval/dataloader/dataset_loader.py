@@ -35,13 +35,9 @@ class MinistDataLoader(BaseDataLoader):
         y_test = tf.keras.utils.to_categorical(y_test, 10)
 
         data_augmentation = tf.keras.Sequential([
-                    preprocessing.RandomFlip(mode="horizontal"),
                     preprocessing.RandomContrast(0.1),
-                    # preprocessing.RandomWidth((0.1, 0.1)),
-                    # preprocessing.Resizing(32,32),
                     preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
                     preprocessing.RandomCrop(28, 28),
-                    preprocessing.RandomRotation(factor=(-0.1, 0.1)),
                     preprocessing.RandomZoom(0.1)
                     ])
 
