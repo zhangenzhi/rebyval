@@ -42,7 +42,7 @@ class Cifar10Student(Student):
             self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
 
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        gradients = [s*decay_factor + t for s,t in zip(self.s_grad,t_grad)]
+        gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor + t for s,t in zip(self.s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
