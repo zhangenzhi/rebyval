@@ -5,7 +5,6 @@ import tensorflow as tf
 
 # dataloader
 from rebyval.dataloader.factory import dataset_factory
-from rebyval.dataloader.dataset_loader import Cifar10DataLoader
 
 # model
 from rebyval.model.factory import model_factory
@@ -191,7 +190,7 @@ class Student:
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             for epoch in e:
-                
+
                 # lr decay
                 if train_args["lr_decay"]:
                     if epoch/self.dataloader.info['epochs'] == 0.5:
