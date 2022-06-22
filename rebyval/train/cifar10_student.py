@@ -28,6 +28,31 @@ class Cifar10Student(Student):
         s_loss = tf.squeeze(s_loss)
         return s_loss
 
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.0001):
+        
+        step = train_step+epoch*self.dataloader.info['train_step']
+
+        with tf.GradientTape() as tape_t:
+            predictions = self.model(inputs, training=True)
+            t_loss = self.loss_fn(labels, predictions)
+        if train_step % 100 == 0:
+            with tf.GradientTape() as tape_s:
+                self.s_loss = self.weightspace_loss(self.model.trainable_variables)
+            self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
+
+        t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
+        gradients = [(s/(1e-12 + tf.norm(s))*decay_factor + t/(1e-8 + tf.norm(t)))/2 for s,t in zip(self.s_grad,t_grad)]
+        # gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor+t for s,t in zip(self.s_grad,t_grad)]
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
+        
+        with self.logger.as_default():
+            tf.summary.scalar("surrogate_loss", self.s_loss, step=step)
+            
+        self.mt_loss_fn.update_state(t_loss)
+        
+        return t_loss
                 
                 
         
