@@ -45,15 +45,11 @@ class Cifar100Student(Student):
 
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
         gradients = [(s/(1e-12 + tf.norm(s))*decay_factor + t/(1e-8 + tf.norm(t)))/2 for s,t in zip(self.s_grad,t_grad)]
-        # gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor+t for s,t in zip(self.s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
         with self.logger.as_default():
             tf.summary.scalar("surrogate_loss", self.s_loss, step=step)
-            # if step % self.dataloader.info['train_step'] == 0:
-            #     tf.summary.histogram("t_gard_0", t_grad[0], step=step)
-            #     tf.summary.histogram("s_gard_0", self.s_grad[0], step=step)
             
         self.mt_loss_fn.update_state(t_loss)
         
