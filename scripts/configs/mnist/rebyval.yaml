@@ -15,7 +15,7 @@ experiment:
       name: mnist # default cifar10
       batch_size: 128
       epochs: 100
-      da: False
+      da: True
     model:
       name: dnn # default dnn
       units: [256,128,64,10] # default 128,64,64,32
@@ -29,7 +29,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: False
+          lr_decay: True
         valid:
           weight_space:
             format: sum_reduce
