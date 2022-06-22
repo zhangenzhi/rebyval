@@ -29,7 +29,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: False
+          lr_decay: True
         valid:
           weight_space:
             format: sum_reduce
