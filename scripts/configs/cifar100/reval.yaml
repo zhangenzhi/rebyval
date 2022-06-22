@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar10-mlp-da
+    name: cifar100-mlp-da
     multi-p: False
 
   main_loop:
