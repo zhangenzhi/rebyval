@@ -218,9 +218,7 @@ class Student:
                                 self.mv_loss_fn.reset_states()
                                 for valid_step in v:
                                     v_data = valid_iter.get_next()
-                                    valid_loss = self._valid_step(v_data['inputs'], v_data['labels'],
-                                                                valid_step=valid_step, epoch=epoch, 
-                                                                weight_space=valid_args['weight_space'])
+                                    valid_loss = self._valid_step(v_data['inputs'], v_data['labels'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
