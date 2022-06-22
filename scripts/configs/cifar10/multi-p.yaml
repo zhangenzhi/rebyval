@@ -1,21 +1,21 @@
 experiment:
   context:
-    name: cifar10-mlp-da
+    name: cifar10-mlp-reval
     multi-p: False
 
   main_loop:
     warmup: 
-      student_nums: 1
-      supervisor_trains: 0
-    nums: 0
-    student_nums: 0
+      student_nums: 5
+      supervisor_trains: 2
+    nums: 100
+    student_nums: 3
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
       epochs: 100
-      da: True
+      da: False
     model:
       name: dnn # default dnn
       units: [256,128,64,10] # default 128,64,64,32
@@ -29,7 +29,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: True
+          lr_decay: False
         valid:
           weight_space:
             format: sum_reduce
