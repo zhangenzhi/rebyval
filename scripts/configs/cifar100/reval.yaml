@@ -15,6 +15,7 @@ experiment:
       name: cifar100 # default cifar10
       batch_size: 128
       epochs: 300
+      da: True
     model:
       name: dnn # default dnn
       units: [512,256,128,64,100] # default 128,64,64,32
@@ -24,9 +25,11 @@ experiment:
     metrics: 
       name: categorical_accuracy
     optimizer:
-      name: adam # default SGD
-      learning_rate: 0.001 # default 0.01
+      name: sgd # default SGD
+      learning_rate: 0.1 # default 0.01
     train_loop:
+        train:
+          lr_decay: True
         valid:
           weight_space:
             format: sum_reduce
