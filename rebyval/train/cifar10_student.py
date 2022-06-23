@@ -29,14 +29,14 @@ class Cifar10Student(Student):
         return s_loss
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=1.0):
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.1):
         
         step = train_step+epoch*self.dataloader.info['train_step']
 
         with tf.GradientTape() as tape_t:
             predictions = self.model(inputs, training=True)
             t_loss = self.loss_fn(labels, predictions)
-        if train_step % 390 == 0:
+        if train_step % 100 == 0:
             with tf.GradientTape() as tape_s:
                 self.s_loss = self.weightspace_loss(self.model.trainable_variables)
             self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
