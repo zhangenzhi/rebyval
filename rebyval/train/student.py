@@ -35,7 +35,7 @@ class Student:
         
         ForkedPdb().set_trace()
         
-        supervisor_opt = tf.keras.optimizers.SGD(0.1)
+        supervisor_opt = tf.keras.optimizers.SGD(0.01)
         supervisor_loss_fn = tf.keras.losses.mae
         flat_vars = []
         for tensor in inputs:
@@ -222,12 +222,12 @@ class Student:
                                     valid_loss = self._valid_step(v_data['inputs'], v_data['labels'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
-                                # online update supervisor
-                                if self.supervisor != None:
-                                    self.update_supervisor(self.model.trainable_variables, ev_loss)
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
                                                           format=valid_args['weight_space'])
+                        # online update supervisor
+                        if self.supervisor != None:
+                            self.update_supervisor(self.model.trainable_variables, ev_loss)
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
