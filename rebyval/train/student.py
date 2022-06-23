@@ -225,9 +225,9 @@ class Student:
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
                                                           format=valid_args['weight_space'])
-                        # online update supervisor
-                        if self.supervisor != None:
-                            self.update_supervisor(self.model.trainable_variables, ev_loss)
+                                # online update supervisor
+                                if self.supervisor != None:
+                                    self.update_supervisor(self.model.trainable_variables, ev_loss)
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
