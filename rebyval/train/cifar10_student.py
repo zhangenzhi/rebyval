@@ -29,7 +29,7 @@ class Cifar10Student(Student):
         return s_loss
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.1):
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=1.0):
         
         step = train_step+epoch*self.dataloader.info['train_step']
 
@@ -42,7 +42,7 @@ class Cifar10Student(Student):
             self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
 
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor + (t/(1e-12 + tf.norm(t))) for s,t in zip(self.s_grad,t_grad)]
+        gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor + t for s,t in zip(self.s_grad,t_grad)]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
         
