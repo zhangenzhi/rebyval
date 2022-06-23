@@ -33,7 +33,7 @@ class Student:
 
     def update_supervisor(self, inputs, labels):
         
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         
         supervisor_opt = tf.keras.optimizers.SGD(0.01)
         supervisor_loss_fn = tf.keras.losses.mae
