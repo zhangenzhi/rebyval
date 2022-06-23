@@ -32,6 +32,9 @@ class Student:
         return model
 
     def update_supervisor(self, inputs, labels):
+        
+        ForkedPdb().set_trace()
+        
         supervisor_opt = tf.keras.optimizers.SGD(0.01)
         supervisor_loss_fn = tf.keras.losses.mae
         flat_vars = []
@@ -221,7 +224,6 @@ class Student:
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
                                 if self.supervisor != None:
-                                    ForkedPdb().set_trace()
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
