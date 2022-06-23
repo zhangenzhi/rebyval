@@ -92,9 +92,9 @@ class Student:
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
-        optimizer.momentum = 0.9
-        optimizer.nesterov=False
-        optimizer.decay = 1e-4
+        # optimizer.momentum = 0.9
+        # optimizer.nesterov=False
+        # optimizer.decay = 1e-4
         return optimizer
 
     def _build_logger(self):
@@ -222,9 +222,9 @@ class Student:
                                 # online update supervisor
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
-                                self._write_trace_to_tfrecord(weights = self.model.trainable_variables, 
-                                                              valid_loss = ev_loss,
-                                                              weight_space = valid_args['weight_space'])
+                                self.collect_test_metrics(current_state=self.model.trainable_variables,
+                                                          metric=ev_loss,
+                                                          format=valid_args['weight_space'])
                     et_loss = self.mt_loss_fn.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
@@ -268,10 +268,6 @@ class Student:
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
 
-        # # train
-        # import pdb
-        # pdb.set_trace()
-
         # self.supervisor = self._build_supervisor_from_vars()
         self.train(supervisor_info=supervisor_info)
 
@@ -283,6 +279,9 @@ class Student:
         return weight_dir
 
     # weights space
+    
+    def collect_test_metrics(self, current_state=None, metric=None, format=None):
+        self._write_trace_to_tfrecord(weights = current_state, valid_loss = metric, weight_space = format)
 
     def tensor_example(self, weight_loss):
         feature = {}
@@ -380,9 +379,9 @@ class Student:
 
         self.writter.write(example.SerializeToString())
         
-    def _write_trail_to_tfrecord(self):
+    def _write_trail_to_tfrecord(self, experience_buffer):
         
-        example, configs = self.rl_example(self.experience_buffer)
+        example, configs = self.rl_example(experience_buffer)
         
         weight_dir = os.path.join(self.args['log_path'], 'weight_space')
         config_path = os.path.join(weight_dir, 'feature_configs.yaml')
@@ -422,6 +421,6 @@ class Student:
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
         self.experience_buffer['Q'] = Q
-        self._write_trail_to_tfrecord()
+        self._write_trail_to_tfrecord(self.experience_buffer)
         print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
         return self.best_metric - 0.01                

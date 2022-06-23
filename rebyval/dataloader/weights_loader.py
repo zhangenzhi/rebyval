@@ -216,4 +216,70 @@ class DNNSumReduce(DNNWeightsLoader):
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
         return parsed_analyse_dataset
-    
+
+
+class DNNRL(DNNWeightsLoader):
+    def __init__(self, dataloader_args):
+        super(DNNRL, self).__init__(dataloader_args=dataloader_args)
+
+    def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
+        yaml_path = os.path.join(config_path, name)
+        yaml_feature_config = get_yml_content(yaml_path)
+        info = self.get_info_inference(yaml_feature_config['num_of_students'],
+                                            yaml_feature_config['sample_per_student'])
+        
+        feature_config = {
+                    'states': {"type": 'value', "length": 1, "dtype": tf.float32},
+                    'metrics':{"type": 'value', "length": 1, "dtype": tf.float32},
+                    'Q':{"type": 'value', "length": 1, "dtype": tf.float32},
+                    'actions':{"type": 'value', "length": 1, "dtype": tf.float32},
+                    'steps':{"type": 'value', "length": 1, "dtype": tf.float32},
+                    'rewards':{"type": 'value', "length": 1, "dtype": tf.float32}
+            }
+
+        return feature_config, info
+
+    def _make_rl_describs(self, feature_config=None):
+        
+        feature_describs = {}
+        for feature, info in feature_config.items():
+            if info['type'] == 'value':
+                feature_type = tf.io.FixedLenFeature([], info["dtype"])
+                feature_describs[feature] = feature_type
+            else:
+                raise ("no such type to describe")
+        feature_describs["vars_length"] = tf.io.FixedLenFeature([], tf.int64)
+        return feature_describs
+
+    def _load_tensor_from_tfrecord(self, filelist, feature_config):
+
+        raw_analyse_dataset = tf.data.Dataset.from_tensor_slices(filelist)
+
+        raw_analyse_dataset = raw_analyse_dataset.interleave(
+            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=tf.data.AUTOTUNE),
+            block_length=256,
+            cycle_length=16,
+            num_parallel_calls=tf.data.AUTOTUNE,
+            deterministic=False)
+
+        analyse_feature_describ = self._make_rl_describs(
+            feature_config = feature_config)
+
+        def _parse_weights_function(example_proto):
+            example = tf.io.parse_example(
+                example_proto, analyse_feature_describ)
+            parsed_example = {}
+            for feat, tensor in analyse_feature_describ.items():
+                if example[feat].dtype == tf.string:
+                    parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
+                else:
+                    parsed_example[feat] = example[feat]
+
+            return parsed_example
+
+        parsed_analyse_dataset = raw_analyse_dataset.map(_parse_weights_function,
+                                                         num_parallel_calls=tf.data.AUTOTUNE, deterministic=True)
+
+        parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
+
+        return parsed_analyse_dataset
