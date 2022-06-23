@@ -221,7 +221,7 @@ class Student:
                                 ev_loss = self.mv_loss_fn.result()
                                 # online update supervisor
                                 if self.supervisor != None:
-                                    ForkedPdb.set_trace()
+                                    ForkedPdb().set_trace()
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
