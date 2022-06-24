@@ -29,7 +29,7 @@ class Cifar10Student(Student):
         return s_loss
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=1.0):
+    def _rebyval_train_step(self, inputs, labels, train_step = 0, epoch=0, decay_factor=0.3):
         
         step = train_step+epoch*self.dataloader.info['train_step']
 
