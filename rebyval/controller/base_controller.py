@@ -96,7 +96,9 @@ class BaseController:
                 p.start()
                 processes.append(p)
                 time.sleep(2)
-            pres = [p.join() for p in processes]
+                if (i+1) % 5 == 0:
+                    pres = [p.join() for p in processes]
+                    processes = []
             new_students = [self.queue.get() for _ in range(self.queue.qsize())]
         else:
             for i in range(init_samples):
