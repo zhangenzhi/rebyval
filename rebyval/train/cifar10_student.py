@@ -41,8 +41,8 @@ class Cifar10Student(Student):
         if train_step % 100 == 0:
             with tf.GradientTape() as tape_s:
                 self.s_loss = self.weightspace_loss(self.model.trainable_variables)
-        if epoch >= 30:
             self.s_grad = tape_s.gradient(self.s_loss, self.model.trainable_variables)
+        if epoch >= 30:
             gradients = [(s/(1e-12 + tf.norm(s)))*decay_factor + t for s,t in zip(self.s_grad,t_grad)]
         else:
             gradients = t_grad
