@@ -28,7 +28,8 @@ class MinistDataLoader(BaseDataLoader):
         
         x_train = np.reshape(x_train, [60000,28,28,1])
         x_test = np.reshape(x_test, [10000,28,28,1])
-        x_train,x_test = normalization(x_train, x_test)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
         
         #on-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
@@ -89,8 +90,8 @@ class Cifar10DataLoader(BaseDataLoader):
         
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
-        
-        x_train,x_test = normalization(x_train, x_test)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
         
         # one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
@@ -154,8 +155,8 @@ class Cifar100DataLoader(BaseDataLoader):
         
         x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
-        
-        x_train,x_test = normalization(x_train, x_test)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
         
         #one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 100)
