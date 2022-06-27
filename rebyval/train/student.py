@@ -158,8 +158,9 @@ class Student:
     def _valid_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
+        valid_metrics = tf.reduce_mean(self.valid_metrics(labels, predictions))
         self.mv_loss_fn.update_state(loss)
-        return loss
+        return loss, valid_metrics
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
@@ -217,7 +218,7 @@ class Student:
                                 self.mv_loss_fn.reset_states()
                                 for valid_step in v:
                                     v_data = valid_iter.get_next()
-                                    valid_loss = self._valid_step(v_data['inputs'], v_data['labels'])
+                                    valid_loss, valid_metric = self._valid_step(v_data['inputs'], v_data['labels'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
@@ -350,8 +351,7 @@ class Student:
         for feature_name, value in experience_buffer.items():
             values = tf.concat(value,axis=0)
             bytes_v = tf.io.serialize_tensor(values).numpy()
-            feature[feature_name] = tf.train.Feature(
-                bytes_list=tf.train.BytesList(value=[bytes_v]))
+            feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[bytes_v]))
             configs[feature_name] = {'type': 'bytes', 'shape': values.shape.as_list()}
     
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
@@ -413,7 +413,7 @@ class Student:
             self.experience_buffer['rewards'].append(-tf.math.log(1.0-(metric-0.1)/(self.best_metric-0.1)))
             
         self.experience_buffer['actions'].append(action)
-        self.experience_buffer['steps'].append(step)
+        self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.5):
         s = len(self.experience_buffer['rewards'])

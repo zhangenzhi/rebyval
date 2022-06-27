@@ -2,20 +2,21 @@ INFO:  parse config from command line.
 [32mexperiment: [39m
 [32m	context: [39m
 		name: cifar10-rl
-		multi-p: False
+		multi-p: True
 		author: Enzhi Zhang & Ruqin Wang
 		log_path: ./log
 [32m	main_loop: [39m
 [32m		warmup: [39m
-			student_nums: 1
-			supervisor_trains: 0
+			student_nums: 0
+			supervisor_trains: 1
 		nums: 0
 		student_nums: 0
 [32m	student: [39m
 [32m		dataloader: [39m
 			name: cifar10
 			batch_size: 128
-			epochs: 10
+			epochs: 3
+			da: False
 			task: RL
 			path: ~/.keras/dataset/cifar10
 [32m		model: [39m
@@ -26,25 +27,26 @@ INFO:  parse config from command line.
 			name: CategoricalCrossentropy
 			metrics: SparseCategoricalAccuracy
 [32m		metrics: [39m
-			name: CategoricalAccuracy
+			name: categorical_accuracy
 [32m		optimizer: [39m
 			name: sgd
 			learning_rate: 0.1
 [32m		train_loop: [39m
+[32m			train: [39m
+				lr_decay: False
+				epochs: 10
 [32m			valid: [39m
 [32m				weight_space: [39m
 					format: sum_reduce
-				valid_gap: 100
+				valid_gap: 30
 [32m				save_model: [39m
 					save_in: student
 					save_after_epoch: 1
-[32m			train: [39m
-				epochs: 10
 [32m			test: [39m
 				epoch: 10
 [32m	supervisor: [39m
 [32m		dataloader: [39m
-			name: dnn_sumreduce
+			name: dnn_sr_RL
 			replay_window: 1000
 			batch_size: 128
 			epochs: 200
@@ -74,154 +76,7 @@ INFO:  parse config from command line.
 [32m		metrics: [39m
 			name: MeanSquaredError
 [32mStart to run![39m
-[32mdevices: [][39m
-[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-0-20220617-144551, but we made.[39m
-[33mWARNING: no such path: ./log/cifar10-rl/weight_space, but we made.[39m
-> /Users/zhangenzhi/VSCode/rebyval/rebyval/train/cifar10_rl_student.py(160)train()
--> self.model.summary()
-(Pdb) Model: "dnn"
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #   
-=================================================================
-flatten (Flatten)            multiple                  0         
-_________________________________________________________________
-linear (Linear)              multiple                  393344    
-_________________________________________________________________
-linear_1 (Linear)            multiple                  8256      
-_________________________________________________________________
-linear_2 (Linear)            multiple                  2080      
-_________________________________________________________________
-linear_3 (Linear)            multiple                  330       
-_________________________________________________________________
-activation (Activation)      multiple                  0         
-_________________________________________________________________
-activation_1 (Activation)    multiple                  0         
-_________________________________________________________________
-activation_2 (Activation)    multiple                  0         
-_________________________________________________________________
-activation_3 (Activation)    multiple                  0         
-=================================================================
-Total params: 404,010
-Trainable params: 404,010
-Non-trainable params: 0
-_________________________________________________________________
-> /Users/zhangenzhi/VSCode/rebyval/rebyval/train/cifar10_rl_student.py(161)train()
--> self.save_experience()
-(Pdb) > /Users/zhangenzhi/VSCode/rebyval/rebyval/train/student.py(271)rl_example()
--> for feature_name, value in experience_buffer.items():
-(Pdb) > /Users/zhangenzhi/VSCode/rebyval/rebyval/train/student.py(272)rl_example()
--> values = tf.constant(value)
-(Pdb) 'states'
-(Pdb) *** AttributeError: 'list' object has no attribute 'shape'
-(Pdb) ValueError: TypeError: Scalar tensor has no `len()`
-Traceback (most recent call last):
-
-  File "/opt/anaconda3/envs/tf2/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 1022, in __len__
-    raise TypeError("Scalar tensor has no `len()`")
-
-TypeError: Scalar tensor has no `len()`
-> /Users/zhangenzhi/VSCode/rebyval/rebyval/train/student.py(272)rl_example()
--> values = tf.constant(value)
-(Pdb) --Return--
-> /Users/zhangenzhi/VSCode/rebyval/rebyval/train/student.py(272)rl_example()->None
--> values = tf.constant(value)
-(Pdb) [<tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.4315091e-01, -1.5090033e+00, -2.5427318e-01, ...,
-        -1.4835569e-01, -1.2725678e-01, -1.1641532e-09]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.4803988e-01, -1.4937007e+00, -2.2353244e-01, ...,
-        -1.4835574e-01, -1.2725674e-01, -2.9802322e-08]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.6371191e-01, -1.4939091e+00, -2.2948775e-01, ...,
-        -1.4835571e-01, -1.2725686e-01, -1.3411045e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.5511099e-01, -1.4970348e+00, -2.3988456e-01, ...,
-        -1.4835560e-01, -1.2725689e-01, -5.9604645e-08]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.5197656e-01, -1.4837034e+00, -2.2690257e-01, ...,
-        -1.4835566e-01, -1.2725683e-01, -7.4505806e-08]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.2840480e-01, -1.4858415e+00, -2.2111285e-01, ...,
-        -1.4835550e-01, -1.2725687e-01,  1.0430813e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.13000825e-01, -1.49296117e+00, -2.21237659e-01, ...,
-        -1.48355395e-01, -1.27256840e-01, -1.49011612e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.1725089e-01, -1.4778017e+00, -2.0230845e-01, ...,
-        -1.4835557e-01, -1.2725669e-01, -3.4272671e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.2789801e-01, -1.4759114e+00, -1.8189153e-01, ...,
-        -1.4835551e-01, -1.2725678e-01, -4.7683716e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.19679004e-01, -1.47119546e+00, -1.76078260e-01, ...,
-        -1.48355395e-01, -1.27256751e-01, -1.78813934e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.13826424e-01, -1.48251033e+00, -1.74344033e-01, ...,
-        -1.48355603e-01, -1.27256840e-01, -2.98023224e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.1795938e-01, -1.4676046e+00, -1.3918465e-01, ...,
-        -1.4835575e-01, -1.2725669e-01, -1.6391277e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.0752714e-01, -1.4811156e+00, -1.3952792e-01, ...,
-        -1.4835559e-01, -1.2725648e-01, -2.0861626e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 1.03468895e-01, -1.48809993e+00, -1.20998204e-01, ...,
-        -1.48355842e-01, -1.27256513e-01, -3.27825546e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 5.9505045e-02, -1.5200044e+00, -1.6516143e-01, ...,
-        -1.4835593e-01, -1.2725687e-01, -6.4074993e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 4.9353197e-02, -1.5348978e+00, -1.6116861e-01, ...,
-        -1.4835605e-01, -1.2725684e-01, -8.7916851e-07]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 6.3781932e-02, -1.5182283e+00, -1.4707130e-01, ...,
-        -1.4835609e-01, -1.2725677e-01, -1.0132790e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 2.9780358e-02, -1.5518882e+00, -1.6536662e-01, ...,
-        -1.4835590e-01, -1.2725656e-01, -1.0579824e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 3.2964766e-02, -1.5435117e+00, -1.3376844e-01, ...,
-        -1.4835587e-01, -1.2725663e-01, -1.1920929e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 3.1567678e-02, -1.5424235e+00, -1.1356211e-01, ...,
-        -1.4835563e-01, -1.2725651e-01, -1.6391277e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[-3.8816631e-03, -1.5699078e+00, -1.4924911e-01, ...,
-        -1.4835575e-01, -1.2725648e-01, -1.1622906e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 9.8035485e-03, -1.5595913e+00, -1.3347286e-01, ...,
-        -1.4835569e-01, -1.2725660e-01, -1.6391277e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 3.6839992e-03, -1.5608879e+00, -1.0544592e-01, ...,
-        -1.4835559e-01, -1.2725660e-01, -1.5795231e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 3.0993968e-02, -1.5430186e+00, -9.8548651e-02, ...,
-        -1.4835548e-01, -1.2725665e-01, -2.1457672e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 4.4772193e-02, -1.5322683e+00, -8.8202655e-02, ...,
-        -1.4835526e-01, -1.2725659e-01, -2.3543835e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 4.3811694e-02, -1.5305394e+00, -8.6659998e-02, ...,
-        -1.4835539e-01, -1.2725650e-01, -2.1755695e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 6.9842786e-02, -1.5080595e+00, -7.5485706e-02, ...,
-        -1.4835557e-01, -1.2725636e-01, -2.2649765e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 8.2833037e-02, -1.5079694e+00, -7.3872924e-02, ...,
-        -1.4835560e-01, -1.2725629e-01, -1.6987324e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 8.1234127e-02, -1.5058348e+00, -6.3422203e-02, ...,
-        -1.4835551e-01, -1.2725647e-01, -1.3709068e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 9.5666841e-02, -1.4846976e+00, -2.1074533e-02, ...,
-        -1.4835547e-01, -1.2725662e-01, -1.5199184e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 7.8454822e-02, -1.4914267e+00, -3.5699666e-02, ...,
-        -1.4835531e-01, -1.2725659e-01, -1.6987324e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 7.0829272e-02, -1.5183196e+00, -6.5329671e-02, ...,
-        -1.4835541e-01, -1.2725668e-01, -1.7881393e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 5.8562756e-02, -1.5297624e+00, -6.7475975e-02, ...,
-        -1.4835535e-01, -1.2725668e-01, -1.7285347e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 5.9948996e-02, -1.5192525e+00, -6.3051999e-02, ...,
-        -1.4835547e-01, -1.2725686e-01, -1.8477440e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 2.4190754e-02, -1.5515151e+00, -7.8929245e-02, ...,
-        -1.4835516e-01, -1.2725677e-01, -2.0861626e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 5.7322681e-03, -1.5647528e+00, -8.4287614e-02, ...,
-        -1.4835495e-01, -1.2725660e-01, -1.5199184e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 3.0498624e-02, -1.5341996e+00, -4.8148274e-02, ...,
-        -1.4835496e-01, -1.2725671e-01, -1.6987324e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 8.7151378e-03, -1.5563576e+00, -7.6711029e-02, ...,
-        -1.4835502e-01, -1.2725686e-01, -1.4007092e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 2.4809808e-02, -1.5458170e+00, -5.8397621e-02, ...,
-        -1.4835493e-01, -1.2725715e-01, -1.4901161e-06]], dtype=float32)>, <tf.Tensor: shape=(1, 3300), dtype=float32, numpy=
-array([[ 4.8439562e-02, -1.5373172e+00, -4.6075821e-02, ...,
-        -1.4835492e-01, -1.2725712e-01, -1.5795231e-06]], dtype=float32)>]
-(Pdb) *** ValueError: TypeError: Scalar tensor has no `len()`
-Traceback (most recent call last):
-
-  File "/opt/anaconda3/envs/tf2/lib/python3.7/cmd.py", line 214, in onecmd
-    func = getattr(self, 'do_' + cmd)
-
-AttributeError: 'Pdb' object has no attribute 'do_tf'
-
-
-During handling of the above exception, another exception occurred:
-
-
-Traceback (most recent call last):
-
-  File "/opt/anaconda3/envs/tf2/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 1022, in __len__
-    raise TypeError("Scalar tensor has no `len()`")
-
-TypeError: Scalar tensor has no `len()`
-(Pdb) 
+[32m[][39m
+[32mweight_space_path:./log/cifar10-rl/weight_space[39m
+filelist length: 16
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/supervisor-20220627-090557, but we made.[39m

@@ -130,7 +130,8 @@ RUN pip3 install \
     protobuf==3.11.3 \
     pyyaml==5.3.1 \
     wheel==0.32.1 \
-    virtualenv==20.0.30
+    virtualenv==20.0.30 \
+    scikit-learn 
 
 # Install devel libs
 RUN apt-get update -y && \

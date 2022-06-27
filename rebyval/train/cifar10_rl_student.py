@@ -37,6 +37,8 @@ class Cifar10RLStudent(Student):
         scaled_gards = flat_grad * action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+
+        # select wights with best Q-value
         values = self.supervisor(scaled_vars)
         index_min = min(range(len(values)), key=values.__getitem__)
 

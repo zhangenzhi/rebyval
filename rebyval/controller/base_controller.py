@@ -78,7 +78,7 @@ class BaseController:
         supervisor_args['log_path'] = self.log_path
 
         supervisor = supervisor_factory(supervisor_args=supervisor_args,
-                                        student_task= student_args['dataloader']['name'],
+                                        student_task= student_args['dataloader'],
                                         id = self._supervisor_ids)
 
         self._supervisor_ids += 1
