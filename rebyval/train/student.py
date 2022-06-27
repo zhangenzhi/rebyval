@@ -349,7 +349,7 @@ class Student:
         configs = {}
 
         for feature_name, value in experience_buffer.items():
-            values = tf.concat(value,axis=0)
+            values = tf.concat(value, axis=0)
             bytes_v = tf.io.serialize_tensor(values).numpy()
             feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[bytes_v]))
             configs[feature_name] = {'type': 'bytes', 'shape': values.shape.as_list()}

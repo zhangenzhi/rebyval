@@ -7,8 +7,8 @@ INFO:  parse config from command line.
 		log_path: ./log
 [32m	main_loop: [39m
 [32m		warmup: [39m
-			student_nums: 0
-			supervisor_trains: 1
+			student_nums: 20
+			supervisor_trains: 0
 		nums: 0
 		student_nums: 0
 [32m	student: [39m
@@ -76,7 +76,455 @@ INFO:  parse config from command line.
 [32m		metrics: [39m
 			name: MeanSquaredError
 [32mStart to run![39m
-[32m[][39m
-[32mweight_space_path:./log/cifar10-rl/weight_space[39m
-filelist length: 16
-[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/supervisor-20220627-090557, but we made.[39m
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-0-20220627-091803, but we made.[39m
+[33mWARNING: no such path: ./log/cifar10-rl/weight_space, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 0 with best metric 0.5.
+Finished training student 0
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-1-20220627-091809, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 1 with best metric 0.5.
+Finished training student 1
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-4-20220627-091827, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 4 with best metric 0.5.
+Finished training student 4
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-3-20220627-091828, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 3 with best metric 0.5.
+Finished training student 3
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-5-20220627-091906, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 5 with best metric 0.5.
+Finished training student 5
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-6-20220627-091911, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 6 with best metric 0.5.
+Finished training student 6
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-8-20220627-091930, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 8 with best metric 0.5.
+Finished training student 8
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-9-20220627-091932, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 9 with best metric 0.5.
+Finished training student 9
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-10-20220627-092007, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 10 with best metric 0.5.
+Finished training student 10
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-11-20220627-092013, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 11 with best metric 0.5.
+Finished training student 11
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-13-20220627-092027, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 13 with best metric 0.5.
+Finished training student 13
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-14-20220627-092029, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 14 with best metric 0.5.
+Finished training student 14
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-16-20220627-092110, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 16 with best metric 0.5.
+Finished training student 16
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-17-20220627-092119, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 17 with best metric 0.5.
+Finished training student 17
+[32mdevices: [][39m
+[33mWARNING: no such path: ./log/cifar10-rl/tensorboard/student-18-20220627-092123, but we made.[39m
+Model: "dnn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten (Flatten)            multiple                  0         
+_________________________________________________________________
+linear (Linear)              multiple                  393344    
+_________________________________________________________________
+linear_1 (Linear)            multiple                  8256      
+_________________________________________________________________
+linear_2 (Linear)            multiple                  2080      
+_________________________________________________________________
+linear_3 (Linear)            multiple                  330       
+_________________________________________________________________
+activation (Activation)      multiple                  0         
+_________________________________________________________________
+activation_1 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_2 (Activation)    multiple                  0         
+_________________________________________________________________
+activation_3 (Activation)    multiple                  0         
+=================================================================
+Total params: 404,010
+Trainable params: 404,010
+Non-trainable params: 0
+_________________________________________________________________
+Finished student 18 with best metric 0.5.
+Finished training student 18
+[32m[Task Status]: Task done! Time cost: {:}[39m
