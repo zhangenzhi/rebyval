@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar10-mlp-reval2
+    name: cifar10-mlp-de-ireval
     multi-p: True
 
   main_loop:
