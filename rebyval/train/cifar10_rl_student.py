@@ -48,7 +48,7 @@ class Cifar10RLStudent(Student):
             zip(gradients, self.model.trainable_variables))
             
         self.mt_loss_fn.update_state(t_loss)
-        return t_loss, values[index_min], action_sample[index_min], values
+        return t_loss, values[index_min], tf.squeeze(action_sample[index_min]), values
 
     def train(self, new_student=None, supervisor_info=None):
         
