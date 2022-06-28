@@ -49,8 +49,7 @@ class Cifar10RLStudent(Student):
             
         self.mt_loss_fn.update_state(t_loss)
         
-        import pdb
-        pdb.set_trace()
+        ForkedPdb().set_trace()
         
         return t_loss, values, action_sample[index_min], values
 
