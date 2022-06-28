@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar10-rl
+    name: cifar10-rl-df001
     multi-p: True
 
   main_loop:
