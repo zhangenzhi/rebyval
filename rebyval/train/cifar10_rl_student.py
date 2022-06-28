@@ -40,10 +40,10 @@ class Cifar10RLStudent(Student):
 
         # select wights with best Q-value
         values = self.supervisor(scaled_vars)
-        index_min = min(range(len(values)), key=values.__getitem__)
+        index_max = max(range(len(values)), key=values.__getitem__)
 
         # next state
-        gradients = [g*action_sample[index_min] for g in t_grad]
+        gradients = [g*action_sample[index_max] for g in t_grad]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
             
@@ -51,7 +51,7 @@ class Cifar10RLStudent(Student):
         
         # ForkedPdb().set_trace()
         
-        return t_loss, tf.squeeze(values[index_min]), tf.squeeze(action_sample[index_min]), values
+        return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), values
 
     def train(self, new_student=None, supervisor_info=None):
         
@@ -84,9 +84,9 @@ class Cifar10RLStudent(Student):
                             train_loss = self._train_step(data['inputs'], data['labels'])
                             action = 1.0
                         else:
-                            train_loss, surrogate_loss, action, values = self._rl_train_step(data['inputs'], data['labels'])
+                            train_loss, Q, action, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
-                                tf.summary.scalar("surrogate_loss", surrogate_loss, step=self.gloabl_train_step)
+                                tf.summary.scalar("Q", Q, step=self.gloabl_train_step)
                                 tf.summary.scalar("action", action, step=self.gloabl_train_step)
                                 tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
