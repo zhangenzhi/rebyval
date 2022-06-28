@@ -32,6 +32,9 @@ class Cifar10RLStudent(Student):
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
 
+        import pdb
+        pdb.set_trace()
+        
         # sample action with pseudo sgd
         action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
         scaled_gards = flat_grad * action_sample
