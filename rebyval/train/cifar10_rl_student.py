@@ -49,7 +49,7 @@ class Cifar10RLStudent(Student):
             
         self.mt_loss_fn.update_state(t_loss)
         
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         
         return t_loss, tf.squeeze(values[index_min]), tf.squeeze(action_sample[index_min]), values
 
