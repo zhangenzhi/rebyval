@@ -31,9 +31,6 @@ class Cifar10RLStudent(Student):
         flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
-
-        import pdb
-        pdb.set_trace()
         
         # sample action with pseudo sgd
         action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
