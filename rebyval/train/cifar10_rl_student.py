@@ -33,7 +33,10 @@ class Cifar10RLStudent(Student):
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
         
         # sample action with pseudo sgd
-        action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
+        if self.id % 3 == 0:
+            action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
+        else:
+            action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
         scaled_gards = flat_grad * action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
