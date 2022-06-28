@@ -51,7 +51,7 @@ class Cifar10RLStudent(Student):
         
         ForkedPdb().set_trace()
         
-        return t_loss, values, action_sample[index_min], values
+        return t_loss, values[index_min], action_sample[index_min], values
 
     def train(self, new_student=None, supervisor_info=None):
         
