@@ -1,3 +1,4 @@
+from numpy import reshape
 import tensorflow as tf
 from tqdm import trange
 
@@ -19,17 +20,12 @@ class Cifar10RLSupervisor(Supervisor):
             
     def preprocess_weightspace(self, raw_inputs):
         # label
-        labels = raw_inputs.pop('valid_loss')
-        
-        # var_length
-        raw_inputs.pop('vars_length')
-        
-        # inputs
-        flat_vars = []
-        for feat, tensor in raw_inputs.items():
-            # sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        inputs = tf.concat(flat_vars, axis=1)
+        labels = raw_inputs.pop('Q')
+        # labels = tf.reshape(labels,shape=(-1,1))
+
+        # states
+        inputs = raw_inputs.pop('states')
+        # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         
         return inputs, labels
         

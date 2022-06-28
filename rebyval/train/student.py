@@ -23,6 +23,7 @@ class Student:
         
         ## RL
         self.best_metric = best_metric
+        self.baseline = 0.1
         self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
@@ -345,16 +346,22 @@ class Student:
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
     
     def rl_example(self, experience_buffer):
-        feature = {}
         configs = {}
+        examples = []
 
-        for feature_name, value in experience_buffer.items():
-            values = tf.concat(value, axis=0)
-            bytes_v = tf.io.serialize_tensor(values).numpy()
-            feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[bytes_v]))
-            configs[feature_name] = {'type': 'bytes', 'shape': values.shape.as_list()}
-    
-        return tf.train.Example(features=tf.train.Features(feature=feature)), configs
+        values = list(experience_buffer.values())
+        keys = list(experience_buffer.keys())
+        sample_value = list(zip(*values))
+        samples = [dict(zip(keys, s)) for s in sample_value]
+        for s in samples:
+            feature = {}
+            for feature_name, value in s.items():
+                bytes_v = tf.io.serialize_tensor(value).numpy()
+                feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[bytes_v]))
+                configs[feature_name] = {'type': 'bytes', 'shape': value.shape.as_list()}
+            examples.append(tf.train.Example(features=tf.train.Features(feature=feature)))
+
+        return examples, configs
 
     def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
 
@@ -382,20 +389,19 @@ class Student:
         
     def _write_trail_to_tfrecord(self, experience_buffer):
         
-        example, configs = self.rl_example(experience_buffer)
+        examples, configs = self.rl_example(experience_buffer)
+        for e in examples:
+            self.writter.write(e.SerializeToString())
         
         weight_dir = os.path.join(self.args['log_path'], 'weight_space')
         config_path = os.path.join(weight_dir, 'feature_configs.yaml')
 
         configs['num_of_students'] = len(glob_tfrecords(
             weight_dir, glob_pattern='*.tfrecords'))
-        configs['sample_per_student'] = int(
-            self.dataloader.info['train_step'] / self.args['train_loop']['valid']['valid_gap'] + 1) * self.dataloader.info['epochs']
+        configs['sample_per_student'] = int(self.dataloader.info['train_step'] / self.args['train_loop']['valid']['valid_gap']) * self.dataloader.info['epochs']
         configs['total_samples'] = configs['sample_per_student'] * \
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
-        
-        self.writter.write(example.SerializeToString())
         
     def mem_experience_buffer(self, weight, metric, action, step=0):
                   
@@ -406,13 +412,13 @@ class Student:
         
         # reward function
         if metric > self.best_metric:
-            self.best_metric = metric + 0.01
-        if metric <= 0.1:
+            self.best_metric = metric + self.baseline/10
+        if metric <= self.baseline:
              self.experience_buffer['rewards'].append(tf.constant(0.0))
         else:
-            self.experience_buffer['rewards'].append(-tf.math.log(1.0-(metric-0.1)/(self.best_metric-0.1)))
+            self.experience_buffer['rewards'].append(metric - self.baseline)
             
-        self.experience_buffer['actions'].append(action)
+        self.experience_buffer['actions'].append(tf.constant(action))
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.5):
@@ -424,4 +430,4 @@ class Student:
         self.experience_buffer['Q'] = Q
         self._write_trail_to_tfrecord(self.experience_buffer)
         print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
-        return self.best_metric - 0.01                
+        return self.best_metric - self.baseline/10              
