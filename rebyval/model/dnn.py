@@ -87,7 +87,7 @@ class DNN(tf.keras.Model):
             self.state_emb = Linear(units=1024, 
                                      seed=self.seed, 
                                      initial_value=[w_s, b_s])
-            self.act_emb   = Linear(units=1024, 
+            self.action_emb   = Linear(units=1024, 
                                      seed=self.seed, 
                                      initial_value=[w_a, b_a])
             
