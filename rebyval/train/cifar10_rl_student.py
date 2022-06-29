@@ -32,20 +32,39 @@ class Cifar10RLStudent(Student):
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
         
-        # sample action with pseudo sgd
-        if self.id % 3 == 0:
+        # # sample action with pseudo sgd
+        # if self.id % 5 == 0:
+        #     action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
+        # else:
+        #     if self.gloabl_train_step <= 1000:
+        #         action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
+        #     else:
+        #         action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
+                
+        # fixed action with pseudo sgd
+        if self.id % 10 == 0:
             action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
         else:
             if self.gloabl_train_step <= 1000:
-                action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
+                action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
             else:
-                action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
+                action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-
         # select wights with best Q-value
         values = self.supervisor(scaled_vars)
+        
+        # # fixed actions and Q-net
+        # if self.id % 5 == 0:
+        #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
+        # else:
+        #     action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
+        # # select wights with best Q-value
+        # var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+        # values = self.supervisor({'state':var_copy,'action':action_sample})
+
+
         index_max = max(range(len(values)), key=values.__getitem__)
 
         # next state

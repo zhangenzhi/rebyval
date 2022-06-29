@@ -54,6 +54,7 @@ class DNN(tf.keras.Model):
                  units=[64, 32, 16, 1],
                  activations=['tanh', 'tanh', 'tanh', 'tanh'],
                  use_bn=False,
+                 embedding=False,
                  seed=100000,
                  initial_value=None,
                  **kwargs
@@ -62,22 +63,26 @@ class DNN(tf.keras.Model):
 
         self.units = units
         self.activations = activations
-        self.use_bn = use_bn 
+        self.use_bn = use_bn
+        self.embedding = embedding 
         self.seed = seed
         self.initial_value = initial_value
         
+        self.emb = Linear(units=1024)
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
         self.fc_act = self._build_act()
         self.fc_bn = self._build_bn()
         self.fc_bn = []
-
+        
     def _build_fc(self):
         layers = []
         if self.initial_value != None:
             for i in range(len(self.units)):
-                layers.append(Linear(units=self.units[i], seed=self.seed, initial_value=[self.initial_value[i*2],
-                                                                                         self.initial_value[i*2+1]]))
+                layers.append(Linear(units=self.units[i], 
+                                     seed=self.seed, 
+                                     initial_value=[self.initial_value[i*2],
+                                                    self.initial_value[i*2+1]]))
         else:
             for units in self.units:
                 layers.append(Linear(units=units, seed=self.seed))
@@ -97,7 +102,15 @@ class DNN(tf.keras.Model):
         return acts
 
     def call(self, inputs):
-        x = inputs
+ 
+        if self.embedding:
+            
+            states = tf.reshape(inputs['state'], shape=(-1,1))
+            act_emb = tf.reshape(self.emb(inputs['action'], shape=(-1,1)))
+            x = tf.concat([states,act_emb],axis=-1)
+                                 
+        else:
+            x = inputs
         x = self.flatten(x)
         if self.use_bn:
             for layer, act, bn in zip(self.fc_layers, self.fc_act, self.fc_bn):

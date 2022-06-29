@@ -9,8 +9,8 @@ class Cifar10RLSupervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
         super(Cifar10RLSupervisor, self).__init__(supervisor_args, logger = logger, id = id)
         
-    def __call__(self, states):
-        s_loss = self.model(states, training=False)
+    def __call__(self, inputs):
+        s_loss = self.model(inputs, training=False)
         s_loss = tf.squeeze(s_loss)
         return s_loss
             
@@ -21,6 +21,12 @@ class Cifar10RLSupervisor(Supervisor):
 
         # states
         inputs = raw_inputs.pop('states')
+        
+        # states & actions
+        # state = tf.reshape(raw_inputs.pop('states'),shape=(1,-1))
+        # action = tf.reshape(raw_inputs.pop('action'),shape=(1,-1))
+        # inputs = tf.concat([state,action],axis=-1)
+        
         # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         
         return inputs, labels

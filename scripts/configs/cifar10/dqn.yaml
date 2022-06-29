@@ -45,6 +45,7 @@ experiment:
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
+      embedding: False
       activations: [relu,relu,relu,softplus] # default relu
     optimizer:
       name: sgd
