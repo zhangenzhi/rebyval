@@ -149,7 +149,7 @@ class Student:
             raise
         self.mt_loss_fn.update_state(loss)
         
-        return loss
+        return loss, gradients
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels):
@@ -208,7 +208,7 @@ class Student:
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss = self._train_step(data['inputs'], data['labels'])
+                            train_loss,_ = self._train_step(data['inputs'], data['labels'])
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
                                                         train_step=train_step, epoch=epoch)
