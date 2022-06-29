@@ -5,7 +5,7 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 
+      student_nums: 0
       supervisor_trains: 1
     nums: 0
     student_nums: 0
