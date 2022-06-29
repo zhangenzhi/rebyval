@@ -22,7 +22,7 @@ class Cifar10RLSupervisor(Supervisor):
 
         # # states
         # inputs = raw_inputs.pop('states')
-        
+        ForkedPdb().set_trace()
         # states & actions
         state = tf.reshape(raw_inputs.pop('states'),shape=(1,-1))
         act_grad = tf.reshape(raw_inputs.pop('act_grads'),shape=(1,-1))
