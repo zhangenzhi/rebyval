@@ -24,7 +24,7 @@ class Student:
         ## RL
         self.best_metric = best_metric
         self.baseline = 0.1
-        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'steps':[]}
+        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'act_grads':[],'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
