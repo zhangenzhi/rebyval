@@ -421,7 +421,7 @@ class Student:
         self.experience_buffer['actions'].append(tf.constant(action))
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
-    def save_experience(self, df=0.99):
+    def save_experience(self, df=0.95):
         s = len(self.experience_buffer['rewards'])
         Q = [self.experience_buffer['rewards'][-1]]
         for i in reversed(range(s-1)):
