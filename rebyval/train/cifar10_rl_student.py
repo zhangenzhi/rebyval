@@ -54,7 +54,7 @@ class Cifar10RLStudent(Student):
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
         # select wights with best Q-value
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         states_actions = {'state':var_copy, 'action':scaled_gards}
         values = self.supervisor(states_actions)
         
