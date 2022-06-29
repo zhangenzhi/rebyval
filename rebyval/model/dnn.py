@@ -110,7 +110,6 @@ class DNN(tf.keras.Model):
             s_x = self.state_emb(inputs['state'])
             a_x = self.action_emb(inputs['act'])
             
-            ForkedPdb().set_trace()
             x = tf.concat([s_x,a_x],axis=-1)
         else:
             x = inputs
