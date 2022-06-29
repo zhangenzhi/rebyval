@@ -4,6 +4,7 @@ from tqdm import trange
 
 from rebyval.train.supervisor import Supervisor
 from rebyval.tools.utils import print_error
+from rebyval.train.utils import ForkedPdb
 
 class Cifar10RLSupervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
@@ -127,6 +128,7 @@ class Cifar10RLSupervisor(Supervisor):
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
+                        ForkedPdb().set_trace()
                         train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
