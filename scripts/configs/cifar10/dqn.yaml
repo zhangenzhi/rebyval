@@ -1,14 +1,14 @@
 experiment:
   context:
-    name: cifar10-rl-df099-fa3
+    name: cifar10-rl-df099-fa3-dbg
     multi-p: True
 
   main_loop:
     warmup: 
       student_nums: 20
       supervisor_trains: 1
-    nums: 100
-    student_nums: 3
+    nums: 1
+    student_nums: 1
 
   student:
     dataloader:
