@@ -233,6 +233,7 @@ class DNNRL(DNNWeightsLoader):
                     'metrics':{"type": 'value', "length": 1, "dtype": tf.string},
                     'Q':{"type": 'value', "length": 1, "dtype": tf.string},
                     'actions':{"type": 'value', "length": 1, "dtype": tf.string},
+                    'act_grads':{"type": 'value', "length": 1, "dtype": tf.string},
                     'steps':{"type": 'value', "length": 1, "dtype": tf.string},
                     'rewards':{"type": 'value', "length": 1, "dtype": tf.string}
             }

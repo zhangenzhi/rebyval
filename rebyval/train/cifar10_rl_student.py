@@ -78,7 +78,7 @@ class Cifar10RLStudent(Student):
         
         # ForkedPdb().set_trace()
         
-        return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), values
+        return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), scaled_gards[index_max], values
 
     def train(self, new_student=None, supervisor_info=None):
         
@@ -111,7 +111,7 @@ class Cifar10RLStudent(Student):
                             train_loss = self._train_step(data['inputs'], data['labels'])
                             action = 1.0
                         else:
-                            train_loss, Q, action, values = self._rl_train_step(data['inputs'], data['labels'])
+                            train_loss, Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
                                 tf.summary.scalar("Q", Q, step=self.gloabl_train_step)
                                 tf.summary.scalar("action", action, step=self.gloabl_train_step)
@@ -130,7 +130,10 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ev_metric = tf.reduce_mean(v_metrics)
-                            self.mem_experience_buffer(weight=self.model.trainable_weights, metric=ev_metric, action=action, step=self.gloabl_train_step)
+                            self.mem_experience_buffer(weight=self.model.trainable_weights, 
+                                                       metric=ev_metric, 
+                                                       action=(action, act_grad), 
+                                                       step=self.gloabl_train_step)
                     et_loss = self.mt_loss_fn.result()
                 
                 # Test

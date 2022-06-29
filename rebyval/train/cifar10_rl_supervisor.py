@@ -19,13 +19,13 @@ class Cifar10RLSupervisor(Supervisor):
         labels = raw_inputs.pop('Q')
         # labels = tf.reshape(labels,shape=(-1,1))
 
-        # states
-        inputs = raw_inputs.pop('states')
+        # # states
+        # inputs = raw_inputs.pop('states')
         
         # states & actions
-        # state = tf.reshape(raw_inputs.pop('states'),shape=(1,-1))
-        # action = tf.reshape(raw_inputs.pop('action'),shape=(1,-1))
-        # inputs = tf.concat([state,action],axis=-1)
+        state = tf.reshape(raw_inputs.pop('states'),shape=(1,-1))
+        act_grad = tf.reshape(raw_inputs.pop('act_grads'),shape=(1,-1))
+        inputs = tf.concat([state, act_grad],axis=-1)
         
         # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         

@@ -418,7 +418,8 @@ class Student:
         else:
             self.experience_buffer['rewards'].append(metric - self.baseline)
             
-        self.experience_buffer['actions'].append(tf.constant(action))
+        self.experience_buffer['actions'].append(tf.constant(action[0]))
+        self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.99):
