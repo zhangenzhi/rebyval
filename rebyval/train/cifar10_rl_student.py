@@ -43,7 +43,7 @@ class Cifar10RLStudent(Student):
                 
         # fixed action with pseudo sgd
         if self.id % 10 == 0:
-            action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
+            action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
         else:
             if self.gloabl_train_step <= 1000:
                 action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
@@ -55,7 +55,7 @@ class Cifar10RLStudent(Student):
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
         # select wights with best Q-value
         states_actions = tf.concat([var_copy, scaled_gards],axis=-1)
-        values = self.supervisor(scaled_vars)
+        values = self.supervisor(states_actions)
         
         # ForkedPdb().set_trace()
         # # fixed actions and Q-net
@@ -78,7 +78,7 @@ class Cifar10RLStudent(Student):
         self.mt_loss_fn.update_state(t_loss)
         
         # ForkedPdb().set_trace()
-        reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g,axis=-1),(1,-1)) for g in gradients], axis=-1)
+        reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
         
         return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), reduced_grads, values
 
