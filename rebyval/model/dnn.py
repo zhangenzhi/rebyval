@@ -69,14 +69,32 @@ class DNN(tf.keras.Model):
         self.initial_value = initial_value
         
         if embedding:
-            self.state_emb = Linear(units=1024)
-            self.action_emb = Linear(units=1024)
+            self._build_emb()
             
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
         self.fc_act = self._build_act()
         self.fc_bn = self._build_bn()
         self.fc_bn = []
+    
+    def _build_emb(self):
+       
+        if self.initial_value != None:
+            w_s = self.initial_value.pop(0)
+            b_s = self.initial_value.pop(0)
+            w_a = self.initial_value.pop(0)
+            b_a = self.initial_value.pop(0)
+            self.state_emb = Linear(units=1024, 
+                                     seed=self.seed, 
+                                     initial_value=[w_s, b_s])
+            self.act_emb   = Linear(units=1024, 
+                                     seed=self.seed, 
+                                     initial_value=[w_a, b_a])
+            
+        else:
+            self.state_emb = Linear(units=1024)
+            self.action_emb = Linear(units=1024)
+
         
     def _build_fc(self):
         layers = []
