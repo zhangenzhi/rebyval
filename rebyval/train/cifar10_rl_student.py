@@ -55,6 +55,7 @@ class Cifar10RLStudent(Student):
         # select wights with best Q-value
         values = self.supervisor(scaled_vars)
         
+        ForkedPdb().set_break()
         # # fixed actions and Q-net
         # if self.id % 5 == 0:
         #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
