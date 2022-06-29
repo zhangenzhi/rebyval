@@ -107,8 +107,8 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
  
         if self.embedding:
-            s_x = self.state_emb(inputs('state'))
-            a_x = self.action_emb(inputs('act'))
+            s_x = self.state_emb(inputs['state'])
+            a_x = self.action_emb(inputs['act'])
             
             x = tf.concat([s_x,a_x],axis=-1)
         else:
