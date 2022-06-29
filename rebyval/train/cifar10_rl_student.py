@@ -36,7 +36,7 @@ class Cifar10RLStudent(Student):
         if self.id % 3 == 0:
             action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
         else:
-            if self.gloabl_train_step%self.dataloader.info['train_step']<=1000:
+            if self.gloabl_train_step <= 1000:
                 action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(100,1))
             else:
                 action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
