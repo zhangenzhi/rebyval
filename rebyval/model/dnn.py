@@ -69,7 +69,8 @@ class DNN(tf.keras.Model):
         self.initial_value = initial_value
         
         if embedding:
-            self.emb = Linear(units=1024)
+            self.state_emb = Linear(units=1024)
+            self.action_emb = Linear(units=1024)
             
         self.flatten = tf.keras.layers.Flatten()
         self.fc_layers = self._build_fc()
@@ -106,10 +107,13 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
  
         if self.embedding:
-            states = tf.reshape(inputs['state'], shape=(-1,1))
-            act_emb = tf.reshape(self.emb(inputs['action'], shape=(-1,1)))
-            x = tf.concat([states,act_emb],axis=-1)
-                                 
+            state = tf.reshape(inputs[:][:3300])
+            s_x = self.state_emb(state)
+            
+            act = tf.reshape(inputs[:][3300:])
+            a_x = self.action_emb(act)
+            
+            x = tf.concat([s_x,a_x],axis=-1)
         else:
             x = inputs
         x = self.flatten(x)
