@@ -24,8 +24,8 @@ class Cifar10RLSupervisor(Supervisor):
         # inputs = raw_inputs.pop('states')
         ForkedPdb().set_trace()
         # states & actions
-        state = tf.reshape(raw_inputs.pop('states'),shape=(1,-1))
-        act_grad = tf.reshape(raw_inputs.pop('act_grads'),shape=(1,-1))
+        state = tf.reshape(raw_inputs.pop('states'),shape=(128,-1))
+        act_grad = tf.reshape(raw_inputs.pop('act_grads'),shape=(128,-1))
         inputs = tf.concat([state, act_grad],axis=-1)
         
         # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
@@ -128,7 +128,7 @@ class Cifar10RLSupervisor(Supervisor):
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
-                        ForkedPdb().set_trace()
+                        # ForkedPdb().set_trace()
                         train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
