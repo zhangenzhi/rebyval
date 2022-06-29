@@ -33,24 +33,16 @@ class Cifar10RLSupervisor(Supervisor):
         return inputs, labels
         
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels, train_step = 0, epoch=0):
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                predictions = tf.squeeze(predictions)
-                loss = self.loss_fn(labels, predictions)
+    def _train_step(self, inputs, labels):
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
 
-            gradients = tape.gradient(loss, self.model.trainable_variables)
+        gradients = tape.gradient(loss, self.model.trainable_variables)
 
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-            
-        except:
-            print_error("train step error")
-        
-        with self.logger.as_default():
-            step = train_step+epoch*self.dataloader.info['train_step']
-            tf.summary.scalar("train_loss", loss, step=step) 
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
             
         return loss
     
