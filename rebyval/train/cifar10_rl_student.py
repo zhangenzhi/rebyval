@@ -77,7 +77,7 @@ class Cifar10RLStudent(Student):
         self.mt_loss_fn.update_state(t_loss)
         
         # ForkedPdb().set_trace()
-        reduced_grads = tf.concat([tf.reshape(tf.concat(g,axis=-1),(1,-1)) for g in gradients], axis=-1)
+        reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g,axis=-1),(1,-1)) for g in gradients], axis=-1)
         
         return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), reduced_grads, values
 
@@ -111,7 +111,7 @@ class Cifar10RLStudent(Student):
                         if self.supervisor == None:
                             train_loss, grads = self._train_step(data['inputs'], data['labels'])
                             action = 1.0
-                            act_grad = tf.concat([tf.reshape(tf.concat(g,axis=-1),(1,-1)) for g in grads], axis=-1)
+                            act_grad = tf.concat([tf.reshape(tf.reduce_sum(g,axis=-1),(1,-1)) for g in grads], axis=-1)
                         else:
                             train_loss, Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
