@@ -40,7 +40,7 @@ experiment:
     dataloader:
       name: dnn_sr_RL
       replay_window: 1000
-      batch_size: 256
+      batch_size: 128
       epochs: 100
     model:
       name: dnn # default dnn
@@ -51,7 +51,7 @@ experiment:
       name: sgd
       learning_rate: 0.1
     loss:
-      name: MeanSquaredError #MeanAbsoluteError 
+      name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:
         valid:
           valid_gap: 100 
