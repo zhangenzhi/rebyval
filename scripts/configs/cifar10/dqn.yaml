@@ -46,10 +46,10 @@ experiment:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
       embedding: True
-      activations: [relu,relu,relu,linear] # default relu
+      activations: [relu,relu,relu,relu] # default relu
     optimizer:
       name: sgd
-      learning_rate: 0.001
+      learning_rate: 0.01
     loss:
       name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:
