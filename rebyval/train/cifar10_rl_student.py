@@ -58,7 +58,7 @@ class Cifar10RLStudent(Student):
         states_actions = {'state':var_copy, 'action':scaled_gards}
         values = self.supervisor(states_actions)
         
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         # # fixed actions and Q-net
         # if self.id % 5 == 0:
         #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
