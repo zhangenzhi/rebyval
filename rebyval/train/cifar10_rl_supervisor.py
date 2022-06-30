@@ -118,7 +118,6 @@ class Cifar10RLSupervisor(Supervisor):
             for epoch in e:
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     for train_step in t:
-                        ForkedPdb().set_trace()
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
                         # ForkedPdb().set_trace()
