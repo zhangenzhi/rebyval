@@ -48,7 +48,7 @@ class Cifar10RLStudent(Student):
             if self.gloabl_train_step <= 1000:
                 action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
             else:
-                ForkedPdb().set_trace()
+                # ForkedPdb().set_trace()
                 action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
