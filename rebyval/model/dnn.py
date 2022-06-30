@@ -84,16 +84,16 @@ class DNN(tf.keras.Model):
             b_s = self.initial_value.pop(0)
             w_a = self.initial_value.pop(0)
             b_a = self.initial_value.pop(0)
-            self.state_emb = Linear(units=1024, 
+            self.state_emb = Linear(units=33000, 
                                      seed=self.seed, 
                                      initial_value=[w_s, b_s])
-            self.action_emb   = Linear(units=1024, 
+            self.action_emb   = Linear(units=33000, 
                                      seed=self.seed, 
                                      initial_value=[w_a, b_a])
             
         else:
-            self.state_emb = Linear(units=1024)
-            self.action_emb = Linear(units=1024)
+            self.state_emb = Linear(units=33000)
+            self.action_emb = Linear(units=33000)
 
         
     def _build_fc(self):
