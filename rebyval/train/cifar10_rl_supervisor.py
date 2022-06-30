@@ -150,3 +150,4 @@ class Cifar10RLSupervisor(Supervisor):
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels, test_step = test_step)
                 t.set_postfix(se_loss=t_loss.numpy())
+        self.model.summary()
