@@ -75,8 +75,9 @@ class Cifar10RLStudent(Student):
 
         # next state
         gradients = [g*self.action_sample[index_max] for g in t_grad]
+        clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(
-            zip(gradients, self.model.trainable_variables))
+            zip(clip_grads, self.model.trainable_variables))
             
         self.mt_loss_fn.update_state(t_loss)
         

@@ -20,11 +20,13 @@ class Linear(keras.layers.Layer):
 
             self.w = tf.Variable(
                 initial_value=w_init,
-                trainable=True, name="w"
+                trainable=True, name="w",
+                constraint=lambda z: tf.clip_by_value(z, -10, 10)
             )
             self.b = tf.Variable(
                 initial_value=b_init, trainable=True,
-                name="b"
+                name="b",
+                constraint=lambda z: tf.clip_by_value(z, -10, 10)
             )
         
     def build_from_value(self):
@@ -36,11 +38,13 @@ class Linear(keras.layers.Layer):
             
             self.w = tf.Variable(
                 initial_value=w_init,
-                trainable=True, name="w"
+                trainable=True, name="w",
+                constraint=lambda z: tf.clip_by_value(z, -10, 10)
             )
             self.b = tf.Variable(
                 initial_value=b_init, trainable=True,
-                name="b"
+                name="b",
+                constraint=lambda z: tf.clip_by_value(z, -10, 10)
             )
         
     def call(self, inputs):
