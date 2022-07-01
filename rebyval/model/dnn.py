@@ -131,7 +131,7 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
  
         if self.embedding:
-            ForkedPdb().set_trace()
+            # ForkedPdb().set_trace()
             s_x = self.state_emb(inputs['state'])
             a_x = self.action_emb(inputs['action'])
             t_x = self.step_emb(inputs['step'])
