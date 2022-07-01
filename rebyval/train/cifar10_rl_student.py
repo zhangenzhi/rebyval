@@ -44,14 +44,14 @@ class Cifar10RLStudent(Student):
         # fixed action with pseudo sgd
         if self.gloabl_train_step % 30 ==0:
             if self.id % 10 == 0:
-                action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
+                self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
             else:
                 # if self.gloabl_train_step <= 1000:
                 #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
                 # else:
                 #     # ForkedPdb().set_trace()
-                action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
-            scaled_gards = flat_grad * action_sample
+                self.action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
+            scaled_gards = flat_grad * self.action_sample
             var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
             scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
             # select wights with best Q-value
@@ -73,7 +73,7 @@ class Cifar10RLStudent(Student):
         index_max = max(range(len(self.values)), key=self.values.__getitem__)
 
         # next state
-        gradients = [g*action_sample[index_max] for g in t_grad]
+        gradients = [g*self.action_sample[index_max] for g in t_grad]
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
             
@@ -82,7 +82,7 @@ class Cifar10RLStudent(Student):
         # ForkedPdb().set_trace()
         reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
         
-        return t_loss, tf.squeeze(self.values[index_max]), tf.squeeze(action_sample[index_max]), reduced_grads, self.values
+        return t_loss, tf.squeeze(self.values[index_max]), tf.squeeze(self.action_sample[index_max]), reduced_grads, self.values
 
     def train(self, new_student=None, supervisor_info=None):
         
