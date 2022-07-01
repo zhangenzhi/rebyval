@@ -39,8 +39,8 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_sr_RL
-      replay_window: 1000
-      batch_size: 128
+      replay_window: 20
+      batch_size: 32
       epochs: 100
     model:
       name: dnn # default dnn

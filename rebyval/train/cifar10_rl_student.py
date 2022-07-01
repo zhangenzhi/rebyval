@@ -42,21 +42,22 @@ class Cifar10RLStudent(Student):
         #         action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
                 
         # fixed action with pseudo sgd
-        if self.id % 10 == 0:
-            action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
-        else:
-            # if self.gloabl_train_step <= 1000:
-            #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
-            # else:
-            #     # ForkedPdb().set_trace()
-            action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
-        scaled_gards = flat_grad * action_sample
-        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-        scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-        # select wights with best Q-value
-        # ForkedPdb().set_trace()
-        states_actions = {'state':var_copy, 'action':scaled_gards}
-        values = self.supervisor(states_actions)
+        if self.gloabl_train_step % 30 ==0:
+            if self.id % 10 == 0:
+                action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
+            else:
+                # if self.gloabl_train_step <= 1000:
+                #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
+                # else:
+                #     # ForkedPdb().set_trace()
+                action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
+            scaled_gards = flat_grad * action_sample
+            var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+            scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+            # select wights with best Q-value
+            # ForkedPdb().set_trace()
+            states_actions = {'state':var_copy, 'action':scaled_gards}
+            self.values = self.supervisor(states_actions)
         
         # ForkedPdb().set_trace()
         # # fixed actions and Q-net
@@ -69,7 +70,7 @@ class Cifar10RLStudent(Student):
         # values = self.supervisor({'state':var_copy,'action':action_sample})
 
 
-        index_max = max(range(len(values)), key=values.__getitem__)
+        index_max = max(range(len(self.values)), key=self.values.__getitem__)
 
         # next state
         gradients = [g*action_sample[index_max] for g in t_grad]
@@ -107,8 +108,6 @@ class Cifar10RLStudent(Student):
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
-                        self.gloabl_train_step += 1
-                        
                         data = train_iter.get_next()
                         if self.supervisor == None:
                             train_loss, grads = self._train_step(data['inputs'], data['labels'])
@@ -122,8 +121,8 @@ class Cifar10RLStudent(Student):
                                 tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
-                        # Validation
-                        if train_step % valid_args['valid_gap'] == 0:
+                        # Valid
+                        if self.gloabl_train_step % valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 vv_metrics = []
@@ -138,6 +137,7 @@ class Cifar10RLStudent(Student):
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
                                                        step=self.gloabl_train_step)
+                    self.gloabl_train_step += 1
                     et_loss = self.mt_loss_fn.result()
                 
                 # Test
