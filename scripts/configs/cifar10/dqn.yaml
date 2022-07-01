@@ -41,7 +41,7 @@ experiment:
       name: dnn_sr_RL
       replay_window: 100
       batch_size: 32
-      epochs: 10
+      epochs: 100
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
