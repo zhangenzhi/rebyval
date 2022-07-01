@@ -430,5 +430,8 @@ class Student:
             Q.insert(0, q_value)
         self.experience_buffer['Q'] = Q
         self._write_trail_to_tfrecord(self.experience_buffer)
+        with self.logger.as_default():
+            for i in range(len(Q)):
+                tf.summary.scalar("T_Q", Q[i], step=i)
         print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
         return self.best_metric - self.baseline/10              
