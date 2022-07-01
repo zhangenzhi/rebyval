@@ -6,7 +6,7 @@ experiment:
   main_loop:
     warmup: 
       student_nums: 0
-      supervisor_trains: 1
+      supervisor_trains: 10
     nums: 100
     student_nums: 3
 
