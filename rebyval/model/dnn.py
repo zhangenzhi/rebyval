@@ -84,16 +84,22 @@ class DNN(tf.keras.Model):
             b_s = self.initial_value.pop(0)
             w_a = self.initial_value.pop(0)
             b_a = self.initial_value.pop(0)
-            self.state_emb = Linear(units=1024, 
+            w_t = self.initial_value.pop(0)
+            b_t = self.initial_value.pop(0)
+            self.state_emb = Linear(units=256, 
                                      seed=self.seed, 
                                      initial_value=[w_s, b_s])
             self.action_emb   = Linear(units=1024, 
                                      seed=self.seed, 
                                      initial_value=[w_a, b_a])
+            self.step_emb   = Linear(units=256, 
+                                     seed=self.seed, 
+                                     initial_value=[w_t, b_t])
             
         else:
-            self.state_emb = Linear(units=1024)
+            self.state_emb = Linear(units=256)
             self.action_emb = Linear(units=1024)
+            self.step_emb   = Linear(units=256)
 
         
     def _build_fc(self):
@@ -127,8 +133,9 @@ class DNN(tf.keras.Model):
         if self.embedding:
             s_x = self.state_emb(inputs['state'])
             a_x = self.action_emb(inputs['action'])
+            t_x = self.step_emb(inputs['step'])
             
-            x = tf.concat([s_x,a_x],axis=-1)
+            x = tf.concat([s_x,a_x,t_x],axis=-1)
         else:
             x = inputs
         x = self.flatten(x)
