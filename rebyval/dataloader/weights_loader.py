@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from rebyval.tools.utils import get_yml_content, print_green
 from rebyval.dataloader.utils import glob_tfrecords
+from rebyval.train.utils import ForkedPdb
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
 
@@ -253,7 +254,8 @@ class DNNRL(DNNWeightsLoader):
         return feature_describs
 
     def _load_tensor_from_tfrecord(self, filelist, feature_config):
-
+        
+        filelist = ["./log/DE-rl-step/weight_space/45.tfrecords"]
         raw_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_dataset = raw_dataset.interleave(
@@ -280,4 +282,6 @@ class DNNRL(DNNWeightsLoader):
 
         parsed_dataset = parsed_dataset.prefetch(tf.data.AUTOTUNE)
 
+        ForkedPdb().set_trace()
+        
         return parsed_dataset
