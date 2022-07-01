@@ -255,7 +255,7 @@ class DNNRL(DNNWeightsLoader):
 
     def _load_tensor_from_tfrecord(self, filelist, feature_config):
         
-        filelist = ["./log/DE-rl-step/weight_space/45.tfrecords"]
+        # filelist = ["./log/DE-rl-step/weight_space/45.tfrecords"]
         raw_dataset = tf.data.Dataset.from_tensor_slices(filelist)
 
         raw_dataset = raw_dataset.interleave(
@@ -282,6 +282,6 @@ class DNNRL(DNNWeightsLoader):
 
         parsed_dataset = parsed_dataset.prefetch(tf.data.AUTOTUNE)
 
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         
         return parsed_dataset
