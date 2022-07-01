@@ -82,7 +82,7 @@ class Cifar10RLStudent(Student):
         # ForkedPdb().set_trace()
         reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
         
-        return t_loss, tf.squeeze(values[index_max]), tf.squeeze(action_sample[index_max]), reduced_grads, values
+        return t_loss, tf.squeeze(self.values[index_max]), tf.squeeze(action_sample[index_max]), reduced_grads, self.values
 
     def train(self, new_student=None, supervisor_info=None):
         

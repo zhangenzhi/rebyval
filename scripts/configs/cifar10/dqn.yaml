@@ -8,7 +8,7 @@ experiment:
       student_nums: 20
       supervisor_trains: 2
     nums: 100
-    student_nums: 1
+    student_nums: 3
 
   student:
     dataloader:
