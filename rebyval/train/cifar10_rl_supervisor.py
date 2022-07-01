@@ -26,7 +26,7 @@ class Cifar10RLSupervisor(Supervisor):
         # states & actions
         state = raw_inputs.pop('states')
         act_grad = raw_inputs.pop('act_grads')
-        step = tf.reshape(raw_inputs.pop('steps'),shape=(-1,1))
+        step = tf.reshape(raw_inputs.pop('steps'), shape=(-1,1))
         
         
         inputs = {'state':state, 'action':act_grad,'step':step}
