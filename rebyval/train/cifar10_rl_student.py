@@ -42,7 +42,7 @@ class Cifar10RLStudent(Student):
         #         action_sample = tf.random.uniform(minval=0, maxval=2, shape=(100,1))
                 
         # fixed action with pseudo sgd
-        if self.gloabl_train_step % 30 ==0:
+        if (self.gloabl_train_step % 30) ==0:
             if self.id % 10 == 0:
                 self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
             else:
@@ -137,7 +137,7 @@ class Cifar10RLStudent(Student):
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
                                                        step=self.gloabl_train_step)
-                    self.gloabl_train_step += 1
+                        self.gloabl_train_step += 1
                     et_loss = self.mt_loss_fn.result()
                 
                 # Test
