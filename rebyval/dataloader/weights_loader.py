@@ -124,6 +124,8 @@ class DNNWeightsLoader(BaseDataLoader):
             filelist = new_students + past
         print("filelist length: {}".format(len(filelist)))
         
+        ForkedPdb().set_trace()
+        
         full_dataset = self._load_tensor_from_tfrecord(filelist=filelist, feature_config=self.feature_config)
         full_dataset = full_dataset.shuffle(self.info['total_samples'])
         
@@ -145,16 +147,6 @@ class DNNWeightsLoader(BaseDataLoader):
         
         return train_dataset, valid_dataset, test_dataset
     
-    def test_dataset():
-        fullset = tf.data.Dataset.range(10)
-        train_dataset = fullset.take(5)
-        valid_dataset = fullset.skip(5)
-        
-        tds = iter(train_dataset)
-        tds.get_next()
-        
-        vds = iter(valid_dataset)
-        vds.get_next()
 
 class DNNSumReduce(DNNWeightsLoader):
     def __init__(self, dataloader_args):

@@ -126,7 +126,7 @@ class Cifar10RLSupervisor(Supervisor):
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
                     et_loss = self.mloss_fn.result()
-                ForkedPdb().set_trace()
+                    
                 # valid
                 with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                     self.mloss_fn.reset_states()
@@ -140,7 +140,7 @@ class Cifar10RLSupervisor(Supervisor):
                     ev_loss = self.mloss_fn.result()
                     
                 # epoch info
-                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy())
+                e.set_postfix(et_loss=et_loss.numpy(),et_loss=ev_loss.numpy())
                 with self.logger.as_default():
                     tf.summary.scalar("epoch_train_loss", et_loss, step=self.dataloader.info['epochs']*self.id+epoch)
                     tf.summary.scalar("epoch_valid_loss", ev_loss, step=self.dataloader.info['epochs']*self.id+epoch)
