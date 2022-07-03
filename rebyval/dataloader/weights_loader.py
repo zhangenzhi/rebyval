@@ -253,8 +253,8 @@ class DNNRL(DNNWeightsLoader):
         raw_dataset = raw_dataset.interleave(
             lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=32),
             block_length=256,
-            cycle_length=16,
-            num_parallel_calls=32,
+            cycle_length=32,
+            num_parallel_calls=16,
             deterministic=False)
 
         feature_describ = self._make_rl_describs(feature_config = feature_config)
