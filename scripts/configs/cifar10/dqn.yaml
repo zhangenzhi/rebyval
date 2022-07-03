@@ -1,20 +1,20 @@
 experiment:
   context:
-    name: DE-rl-step
+    name: Req
     multi-p: True
 
   main_loop:
     warmup: 
-      student_nums: 0
+      student_nums: 20
       supervisor_trains: 2
-    nums: 100
+    nums: 300
     student_nums: 3
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 1024
-      epochs: 100
+      epochs: 150
       da: False
       task: RL
     model:
