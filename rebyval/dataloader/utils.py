@@ -3,6 +3,7 @@ import tarfile
 import random
 import fnmatch, os
 import tensorflow as tf
+import numpy as np
 from tensorflow.io import gfile
 from scipy import io as scipy_io
 
@@ -27,6 +28,12 @@ def glob_tfrecords(input_dirs, glob_pattern="example", recursively=False):
                         file_path_list.append(os.path.join(dir_path, filename))
     return file_path_list
 
+def normalization(train_images, test_images):
+    mean = np.mean(train_images, axis=(0, 1, 2, 3))
+    std = np.std(train_images, axis=(0, 1, 2, 3))
+    train_images = (train_images - mean) / (std + 1e-7)
+    test_images = (test_images - mean) / (std + 1e-7)
+    return train_images, test_images
 
 def unpack_tarfile(input_dirs):
     tarfiles = os.listdir(input_dirs)

@@ -1,8 +1,5 @@
 FROM tensorflow/tensorflow:2.4.1-gpu
 
-# Switch to aliyun sources
-COPY ubuntu_18.04_163.sources.list /etc/apt/sources.list
-
 # GPG keys are broken
 RUN mv /etc/apt/sources.list.d/cuda.list /etc/apt/sources.list.d/cuda.list.bak
 RUN mv /etc/apt/sources.list.d/nvidia-ml.list /etc/apt/sources.list.d/nvidia-ml.list.bak
@@ -130,8 +127,7 @@ RUN pip3 install \
     protobuf==3.11.3 \
     pyyaml==5.3.1 \
     wheel==0.32.1 \
-    virtualenv==20.0.30 \
-    scikit-learn 
+    virtualenv==20.0.30
 
 # Install devel libs
 RUN apt-get update -y && \

@@ -4,27 +4,43 @@ import random
 from unicodedata import name
 import numpy as np
 import tensorflow as tf
-from rebyval.dataloader.utils import glob_tfrecords
+from tensorflow.keras.layers.experimental import preprocessing
+from rebyval.dataloader.utils import glob_tfrecords, normalization
 from rebyval.dataloader.base_dataloader import BaseDataLoader
 
-
-class Cifar10DataLoader(BaseDataLoader):
+class MinistDataLoader(BaseDataLoader):
     def __init__(self, dataloader_args):
-        super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
-        self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
-                     'train_step': int(50000/dataloader_args['batch_size']),
-                     'valid_step': int(5000/dataloader_args['batch_size']),
-                     'test_step': int(5000/dataloader_args['batch_size']),
-                     'epochs': dataloader_args['epochs']}
-
+        super().__init__(dataloader_args)
+        self.info = {'train_size':50000,'test_size':10000,'image_size':[28, 28, 1],
+                'train_step': int(50000/dataloader_args['batch_size']),
+                'valid_step': int(10000/dataloader_args['batch_size']),
+                'test_step': int(10000/dataloader_args['batch_size']),
+                'epochs': dataloader_args['epochs']}
+    
     def load_dataset(self, epochs=-1, format=None):
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
         
-        x_train = x_train.astype(np.float32) / 255.0
+        x_train = (x_train / 255.0).astype(np.float32)
         y_train = y_train.astype(np.float32)
         
-        x_test = x_test.astype(np.float32) / 255.0
+        x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
+        
+        x_train = np.reshape(x_train, [60000,28,28,1])
+        x_test = np.reshape(x_test, [10000,28,28,1])
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
+        
+        #on-hot
+        y_train = tf.keras.utils.to_categorical(y_train, 10)
+        y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+        data_augmentation = tf.keras.Sequential([
+                    preprocessing.RandomContrast(0.1),
+                    preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                    preprocessing.RandomCrop(28, 28),
+                    preprocessing.RandomZoom(0.1)
+                    ])
 
         full_size = len(x_train)
         test_size = len(x_test)
@@ -36,8 +52,13 @@ class Cifar10DataLoader(BaseDataLoader):
         full_dataset = full_dataset.shuffle(full_size)
 
         train_dataset = full_dataset.take(train_size)
-        train_dataset = train_dataset.batch(self.dataloader_args['batch_size']).prefetch(1)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+        # data augmentation
+        if self.dataloader_args['da']:
+            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+        train_dataset = train_dataset.prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
+
 
         # valid_dataset = full_dataset.skip(train_size)
         # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
@@ -45,8 +66,140 @@ class Cifar10DataLoader(BaseDataLoader):
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
         test_dataset = test_dataset.shuffle(test_size)
-        valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
-        test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset
+
+        return train_dataset, valid_dataset, test_dataset
+
+class Cifar10DataLoader(BaseDataLoader):
+    def __init__(self, dataloader_args):
+        super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
+        self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
+                     'train_step': int(50000/dataloader_args['batch_size']),
+                     'valid_step': int(5000/dataloader_args['batch_size']),
+                     'test_step': int(10000/dataloader_args['batch_size']),
+                     'epochs': dataloader_args['epochs']}
+
+    def load_dataset(self, epochs=-1, format=None):
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+        
+        x_train = (x_train / 255.0).astype(np.float32)
+        y_train = y_train.astype(np.float32)
+        
+        x_test = (x_test / 255.0).astype(np.float32)
+        y_test = y_test.astype(np.float32)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
+        
+        # one-hot
+        y_train = tf.keras.utils.to_categorical(y_train, 10)
+        y_test = tf.keras.utils.to_categorical(y_test, 10)
+        
+        data_augmentation = tf.keras.Sequential([
+                            preprocessing.RandomFlip(mode="horizontal"),
+                            preprocessing.RandomContrast(0.1),
+                            preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                            preprocessing.RandomCrop(32, 32),
+                            preprocessing.RandomRotation(factor=(-0.1, 0.1)),
+                            preprocessing.RandomZoom(0.1)
+                            ])
+
+        full_size = len(x_train)
+        test_size = len(x_test)
+        
+        train_size = int(1.0 * full_size)
+        valid_size = int(0.5 * test_size)
+
+        full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
+        full_dataset = full_dataset.shuffle(train_size)
+
+        train_dataset = full_dataset.take(train_size)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+        # data augmentation
+        if self.dataloader_args['da']:
+            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+        train_dataset = train_dataset.prefetch(1)
+        train_dataset = train_dataset.repeat(epochs)
+
+        # valid_dataset = full_dataset.skip(train_size)
+        # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
+        # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
+
+        test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
+        # all 1w test
+        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset
+        
+        # test_dataset = test_dataset.shuffle(test_size)
+        # valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+
+        return train_dataset, valid_dataset, test_dataset
+
+class Cifar100DataLoader(BaseDataLoader):
+    def __init__(self, dataloader_args):
+        super(Cifar100DataLoader, self).__init__(dataloader_args=dataloader_args)
+        self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
+                     'train_step': int(50000/dataloader_args['batch_size']),
+                     'valid_step': int(10000/dataloader_args['batch_size']),
+                     'test_step': int(10000/dataloader_args['batch_size']),
+                     'epochs': dataloader_args['epochs']}
+
+    def load_dataset(self, epochs=-1, format=None):
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+        
+        x_train = (x_train / 255.0).astype(np.float32)
+        y_train = y_train.astype(np.float32)
+        
+        x_test = (x_test / 255.0).astype(np.float32)
+        y_test = y_test.astype(np.float32)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
+        
+        #one-hot
+        y_train = tf.keras.utils.to_categorical(y_train, 100)
+        y_test = tf.keras.utils.to_categorical(y_test, 100)
+        
+        data_augmentation = tf.keras.Sequential([
+                    preprocessing.RandomFlip(mode="horizontal"),
+                    preprocessing.RandomContrast(0.1),
+                    preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                    preprocessing.RandomCrop(32, 32),
+                    preprocessing.RandomRotation(factor=(-0.1, 0.1)),
+                    preprocessing.RandomZoom(0.1)
+                    ])
+
+        full_size = len(x_train)
+        test_size = len(x_test)
+        
+        train_size = int(1.0 * full_size)
+        valid_size = int(0.5 * test_size)
+
+        full_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
+        full_dataset = full_dataset.shuffle(full_size)
+
+        train_dataset = full_dataset.take(train_size)
+        train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
+        # data augmentation
+        if self.dataloader_args['da']:
+            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+        train_dataset = train_dataset.prefetch(1)
+        train_dataset = train_dataset.repeat(epochs)
+
+        # valid_dataset = full_dataset.skip(train_size)
+        # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)
+        # valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
+
+        test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
+        # all 1w test
+        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        valid_dataset = test_dataset
+        
+        # test_dataset = test_dataset.shuffle(test_size)
+        # valid_dataset = test_dataset.take(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        # test_dataset = test_dataset.skip(valid_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
 
         return train_dataset, valid_dataset, test_dataset
 

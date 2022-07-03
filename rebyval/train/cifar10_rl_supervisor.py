@@ -1,54 +1,51 @@
+from numpy import reshape
 import tensorflow as tf
 from tqdm import trange
 
 from rebyval.train.supervisor import Supervisor
 from rebyval.tools.utils import print_error
+from rebyval.train.utils import ForkedPdb
 
-class Cifar10Supervisor(Supervisor):
+class Cifar10RLSupervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
-        super().__init__(supervisor_args, logger = logger, id = id)
+        super(Cifar10RLSupervisor, self).__init__(supervisor_args, logger = logger, id = id)
         
-    def __call__(self, weights):
-        flat_vars = []
-        for var in weights:
-            flat_vars.append(tf.reshape(var, shape=(-1)))
-        inputs = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+    def __call__(self, inputs):
         s_loss = self.model(inputs, training=False)
         s_loss = tf.squeeze(s_loss)
         return s_loss
             
     def preprocess_weightspace(self, raw_inputs):
         # label
-        labels = raw_inputs.pop('valid_loss')
+        labels = raw_inputs.pop('Q')
+        # labels = tf.reshape(labels,shape=(-1,1))
+
+        # # states
+        # inputs = raw_inputs.pop('states')
+        # ForkedPdb().set_trace()
+        # states & actions
+        state = raw_inputs.pop('states')
+        act_grad = raw_inputs.pop('act_grads')
+        step = tf.reshape(raw_inputs.pop('steps'), shape=(-1,1,1))
         
-        # var_length
-        raw_inputs.pop('vars_length')
+        inputs = {'state':state, 'action':act_grad,'step':step/10000}
         
-        # inputs
-        flat_vars = []
-        for feat, tensor in raw_inputs.items():
-            # sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        inputs = tf.concat(flat_vars, axis=1)
+        # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         
         return inputs, labels
         
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels, train_step = 0, epoch=0):
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                predictions = tf.squeeze(predictions)
-                loss = self.loss_fn(labels, predictions)
+    def _train_step(self, inputs, labels):
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
 
-            gradients = tape.gradient(loss, self.model.trainable_variables)
+        gradients = tape.gradient(loss, self.model.trainable_variables)
 
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
             
-        except:
-            print_error("train step error")
-                
         return loss
     
     def update(self, inputs, labels):
@@ -77,6 +74,10 @@ class Cifar10Supervisor(Supervisor):
             loss = self.loss_fn(labels, predictions)
         except:
             print_error("valid step error.")
+        
+        with self.logger.as_default():
+            step = valid_step+epoch*self.dataloader.info['valid_step']
+            tf.summary.scalar("valid_loss", loss, step=step)
             
         return loss
 
@@ -89,6 +90,10 @@ class Cifar10Supervisor(Supervisor):
         except:
             print_error("test step error.")
             raise 
+        
+        with self.logger.as_default():
+            tf.summary.scalar("test_loss", loss, step=test_step)
+        
         return loss
 
     def train(self):
@@ -117,7 +122,8 @@ class Cifar10Supervisor(Supervisor):
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
-                        train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
+                        # ForkedPdb().set_trace()
+                        train_loss = self._train_step(inputs, labels)
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
                     et_loss = self.mloss_fn.result()
@@ -146,3 +152,4 @@ class Cifar10Supervisor(Supervisor):
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels, test_step = test_step)
                 t.set_postfix(se_loss=t_loss.numpy())
+        self.model.summary()
