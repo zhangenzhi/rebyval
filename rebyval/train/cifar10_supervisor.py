@@ -3,7 +3,7 @@ from tqdm import trange
 
 from rebyval.train.utils import ForkedPdb
 from rebyval.train.supervisor import Supervisor
-from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
+from rebyval.tools.utils import print_error
 
 class Cifar10Supervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
@@ -93,7 +93,6 @@ class Cifar10Supervisor(Supervisor):
         return loss
 
     def train(self):
-        print_green("-"*10+"run_init"+"-"*10)
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
@@ -109,44 +108,42 @@ class Cifar10Supervisor(Supervisor):
         # metrics reset
         metric_name = self.args['metrics']['name']
         self.metrics[metric_name].reset_states()
-        
-        print("--"*100)
-        ForkedPdb().set_trace()
+
         # train, valid, test
         # tqdm update, logger
-        # with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
-        #     self.mloss_fn.reset_states()
-        #     for epoch in e:
-        #         with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
-        #             for train_step in t:
-        #                 data = train_iter.get_next()
-        #                 inputs, labels = self.preprocess_weightspace(data)
-        #                 train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
-        #                 self.mloss_fn.update_state(train_loss)
-        #                 t.set_postfix(st_loss=train_loss.numpy())
-        #             et_loss = self.mloss_fn.result()
+        with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+            self.mloss_fn.reset_states()
+            for epoch in e:
+                with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
+                    for train_step in t:
+                        data = train_iter.get_next()
+                        inputs, labels = self.preprocess_weightspace(data)
+                        train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
+                        self.mloss_fn.update_state(train_loss)
+                        t.set_postfix(st_loss=train_loss.numpy())
+                    et_loss = self.mloss_fn.result()
                         
-        #         # valid
-        #         with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
-        #             self.mloss_fn.reset_states()
-        #             for valid_step in v:
-        #                 data = valid_iter.get_next()
-        #                 inputs,labels = self.preprocess_weightspace(data)
-        #                 valid_loss = self._valid_step(inputs, labels,
-        #                                             valid_step=valid_step, epoch=epoch)
-        #                 self.mloss_fn.update_state(valid_loss)
-        #                 v.set_postfix(sv_loss=valid_loss.numpy())
-        #             ev_loss = self.mloss_fn.result()
+                # valid
+                with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
+                    self.mloss_fn.reset_states()
+                    for valid_step in v:
+                        data = valid_iter.get_next()
+                        inputs,labels = self.preprocess_weightspace(data)
+                        valid_loss = self._valid_step(inputs, labels,
+                                                    valid_step=valid_step, epoch=epoch)
+                        self.mloss_fn.update_state(valid_loss)
+                        v.set_postfix(sv_loss=valid_loss.numpy())
+                    ev_loss = self.mloss_fn.result()
                     
-        #         # epoch info
-        #         e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy())
-        #         with self.logger.as_default():
-        #             tf.summary.scalar("epoch_train_loss", et_loss, step=self.dataloader.info['epochs']*self.id+epoch)
-        #             tf.summary.scalar("epoch_valid_loss", ev_loss, step=self.dataloader.info['epochs']*self.id+epoch)
+                # epoch info
+                e.set_postfix(et_loss=et_loss.numpy(), ev_loss=ev_loss.numpy())
+                with self.logger.as_default():
+                    tf.summary.scalar("epoch_train_loss", et_loss, step=self.dataloader.info['epochs']*self.id+epoch)
+                    tf.summary.scalar("epoch_valid_loss", ev_loss, step=self.dataloader.info['epochs']*self.id+epoch)
         
-        # with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
-        #     for test_step in t:
-        #         data = test_iter.get_next()
-        #         inputs,labels = self.preprocess_weightspace(data)
-        #         t_loss = self._test_step(inputs, labels, test_step = test_step)
-        #         t.set_postfix(se_loss=t_loss.numpy())
+        with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
+            for test_step in t:
+                data = test_iter.get_next()
+                inputs,labels = self.preprocess_weightspace(data)
+                t_loss = self._test_step(inputs, labels, test_step = test_step)
+                t.set_postfix(se_loss=t_loss.numpy())
