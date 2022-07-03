@@ -113,6 +113,8 @@ class Cifar10Supervisor(Supervisor):
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             self.mloss_fn.reset_states()
             for epoch in e:
+                import pdb
+                pdb.set_trace()
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     for train_step in t:
                         data = train_iter.get_next()
