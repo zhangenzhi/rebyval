@@ -43,6 +43,7 @@ class SupervisorFactory():
         supervisor_cls = self.supervisor_list.get(student_task['name'])
         if student_task.get('task') == 'RL':
             supervisor_cls = self.supervisor_list.get('rl-'+student_task['name'])
+        print(supervisor_cls)
         return supervisor_cls(supervisor_args=supervisor_args, id = id)
 
 student_factory = StudentFactory()
