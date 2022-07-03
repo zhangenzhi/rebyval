@@ -109,6 +109,7 @@ class Cifar10Supervisor(Supervisor):
         metric_name = self.args['metrics']['name']
         self.metrics[metric_name].reset_states()
         
+        print("--"*100)
         ForkedPdb().set_trace()
         # train, valid, test
         # tqdm update, logger
