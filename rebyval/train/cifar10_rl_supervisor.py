@@ -117,18 +117,16 @@ class Cifar10RLSupervisor(Supervisor):
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
             self.mloss_fn.reset_states()
-            ForkedPdb().set_trace()
             for epoch in e:
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
-                        # ForkedPdb().set_trace()
                         train_loss = self._train_step(inputs, labels)
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
                     et_loss = self.mloss_fn.result()
-                        
+                ForkedPdb().set_trace()
                 # valid
                 with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                     self.mloss_fn.reset_states()
