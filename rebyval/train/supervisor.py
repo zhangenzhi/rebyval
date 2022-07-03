@@ -136,7 +136,9 @@ class Supervisor:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, new_students=[], keep_train=False):
+    def run(self, keep_train=False, new_students=[], ):
+        
+        self.id += 1
         
         if keep_train:
             # prepare dataset
@@ -170,6 +172,4 @@ class Supervisor:
 
             # train
             self.train()
-            
-        self.id += 1
 
