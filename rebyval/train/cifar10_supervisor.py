@@ -3,7 +3,7 @@ from tqdm import trange
 
 from rebyval.train.utils import ForkedPdb
 from rebyval.train.supervisor import Supervisor
-from rebyval.tools.utils import print_error
+from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
 class Cifar10Supervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
@@ -93,6 +93,7 @@ class Cifar10Supervisor(Supervisor):
         return loss
 
     def train(self):
+        print_green("-"*10+"run_init"+"-"*10)
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
