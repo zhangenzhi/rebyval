@@ -124,8 +124,6 @@ class DNNWeightsLoader(BaseDataLoader):
             filelist = new_students + past
         print("filelist length: {}".format(len(filelist)))
         
-        # ForkedPdb().set_trace()
-        
         full_dataset = self._load_tensor_from_tfrecord(filelist=filelist, feature_config=self.feature_config)
         full_dataset = full_dataset.shuffle(self.info['total_samples'])
         
