@@ -37,18 +37,13 @@ class Cifar10RLStudent(Student):
         # fixed action with pseudo sgd
         if (self.gloabl_train_step % 30) ==0:
             if self.id % 10 == 0:
-                self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(3,1))
+                self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
             else:
-                # if self.gloabl_train_step <= 1000:
-                #     action_sample = tf.reshape(tf.constant([1.0,1.0,1.0], dtype=tf.float32),shape=(-1,1))
-                # else:
-                #     # ForkedPdb().set_trace()
-                self.action_sample = tf.reshape(tf.constant([0.1,1.0,10.0], dtype=tf.float32),shape=(-1,1))
+                self.action_sample = tf.reshape(tf.constant([0.01,0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0], dtype=tf.float32),shape=(-1,1))
             scaled_gards = flat_grad * self.action_sample
             var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
             scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
             # select wights with best Q-value
-            # ForkedPdb().set_trace()
             steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
             states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
             self.values = self.supervisor(states_actions)
