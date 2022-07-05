@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: soft-act-32
+    name: test-soft-act-32
     multi-p: True
 
   main_loop:
