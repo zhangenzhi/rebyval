@@ -1,5 +1,3 @@
-from random import seed
-from turtle import pd
 import tensorflow as tf
 from tensorflow import keras
 from rebyval.train.utils import ForkedPdb
