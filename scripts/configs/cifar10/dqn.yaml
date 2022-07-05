@@ -1,11 +1,11 @@
 experiment:
   context:
-    name: test-soft-act-32
+    name: fix-act-10
     multi-p: False
 
   main_loop:
     warmup: 
-      student_nums: 0
+      student_nums: 20
       supervisor_trains: 1
     nums: 300
     student_nums: 3
@@ -41,7 +41,7 @@ experiment:
       name: dnn_sr_RL
       replay_window: 100
       batch_size: 32
-      epochs: 10
+      epochs: 100
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
