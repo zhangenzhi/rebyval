@@ -1,7 +1,7 @@
 experiment:
   context:
     name: fix-act-10
-    multi-p: False
+    multi-p: True
 
   main_loop:
     warmup: 
