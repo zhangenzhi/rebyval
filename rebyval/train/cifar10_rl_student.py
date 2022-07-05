@@ -79,7 +79,7 @@ class Cifar10RLStudent(Student):
                 
         # fixed action with pseudo sgd
         if (self.gloabl_train_step % 30) ==0:
-            self.action_sample,self.values = self.fix_action(t_grad=t_grad)
+            self.action_sample,self.values = self.soft_action(t_grad=t_grad)
 
         # greedy policy
         index_max = self.greedy_policy(self.values)
