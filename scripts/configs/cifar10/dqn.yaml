@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: Req-a10
+    name: soft-action
     multi-p: True
 
   main_loop:
