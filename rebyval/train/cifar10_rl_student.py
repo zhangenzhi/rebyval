@@ -22,16 +22,16 @@ class Cifar10RLStudent(Student):
         self.gloabl_train_step = 0
         
     
-    def soft_action_policy(self,t_grad):
+    def soft_action(self, t_grad, num_act=32):
         # fixed action with pseudo sgd
         flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
         flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
         if self.id % 10 == 0:
-            self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
+            self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(num_act,1))
         else:
-            self.action_sample = tf.random.uniform(minval=0.01, maxval=5.0, shape=(32,1))
+            self.action_sample = tf.random.uniform(minval=0.01, maxval=5.0, shape=(num_act,1))
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
@@ -39,9 +39,9 @@ class Cifar10RLStudent(Student):
         steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
         self.values = self.supervisor(states_actions)
-        return self.action_sample
+        return self.action_sample, self.values
     
-    def fix_action_policy(self, t_grad):
+    def fix_action(self, t_grad):
         # fixed action with pseudo sgd
         flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
         flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
@@ -58,7 +58,17 @@ class Cifar10RLStudent(Student):
         steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
         self.values = self.supervisor(states_actions)
-        return self.action_sample
+        return self.action_sample, self.values
+    
+    def greedy_policy(self, values):
+        return max(range(len(values)), key=values.__getitem__) 
+    
+    def e_greedy_policy(self, values, epsilon=0.1):
+        roll = np.random.uniform()
+        if roll < epsilon:
+            return np.random.randint(len(values))
+        else:
+            return max(range(len(values)), key=values.__getitem__) 
     
     def _rl_train_step(self, inputs, labels):
 
@@ -70,9 +80,10 @@ class Cifar10RLStudent(Student):
                 
         # fixed action with pseudo sgd
         if (self.gloabl_train_step % 30) ==0:
-            self.action_sample = self.soft_action_policy(t_grad=t_grad)
+            self.action_sample,self.values = self.soft_action(t_grad=t_grad)
 
-        index_max = max(range(len(self.values)), key=self.values.__getitem__)
+        # greedy policy
+        index_max = self.greedy_policy(self.values)
 
         # next state
         gradients = [g*self.action_sample[index_max] for g in t_grad]
