@@ -20,6 +20,25 @@ class Cifar10RLStudent(Student):
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_min = 0
         self.gloabl_train_step = 0
+        
+    def action_policy(self, t_grad):
+        # fixed action with pseudo sgd
+        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
+        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
+        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
+        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+        if self.id % 10 == 0:
+            self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
+        else:
+            self.action_sample = tf.reshape(tf.constant([0.01,0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0], dtype=tf.float32),shape=(-1,1))
+        scaled_gards = flat_grad * self.action_sample
+        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+        scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+        # select wights with best Q-value
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
+        states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
+        self.values = self.supervisor(states_actions)
+        return self.action_sample
     
     def _rl_train_step(self, inputs, labels):
 
@@ -28,26 +47,10 @@ class Cifar10RLStudent(Student):
             predictions = self.model(inputs, training=True)
             t_loss = self.loss_fn(labels, predictions)
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
-        
-        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
-        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
-        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
-        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
                 
         # fixed action with pseudo sgd
         if (self.gloabl_train_step % 30) ==0:
-            if self.id % 10 == 0:
-                self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
-            else:
-                self.action_sample = tf.reshape(tf.constant([0.01,0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0], dtype=tf.float32),shape=(-1,1))
-            scaled_gards = flat_grad * self.action_sample
-            var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-            scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-            # select wights with best Q-value
-            steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
-            states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
-            self.values = self.supervisor(states_actions)
-
+            self.action_sample = self.action_policy(t_grad=t_grad)
 
         index_max = max(range(len(self.values)), key=self.values.__getitem__)
 
@@ -59,7 +62,6 @@ class Cifar10RLStudent(Student):
             
         self.mt_loss_fn.update_state(t_loss)
         
-        # ForkedPdb().set_trace()
         reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
         
         return t_loss, tf.squeeze(self.values[index_max]), tf.squeeze(self.action_sample[index_max]), reduced_grads, self.values
