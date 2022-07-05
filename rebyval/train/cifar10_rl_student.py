@@ -57,7 +57,7 @@ class Cifar10RLStudent(Student):
         # select wights with best Q-value
         import pdb
         pdb.set_trace()
-        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*3, dtype=tf.float32),shape=(-1,1))
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
         self.values = self.supervisor(states_actions)
         return self.action_sample, self.values
