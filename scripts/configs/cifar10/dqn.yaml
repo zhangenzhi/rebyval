@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: nlz-soft-act-64
+    name: fix-act-10-v2
     multi-p: True
 
   main_loop:
@@ -15,7 +15,7 @@ experiment:
       name: cifar10 # default cifar10
       batch_size: 1024
       epochs: 150
-      da: True
+      da: False
       task: RL
     model:
       name: dnn # default dnn
@@ -41,7 +41,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_sr_RL
-      replay_window: 100
+      replay_window: 64
       batch_size: 32
       epochs: 100
     model:
