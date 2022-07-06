@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: soft-act-64-v2
+    name: da-soft-act-64-v2
     multi-p: True
 
   main_loop:
@@ -15,7 +15,7 @@ experiment:
       name: cifar10 # default cifar10
       batch_size: 1024
       epochs: 150
-      da: False
+      da: True
       task: RL
     model:
       name: dnn # default dnn
