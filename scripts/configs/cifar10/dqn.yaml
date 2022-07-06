@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: da-soft-act-64-v2
+    name: da-fix-act-10-v2
     multi-p: True
 
   main_loop:
@@ -31,7 +31,7 @@ experiment:
     train_loop:
         train:
           lr_decay: False
-          action: soft
+          action: fix
           policy: greedy
         valid:
           weight_space:
