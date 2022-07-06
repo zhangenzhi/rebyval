@@ -31,6 +31,8 @@ experiment:
     train_loop:
         train:
           lr_decay: False
+          action: fix
+          policy: greedy
         valid:
           weight_space:
             format: sum_reduce

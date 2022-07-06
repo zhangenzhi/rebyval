@@ -79,10 +79,14 @@ class Cifar10RLStudent(Student):
                 
         # fixed action with pseudo sgd
         if (self.gloabl_train_step % 30) ==0:
-            self.action_sample,self.values = self.soft_action(t_grad=t_grad)
+            if self.train_args['action'] == 'fix':
+                self.action_sample,self.values = self.fix_action(t_grad=t_grad)
+            else:
+                self.action_sample,self.values = self.soft_action(t_grad=t_grad)
 
         # greedy policy
-        index_max = self.greedy_policy(self.values)
+        if self.train_args['policy'] == 'greedy':
+            index_max = self.greedy_policy(self.values)
 
         # next state
         gradients = [g*self.action_sample[index_max] for g in t_grad]
@@ -100,9 +104,9 @@ class Cifar10RLStudent(Student):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
-        train_args = train_loop_args['train']
-        valid_args = train_loop_args['valid']
-        test_args = train_loop_args['test']
+        self.train_args = train_loop_args['train']
+        self.valid_args = train_loop_args['valid']
+        self.test_args = train_loop_args['test']
 
         # dataset train, valid, test
         train_iter = iter(self.train_dataset)
@@ -134,7 +138,7 @@ class Cifar10RLStudent(Student):
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         # Valid
-                        if self.gloabl_train_step % valid_args['valid_gap'] == 0:
+                        if self.gloabl_train_step % self.valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 vv_metrics = []
