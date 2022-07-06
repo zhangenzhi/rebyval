@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: da-soft-act-32
+    name: nlz-soft-act-64
     multi-p: True
 
   main_loop:
