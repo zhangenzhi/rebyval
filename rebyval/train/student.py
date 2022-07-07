@@ -11,6 +11,7 @@ from rebyval.model.factory import model_factory
 
 # others
 from rebyval.train.utils import ForkedPdb
+import horovod.tensorflow as hvd
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 
@@ -54,8 +55,15 @@ class Student:
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
+        if self.args['distribute']:
+            hvd.init()
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            if gpus:
+                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+        else:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
         # TODO: need dataloader registry
@@ -93,7 +101,10 @@ class Student:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        optimizer.learning_rate = optimizer_args['learning_rate']
+        if self.args["distribute"]:
+            optimizer.learning_rate = optimizer_args['learning_rate']*hvd.size()
+        else:
+            optimizer.learning_rate = optimizer_args['learning_rate']
         # optimizer.momentum = 0.9
         # optimizer.nesterov=False
         # optimizer.decay = 1e-4
@@ -133,20 +144,20 @@ class Student:
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels):
+    def _train_step(self, inputs, labels, first_batch=False):
     
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                loss = self.loss_fn(labels, predictions)
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            norm_gard = gradients
-            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
-            self.optimizer.apply_gradients(
-                zip(norm_gard, self.model.trainable_variables))
-        except:
-            print_error("train step error")
-            raise
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            loss = self.loss_fn(labels, predictions)
+        # Horovod: add Horovod Distributed GradientTape.
+        if self.args['distribute']:
+            tape = hvd.DistributedGradientTape(tape)
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+
+        if first_batch:
+            hvd.broadcast_variables(self.model.variables, root_rank=0)
+            hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
         self.mt_loss_fn.update_state(loss)
         
         return loss, gradients
@@ -208,10 +219,9 @@ class Student:
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss,_ = self._train_step(data['inputs'], data['labels'])
+                            train_loss,_ = self._train_step(data['inputs'], data['labels'], (epoch*self.dataloader.info['train_step']+train_step)==0)
                         else:
-                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
-                                                        train_step=train_step, epoch=epoch)
+                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         if train_step % valid_args['valid_gap'] == 0:

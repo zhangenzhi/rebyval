@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: resnet-test
+    name: resnet-test-dist
     multi-p: False
 
   main_loop:
@@ -11,6 +11,7 @@ experiment:
     student_nums: 0
 
   student:
+    distribute: True
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
