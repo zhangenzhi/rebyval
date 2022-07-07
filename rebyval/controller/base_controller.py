@@ -1,11 +1,6 @@
-from pyexpat import model
 import time
 import argparse
 import tensorflow as tf
-
-gpus = tf.config.experimental.list_physical_devices("GPU")
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
 
 from multiprocessing import Pool, Queue, Process
 
@@ -13,8 +8,6 @@ from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.factory import student_factory, supervisor_factory
-from rebyval.train.cifar10_student import Cifar10Student
-from rebyval.train.cifar10_supervisor import Cifar10Supervisor
 
 
 class BaseController:

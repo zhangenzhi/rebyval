@@ -2,6 +2,7 @@ experiment:
   context:
     name: resnet-test-dist
     multi-p: False
+    distribute: True
 
   main_loop:
     warmup: 
