@@ -21,7 +21,41 @@ class Cifar10RLStudent(Student):
         self.index_min = 0
         self.gloabl_train_step = 0
         
-    
+    def elem_action(self, t_grad, num_act=8):
+        # fixed action with pseudo sgd
+        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
+        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
+        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
+        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+
+        if self.id % 10 == 0:
+            self.action_sample = []
+            for g in t_grad:
+                shape = g.shape()
+                self.action_sample.append( tf.random.uniform(minval=1.0, maxval=1.0, shape=(num_act,shape[0],shape[1])) )
+        else:
+            self.action_sample = []
+            for g in t_grad:
+                shape = g.shape()
+                self.action_sample.append( tf.random.uniform(minval=-1.0, maxval=1.0, shape=(num_act,shape[0],shape[1])) )
+
+        scaled_gards = []
+        for act in self.action_sample:
+            scaled_gards.append([g*a for g, a in zip(t_grad, act)] )
+
+        flat_scaled_gards = []
+        for g in scaled_gards:
+            flat_scaled_gards.append([tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad])
+        flat_scaled_gards = tf.concat(flat_scaled_gards, axis=0)
+        
+        var_copy = tf.reshape(tf.tile(flat_var, [flat_scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+
+        # select wights with best Q-value
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
+        states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
+        self.values = self.supervisor(states_actions)
+        return self.action_sample, self.values
+
     def soft_action(self, t_grad, num_act=64):
         # fixed action with pseudo sgd
         flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
@@ -81,6 +115,8 @@ class Cifar10RLStudent(Student):
         if (self.gloabl_train_step % 30) ==0:
             if self.train_args['action'] == 'fix':
                 self.action_sample,self.values = self.fix_action(t_grad=t_grad)
+            elif self.train_args['action'] == 'elem':
+                self.action_sample,self.values = self.elem_action(t_grad=t_grad)
             else:
                 self.action_sample,self.values = self.soft_action(t_grad=t_grad)
 
@@ -89,10 +125,12 @@ class Cifar10RLStudent(Student):
             index_max = self.greedy_policy(self.values)
 
         # next state
-        gradients = [g*self.action_sample[index_max] for g in t_grad]
+        if self.train_args['action'] == 'elem':
+            pass
+        else:
+            gradients = [g*self.action_sample[index_max] for g in t_grad]
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
-        self.optimizer.apply_gradients(
-            zip(clip_grads, self.model.trainable_variables))
+        self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
         self.mt_loss_fn.update_state(t_loss)
         
