@@ -28,8 +28,6 @@ class Cifar10RLStudent(Student):
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
 
-        import pdb
-        pdb.set_trace()
         if self.id % 10 == 0:
             self.action_sample = []
             for g in t_grad:
@@ -41,9 +39,11 @@ class Cifar10RLStudent(Student):
                 shape = g.shape
                 self.action_sample.append( tf.random.uniform(minval=-1.0, maxval=1.0, shape=[num_act]+list(shape)))
 
-        scaled_gards = []
-        for act in self.action_sample:
-            scaled_gards.append([g*a for g, a in zip(t_grad, act)] )
+        import pdb
+        pdb.set_trace()
+        scaled_gards = [g*a for g, a in zip(t_grad, self.action_sample)]
+        # for act in self.action_sample:
+        #     scaled_gards.append([g*a for g, a in zip(t_grad, act)] )
 
         flat_scaled_gards = []
         for g in scaled_gards:
