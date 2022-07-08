@@ -71,7 +71,6 @@ class MultiController(BaseController):
             self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
-        self._build_enviroment()
-        print_green("Start to run!")
-        self.main_loop_for_experiment()
-        print_green('[Task Status]: Task done! Time cost: {:}')
+        print_green("Start to run!")        
+        self.main_loop()
+        print_green('[Task Status]: Task done!')
