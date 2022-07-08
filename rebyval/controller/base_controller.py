@@ -79,7 +79,7 @@ class BaseController:
             new_students = []
             for i in range(main_loop['student_nums']):
                 student = self._build_student(supervisor=self.supervisor)
-                new_students.append[student.run()]
+                new_students.append(student.run())
                     
             # supervisor
             print_green("new_student:{}, welcome!".format(new_students))
