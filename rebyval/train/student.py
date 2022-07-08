@@ -42,6 +42,9 @@ class Student:
             flat_vars.append(tf.reshape(sum_reduce, shape=(1, -1)))
         inputs = tf.concat(flat_vars, axis=1)
 
+        import pdb
+        pdb.set_trace()
+        
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs)
             loss = supervisor_loss_fn(labels, predictions)
@@ -66,7 +69,6 @@ class Student:
         return train_dataset, valid_dataset, test_dataset, dataloader
 
     def _build_model(self):
-        # TODO: need model registry\
         model = model_factory(self.args['model'])
   
         # model restore
