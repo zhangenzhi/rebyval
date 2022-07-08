@@ -45,9 +45,7 @@ class Cifar10RLStudent(Student):
         # for act in self.action_sample:
         #     scaled_gards.append([g*a for g, a in zip(t_grad, act)] )
 
-        flat_scaled_gards = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in scaled_grads]
-        # for g in scaled_grads:
-        #     flat_scaled_gards.append([tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad])
+        flat_scaled_gards = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(num_act, -1)) for g in scaled_grads]
         flat_scaled_gards = tf.concat(flat_scaled_gards, axis=0)
         
         var_copy = tf.reshape(tf.tile(flat_var, [flat_scaled_gards.shape.as_list()[0], 1]), scaled_grads.shape)
