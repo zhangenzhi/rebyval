@@ -41,7 +41,7 @@ class Cifar10RLStudent(Student):
 
         import pdb
         pdb.set_trace()
-        
+
         scaled_grads = [g*a for g, a in zip(t_grad, self.action_sample)]
         flat_scaled_gards = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(num_act, -1)) for g in scaled_grads]
         flat_scaled_gards = tf.concat(flat_scaled_gards, axis=1)
@@ -49,7 +49,7 @@ class Cifar10RLStudent(Student):
         var_copy = tf.tile(flat_var, [flat_scaled_gards.shape.as_list()[0], 1])
 
         # select wights with best Q-value
-        steps = tf.reshape(tf.constant([self.gloabl_train_step/1000], dtype=tf.float32),shape=(-1,1))
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/1000]*num_act, dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':var_copy, 'action':flat_scaled_gards,'step':steps}
         self.values = self.supervisor(states_actions)
         return self.action_sample, self.values
