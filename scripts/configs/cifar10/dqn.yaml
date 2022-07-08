@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: da-fix-act-10-v3
+    name: dade-fix-act-10
     multi-p: True
 
   main_loop:
@@ -30,7 +30,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: False
+          lr_decay: True
           action: fix
           policy: greedy
         valid:
