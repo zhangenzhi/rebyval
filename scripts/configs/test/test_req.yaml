@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 1024
-      epochs: 15
+      epochs: 150
       da: True
       task: RL
     model:
@@ -43,7 +43,7 @@ experiment:
       name: dnn_sr_RL
       replay_window: 64
       batch_size: 8
-      epochs: 10
+      epochs: 100
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
