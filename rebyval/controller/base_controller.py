@@ -1,8 +1,4 @@
-import time
-import argparse
 import tensorflow as tf
-
-from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
@@ -11,21 +7,11 @@ from rebyval.train.factory import student_factory, supervisor_factory
 
 
 class BaseController:
-    def __init__(self, yaml_path=None):
+    def __init__(self, yaml_configs):
 
-        if yaml_path != None:
-            print_normal("parse config from python script.")
-            self.yaml_configs = get_yml_content(yaml_path)
-        else:
-            print_normal("parse config from command line.")
-            command_args = self._args_parser()
-            self.yaml_configs = get_yml_content(command_args.config)
-
-        
-        self.yaml_configs = check_args_from_input_config(self.yaml_configs)
+        self.yaml_configs = yaml_configs
 
         self._build_enviroment()
-        self.queue = Queue(maxsize=100)
         weight_dir = os.path.join(self.log_path, "weight_space")
         if os.path.exists(weight_dir):
             self._student_ids = len(glob_tfrecords(weight_dir, glob_pattern='*.tfrecords'))
@@ -35,15 +21,6 @@ class BaseController:
         
         self.supervisor = self._build_supervisor()
 
-    def _args_parser(self):
-        parser = argparse.ArgumentParser('autosparsedl_config')
-        parser.add_argument(
-            '--config',
-            type=str,
-            default='./scripts/configs/cifar10/rebyval.yaml',
-            help='yaml config file path')
-        args = parser.parse_args()
-        return args
 
     def _build_enviroment(self):
         gpus = tf.config.experimental.list_physical_devices("GPU")
@@ -81,23 +58,9 @@ class BaseController:
         init_samples = warmup['student_nums']
         supervisor_trains = warmup['supervisor_trains']
         
-        if self.context["multi-p"]:
-            processes = []
-            for i in range(init_samples):
-                student = self._build_student()
-                p = Process(target = student.run, args=(self.queue,))
-                p.start()
-                processes.append(p)
-                time.sleep(2)
-                if (i+1) % 5 == 0:
-                    pres = [p.join() for p in processes]
-                    processes = []
-            new_students = [self.queue.get() for _ in range(self.queue.qsize())]
-        else:
-            for i in range(init_samples):
-                student = self._build_student()
-                student.run()
-            
+        for i in range(init_samples):
+            student = self._build_student()
+            student.run()
         
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
@@ -113,25 +76,10 @@ class BaseController:
 
         # main loop
         for j in range(main_loop['nums']):
-            if self.context["multi-p"]:
-                # mp students with supervisor
-                processes = []
-                for i in range(main_loop['student_nums']):
-                    student = self._build_student()
-                    supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
-                    self.args["supervisor"]['model']['initial_value'] = supervisor_vars
-                    supervisor_info = self.args["supervisor"]['model']
-                    p = Process(target = student.run, args=(self.queue, supervisor_info))
-                    p.start()
-                    processes.append(p)
-                    time.sleep(3)
-                pres = [p.join() for p in processes]
-                new_students = [self.queue.get() for _ in range(self.queue.qsize())]
-            else:
-                new_students = []
-                for i in range(main_loop['student_nums']):
-                    student = self._build_student(supervisor=self.supervisor)
-                    new_students.append[student.run()]
+            new_students = []
+            for i in range(main_loop['student_nums']):
+                student = self._build_student(supervisor=self.supervisor)
+                new_students.append[student.run()]
                     
             # supervisor
             print_green("new_student:{}, welcome!".format(new_students))
