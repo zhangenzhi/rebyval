@@ -268,7 +268,8 @@ class Student:
         self.writter.close()
         print('Finished training student {}'.format(self.id))
 
-        new_student.put(weight_dir)
+        if new_student != None:
+            new_student.put(weight_dir)
 
         return weight_dir
 
