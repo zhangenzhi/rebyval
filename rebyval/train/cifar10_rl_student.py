@@ -39,9 +39,6 @@ class Cifar10RLStudent(Student):
                 shape = g.shape
                 self.action_sample.append( tf.random.uniform(minval=-1.0, maxval=1.0, shape=[num_act]+list(shape)))
 
-        import pdb
-        pdb.set_trace()
-
         scaled_grads = [g*a for g, a in zip(t_grad, self.action_sample)]
         flat_scaled_gards = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(num_act, -1)) for g in scaled_grads]
         flat_scaled_gards = tf.concat(flat_scaled_gards, axis=1)
@@ -124,7 +121,7 @@ class Cifar10RLStudent(Student):
 
         # next state
         if self.train_args['action'] == 'elem':
-            act = self.action_sample[index_max] 
+            act = [a[index_max] for a in self.action_sample]
             gradients = [g*a for g,a in zip(t_grad,act)]
         else:
             gradients = [g*self.action_sample[index_max] for g in t_grad]
@@ -170,7 +167,7 @@ class Cifar10RLStudent(Student):
                             train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
                                 tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
-                                tf.summary.scalar("action", action, step=self.gloabl_train_step)
+                                # tf.summary.scalar("action", action, step=self.gloabl_train_step)
                                 # tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
