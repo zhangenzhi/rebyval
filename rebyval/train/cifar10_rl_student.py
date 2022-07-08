@@ -121,10 +121,9 @@ class Cifar10RLStudent(Student):
 
         # next state
         if self.train_args['action'] == 'elem':
-            import pdb
-            pdb.set_trace()
             act = [a[index_max] for a in self.action_sample]
             gradients = [g*a for g,a in zip(t_grad,act)]
+            act = tf.concat([tf.reshape(tf.reduce_sum(a, axis=-1),(1,-1)) for a in act], axis=-1)
         else:
             act = self.action_sample[index_max]
             gradients = [g*act for g in t_grad]
