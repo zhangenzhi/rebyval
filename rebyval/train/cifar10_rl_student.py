@@ -21,7 +21,7 @@ class Cifar10RLStudent(Student):
         self.index_min = 0
         self.gloabl_train_step = 0
         
-    def elem_action(self, t_grad, num_act=8):
+    def elem_action(self, t_grad, num_act=1000):
         # fixed action with pseudo sgd
         flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
         flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
