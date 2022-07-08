@@ -1,7 +1,7 @@
 experiment:
   context:
     name: test-req
-    multi-p: True
+    multi-p: False
 
   main_loop:
     warmup: 
