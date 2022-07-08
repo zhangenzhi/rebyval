@@ -34,12 +34,12 @@ class Cifar10RLStudent(Student):
             self.action_sample = []
             for g in t_grad:
                 shape = g.shape
-                self.action_sample.append( tf.random.uniform(minval=1.0, maxval=1.0, shape=(num_act,shape[0],shape[1])) )
+                self.action_sample.append( tf.random.uniform(minval=1.0, maxval=1.0, shape=[num_act]+list(shape)))
         else:
             self.action_sample = []
             for g in t_grad:
                 shape = g.shape
-                self.action_sample.append( tf.random.uniform(minval=-1.0, maxval=1.0, shape=(num_act,shape[0],shape[1])) )
+                self.action_sample.append( tf.random.uniform(minval=-1.0, maxval=1.0, shape=[num_act]+list(shape)))
 
         scaled_gards = []
         for act in self.action_sample:
