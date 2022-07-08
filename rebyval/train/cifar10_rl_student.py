@@ -124,15 +124,16 @@ class Cifar10RLStudent(Student):
             act = [a[index_max] for a in self.action_sample]
             gradients = [g*a for g,a in zip(t_grad,act)]
         else:
-            gradients = [g*self.action_sample[index_max] for g in t_grad]
+            act = self.action_sample[index_max]
+            gradients = [g*act for g in t_grad]
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
         self.mt_loss_fn.update_state(t_loss)
         
         reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
-        
-        return t_loss, tf.squeeze(self.values[index_max]), tf.squeeze(self.action_sample[index_max]), reduced_grads, self.values
+        E_q = tf.squeeze(self.values[index_max])
+        return t_loss, E_q, act, reduced_grads, self.values
 
     def train(self, new_student=None, supervisor_info=None):
         
