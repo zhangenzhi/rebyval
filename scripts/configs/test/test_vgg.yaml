@@ -1,0 +1,51 @@
+experiment:
+  context:
+    name: vgg16-test
+    multi-p: True
+
+  main_loop:
+    warmup: 
+      student_nums: 1
+      supervisor_trains: 0
+    nums: 0
+    student_nums: 0
+
+  student:
+    dataloader:
+      name: cifar10 # default cifar10
+      batch_size: 128
+      epochs: 100
+    model:
+      name: vgg16 # default dnn
+      classes: 10
+    loss:
+      name: CategoricalCrossentropy
+    metrics: 
+      name: CategoricalAccuracy
+    optimizer:
+      name: adam # default SGD
+      learning_rate: 0.001 # default 0.01
+    train_loop:
+        valid:
+          weight_space:
+            format: sum_reduce
+          valid_gap: 10000
+
+  supervisor:
+    dataloader:
+      name: dnn_sumreduce
+      replay_window: 1000
+      batch_size: 128
+      epochs: 10
+    model:
+      name: dnn # default dnn
+      units: [64,32,16,1] # default 128,64,64,32
+      activations: [relu,relu,relu,softplus] # default relu
+    optimizer:
+      name: sgd
+      learning_rate: 0.01
+    loss:
+      name: MeanAbsoluteError #MeanAbsoluteError 
+    train_loop:
+        valid:
+          valid_gap: 100 

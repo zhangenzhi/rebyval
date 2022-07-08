@@ -1,26 +1,26 @@
 experiment:
   context:
-    name: resnet-test-dist
-    multi-p: False
-    distribute: True
+    name: test-req
+    multi-p: True
 
   main_loop:
     warmup: 
-      student_nums: 1
-      supervisor_trains: 0
-    nums: 0
-    student_nums: 0
+      student_nums: 3
+      supervisor_trains: 1
+    nums: 1
+    student_nums: 3
 
   student:
-    distribute: True
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
-      epochs: 300
+      batch_size: 1024
+      epochs: 15
       da: True
+      task: RL
     model:
-      name: resnet56 # default dnn
-      classes: 10
+      name: dnn # default dnn
+      units: [128,64,32,10] # default 128,64,64,32
+      activations: [relu,relu,relu,softmax] # default relu
     loss:
       name: CategoricalCrossentropy
     metrics: 
@@ -30,22 +30,25 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: True
+          lr_decay: False
+          action: fix
+          policy: greedy
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 1000
+          valid_gap: 30
 
   supervisor:
     dataloader:
-      name: dnn_sumreduce
-      replay_window: 1000
-      batch_size: 128
-      epochs: 100
+      name: dnn_sr_RL
+      replay_window: 64
+      batch_size: 8
+      epochs: 10
     model:
       name: dnn # default dnn
-      units: [64,32,16,1] # default 128,64,64,32
-      activations: [relu,relu,relu,softplus] # default relu
+      units: [128,64,32,1] # default 128,64,64,32
+      embedding: True
+      activations: [relu,relu,relu,relu] # default relu
     optimizer:
       name: sgd
       learning_rate: 0.01
