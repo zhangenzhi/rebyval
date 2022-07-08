@@ -28,10 +28,10 @@ def main():
     yaml_configs = get_yml_content(cmd_args.config)
     yaml_configs = check_args_from_input_config(yaml_configs)
     
-    if yaml_configs['context'].get('multi-p'):
+    if yaml_configs['experiment']['context'].get('multi-p'):
         mp.set_start_method("spawn")
         ctr = MultiController(yaml_configs)
-    elif yaml_configs['context'].get('distribute'):
+    elif yaml_configs['experiment']['context'].get('distribute'):
         ctr = DistController(yaml_configs)
     else:
         ctr = BaseController(yaml_configs)
