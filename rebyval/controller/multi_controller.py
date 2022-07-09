@@ -1,5 +1,6 @@
 import time
 import tensorflow as tf
+import multiprocessing as mp
 from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
@@ -13,6 +14,8 @@ class MultiController(BaseController):
         self.queue = Queue(maxsize=100)
 
     def _build_enviroment(self):
+        mp.set_start_method("forkserver")
+
         gpus = tf.config.experimental.list_physical_devices("GPU")
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
