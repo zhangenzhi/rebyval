@@ -1,14 +1,14 @@
 experiment:
   context:
     name: test-req
-    multi-p: False
+    multi-p: True
 
   main_loop:
     warmup: 
-      student_nums: 1
+      student_nums: 3
       supervisor_trains: 1
     nums: 1
-    student_nums: 1
+    student_nums: 3
 
   student:
     dataloader:
