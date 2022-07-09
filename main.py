@@ -29,7 +29,7 @@ def main():
     yaml_configs = check_args_from_input_config(yaml_configs)
     
     if yaml_configs['experiment']['context'].get('multi-p'):
-        mp.set_start_method("spawn")
+        mp.set_start_method("forkserver")
         ctr = MultiController(yaml_configs)
     elif yaml_configs['experiment']['context'].get('distribute'):
         ctr = DistController(yaml_configs)
