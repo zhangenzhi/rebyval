@@ -7,7 +7,7 @@ experiment:
     warmup: 
       student_nums: 5
       supervisor_trains: 1
-    nums: 1
+    nums: 100
     student_nums: 3
 
   student:
