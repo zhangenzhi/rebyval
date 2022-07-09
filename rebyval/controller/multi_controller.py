@@ -52,11 +52,10 @@ class MultiController(BaseController):
         # main loop
         total_students = [self._build_student() for i in range(main_loop['student_nums']*main_loop['nums'])]
         for j in range(main_loop['nums']):
-
             # mp students with supervisor
             processes = []
             for i in range(main_loop['student_nums']):
-                student = total_students.pop()
+                student = total_students.pop(0)
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
                 self.args["supervisor"]['model']['initial_value'] = supervisor_vars
                 supervisor_info = self.args["supervisor"]['model']
