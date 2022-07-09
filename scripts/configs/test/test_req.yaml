@@ -14,7 +14,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 1024
-      epochs: 150
+      epochs: 15
       da: True
       task: RL
     model:
@@ -31,7 +31,7 @@ experiment:
     train_loop:
         train:
           lr_decay: False
-          action: elem
+          action: fix
           policy: greedy
         valid:
           weight_space:
@@ -43,7 +43,7 @@ experiment:
       name: dnn_sr_RL
       replay_window: 64
       batch_size: 8
-      epochs: 100
+      epochs: 10
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
