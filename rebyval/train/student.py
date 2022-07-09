@@ -423,9 +423,6 @@ class Student:
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
         self.experience_buffer['Q'] = Q
-        
-        import pdb
-        pdb.set_trace()
 
         self._write_trail_to_tfrecord(self.experience_buffer)
         with self.logger.as_default():
