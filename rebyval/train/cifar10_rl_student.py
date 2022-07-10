@@ -191,7 +191,7 @@ class Cifar10RLStudent(Student):
                             train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():
                                 tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
-                                # tf.summary.scalar("action", action, step=self.gloabl_train_step)
+                                tf.summary.scalar("action", action, step=self.gloabl_train_step)
                                 # tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
                         

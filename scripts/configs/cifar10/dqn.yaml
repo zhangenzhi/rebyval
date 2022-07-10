@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: da-neg-act10
+    name: fda-act10
     multi-p: True
 
   main_loop:
