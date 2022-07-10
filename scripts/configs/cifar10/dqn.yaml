@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-act10
+    name: da-neg-act10
     multi-p: True
 
   main_loop:
@@ -31,7 +31,7 @@ experiment:
     train_loop:
         train:
           lr_decay: True
-          action: fix
+          action: neg
           policy: greedy
         valid:
           weight_space:
