@@ -41,9 +41,6 @@ class Student:
             sum_reduce = tf.math.reduce_sum(tensor, axis=-1)
             flat_vars.append(tf.reshape(sum_reduce, shape=(1, -1)))
         inputs = tf.concat(flat_vars, axis=1)
-
-        import pdb
-        pdb.set_trace()
         
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs)

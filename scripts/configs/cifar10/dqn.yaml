@@ -1,13 +1,13 @@
 experiment:
   context:
-    name: da-fixact10-e450
+    name: da-neg-act10
     multi-p: True
 
   main_loop:
     warmup: 
       student_nums: 20
       supervisor_trains: 2
-    nums: 300
+    nums: 100
     student_nums: 3
 
   student:

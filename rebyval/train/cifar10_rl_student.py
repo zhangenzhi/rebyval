@@ -21,6 +21,7 @@ class Cifar10RLStudent(Student):
         self.index_min = 0
         self.gloabl_train_step = 0
         
+        
     def elem_action(self, t_grad, num_act=1000):
         # fixed action with pseudo sgd
         flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
@@ -61,6 +62,24 @@ class Cifar10RLStudent(Student):
             self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(num_act,1))
         else:
             self.action_sample = tf.random.uniform(minval=0.01, maxval=5.0, shape=(num_act,1))
+        scaled_gards = flat_grad * self.action_sample
+        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+        # select wights with best Q-value
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
+        states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
+        self.values = self.supervisor(states_actions)
+        return self.action_sample, self.values
+    
+    def neg_action(self, t_grad):
+        # fixed action with pseudo sgd
+        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
+        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
+        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
+        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
+        if self.id % 10 == 0:
+            self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
+        else:
+            self.action_sample = tf.reshape(tf.constant([0.01,0.1,1.0,1.5,2.0,-0.01,-0.1,-1.0,-1.5,-2.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         # select wights with best Q-value
@@ -110,6 +129,8 @@ class Cifar10RLStudent(Student):
         if (self.gloabl_train_step % 30) ==0:
             if self.train_args['action'] == 'fix':
                 self.action_sample,self.values = self.fix_action(t_grad=t_grad)
+            elif self.train_args['action'] == 'neg':
+                self.action_sample,self.values = self.neg_action(t_grad=t_grad)
             elif self.train_args['action'] == 'elem':
                 self.action_sample,self.values = self.elem_action(t_grad=t_grad)
             else:
