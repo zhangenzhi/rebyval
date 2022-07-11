@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: da-neg-act10
+    name: fda-act10-v2
     multi-p: True
 
   main_loop:
@@ -13,8 +13,8 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 1024
-      epochs: 150
+      batch_size: 512
+      epochs: 300
       da: True
       task: RL
     model:
