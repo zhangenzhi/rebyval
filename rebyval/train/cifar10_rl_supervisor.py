@@ -28,7 +28,7 @@ class Cifar10RLSupervisor(Supervisor):
         act_grad = raw_inputs.pop('act_grads')
         step = tf.reshape(raw_inputs.pop('steps'), shape=(-1,1,1))
         
-        inputs = {'state':state, 'action':act_grad,'step':step/10000}
+        inputs = {'state':state, 'action':act_grad}
         
         # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         

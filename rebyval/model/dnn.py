@@ -132,15 +132,13 @@ class DNN(tf.keras.Model):
         return acts
 
     def call(self, inputs):
-        # ForkedPdb().set_trace()
-        # import pdb
-        # pdb.set_trace()
+
         if self.embedding:
             s_x = self.state_emb(inputs['state'])
             a_x = self.action_emb(inputs['action'])
-            t_x = self.step_emb(inputs['step'])
+            # t_x = self.step_emb(inputs['step'])
             
-            x = tf.concat([s_x,a_x,t_x],axis=-1)
+            x = tf.concat([s_x,a_x],axis=-1)
         else:
             x = inputs
         x = self.flatten(x)
