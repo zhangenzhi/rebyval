@@ -15,7 +15,7 @@ class MultiController(BaseController):
         self.queue = Queue(maxsize=100)
 
     def _build_enviroment(self):
-        mp.set_start_method("forkserver")
+        mp.set_start_method("spawn")
 
         gpus = tf.config.experimental.list_physical_devices("GPU")
         for gpu in gpus:
