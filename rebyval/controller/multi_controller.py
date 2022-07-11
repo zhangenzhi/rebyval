@@ -4,6 +4,7 @@ import multiprocessing as mp
 from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
+from rebyval.train.utils import ForkedPdb
 from rebyval.controller.utils import *
 from rebyval.controller.base_controller import BaseController
 
@@ -54,6 +55,7 @@ class MultiController(BaseController):
 
         # main loop
         total_students = [self._build_student() for i in range(main_loop['student_nums']*main_loop['nums'])]
+
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
