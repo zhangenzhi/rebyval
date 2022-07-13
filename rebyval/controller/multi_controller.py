@@ -65,7 +65,7 @@ class MultiController(BaseController):
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
-            ForkedPdb().set_trace()
+            # ForkedPdb().set_trace()
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
