@@ -16,7 +16,7 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student(object):
-    def __init__(self, student_args, supervisor=None, id=0, best_metric=tf.constant(0.5)):
+    def __init__(self, student_args, supervisor=None, id=0, best_metric=0.5):
         super().__init__()
         
         self.args = student_args
