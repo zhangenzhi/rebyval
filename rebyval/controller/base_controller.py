@@ -4,7 +4,6 @@ import tensorflow as tf
 from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from rebyval.train.factory import student_factory, supervisor_factory
 
 class BaseController:

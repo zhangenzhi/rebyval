@@ -2,6 +2,10 @@ from rebyval.train.cifar10_rl_student import Cifar10RLStudent
 from .cifar10_student import Cifar10Student
 from .cifar10_supervisor import Cifar10Supervisor
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
+
 from .mnist_student import MnistStudent
 from .mnist_supervisor import MnistSupervisor
 
@@ -11,6 +15,8 @@ from .cifar100_supervisor import Cifar100Supervisor
 from .cifar10_rl_student import Cifar10RLStudent
 from .cifar10_rl_supervisor import Cifar10RLSupervisor
 
+# import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 class StudentFactory():
     def __init__(self) -> None:
