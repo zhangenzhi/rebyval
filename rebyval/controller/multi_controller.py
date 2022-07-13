@@ -2,6 +2,7 @@ import os
 import time
 import tensorflow as tf
 import multiprocessing as mp
+from torch import device
 from torch.multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
@@ -97,4 +98,4 @@ class StudentProcess(mp.Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
-        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info)
+        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
