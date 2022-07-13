@@ -1,3 +1,4 @@
+import os
 import time
 import tensorflow as tf
 import multiprocessing as mp
@@ -99,8 +100,6 @@ class StudentProcess(Process):
         return
 
     def run(self):
-        print("Hello World!")
-        import os
         os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
