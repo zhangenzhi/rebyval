@@ -1,7 +1,6 @@
 import os
 
-from rebyval.train.cifar10_rl_student import Cifar10RLStudent
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+from .cifar10_rl_student import Cifar10RLStudent
 
 from .cifar10_student import Cifar10Student
 from .cifar10_supervisor import Cifar10Supervisor
