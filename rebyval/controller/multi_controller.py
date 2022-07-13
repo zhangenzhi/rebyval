@@ -1,6 +1,6 @@
 import os
 import time
-import tensorflow as tf
+# import tensorflow as tf
 import multiprocessing as mp
 from torch.multiprocessing import Pool, Queue, Process
 
@@ -18,9 +18,9 @@ class MultiController(BaseController):
     def _build_enviroment(self):
         mp.set_start_method("spawn")
 
-        self.gpus = tf.config.experimental.list_physical_devices("GPU")
-        for gpu in self.gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
+        # self.gpus = tf.config.experimental.list_physical_devices("GPU")
+        # for gpu in self.gpus:
+        #     tf.config.experimental.set_memory_growth(gpu, True)
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
@@ -101,6 +101,7 @@ class StudentProcess(Process):
 
     def run(self):
         os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+        import tensorflow as tf
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info)
