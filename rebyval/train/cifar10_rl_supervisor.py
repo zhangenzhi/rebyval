@@ -66,8 +66,8 @@ class Cifar10RLSupervisor(Supervisor):
                 zip(gradients, self.model.trainable_variables))
         print(loss)
         
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _valid_step(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=False)
             predictions = tf.squeeze(predictions)
@@ -75,14 +75,14 @@ class Cifar10RLSupervisor(Supervisor):
         except:
             print_error("valid step error.")
         
-        with self.logger.as_default():
-            step = valid_step+epoch*self.dataloader.info['valid_step']
-            tf.summary.scalar("valid_loss", loss, step=step)
+        # with self.logger.as_default():
+        #     step = valid_step+epoch*self.dataloader.info['valid_step']
+        #     tf.summary.scalar("valid_loss", loss, step=step)
             
         return loss
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _test_step(self, inputs, labels, test_step=0):
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    def _test_step(self, inputs, labels):
         try:
             predictions = self.model(inputs, training=True)
             predictions = tf.squeeze(predictions)
@@ -91,8 +91,8 @@ class Cifar10RLSupervisor(Supervisor):
             print_error("test step error.")
             raise 
         
-        with self.logger.as_default():
-            tf.summary.scalar("test_loss", loss, step=test_step)
+        # with self.logger.as_default():
+        #     tf.summary.scalar("test_loss", loss, step=test_step)
         
         return loss
 
