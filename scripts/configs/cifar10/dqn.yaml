@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-act10-v3
+    name: fda-act10-v4
     multi-p: True
 
   main_loop:
@@ -41,7 +41,7 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_sr_RL
-      replay_window: 128
+      replay_window: 32
       batch_size: 32
       epochs: 100
     model:
