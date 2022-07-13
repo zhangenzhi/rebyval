@@ -17,13 +17,19 @@ class MultiController(BaseController):
     def _build_enviroment(self):
         mp.set_start_method("spawn")
 
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        for gpu in gpus:
+        self.gpus = tf.config.experimental.list_physical_devices("GPU")
+        for gpu in self.gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
+
+    def gpu_dispatch(self, student):
+        num_gpus = len(self.gpus)
+        if student.id % num_gpus == 0:
+            avail_gpu = student.id % num_gpus
+        return avail_gpu
         
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
@@ -79,3 +85,19 @@ class MultiController(BaseController):
         print_green("Start to run!")        
         self.main_loop()
         print_green('[Task Status]: Task done!')
+
+class StudentProcess(Process):
+    def __init__(self, student, new_student=None, supervisor_info=None):
+        super().__init__()
+        print("Init Student Process.")
+        self.student = student 
+        self.new_student = new_student
+        self.supervisor_info = supervisor_info
+        return
+
+    def run(self):
+        print("Hello World!")
+        os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+        self.gpus = tf.config.experimental.list_physical_devices("GPU")
+        print(self.gpus)
+        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info)

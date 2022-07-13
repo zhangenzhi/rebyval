@@ -15,8 +15,10 @@ from rebyval.tools.utils import print_green, print_error, print_normal, check_mk
 from rebyval.dataloader.utils import glob_tfrecords
 
 
-class Student:
+class Student(object):
     def __init__(self, student_args, supervisor=None, id=0, best_metric=tf.constant(0.5)):
+        super().__init__()
+        
         self.args = student_args
         self.supervisor = supervisor
         self.id = id

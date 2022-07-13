@@ -46,7 +46,7 @@ experiment:
       epochs: 100
     model:
       name: dnn # default dnn
-      units: [256,64,32,1] # default 128,64,64,32
+      units: [128,64,32,1] # default 128,64,64,32
       embedding: True
       activations: [relu,relu,relu,relu] # default relu
     optimizer:
