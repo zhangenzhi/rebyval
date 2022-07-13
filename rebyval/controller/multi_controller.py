@@ -102,10 +102,12 @@ class StudentProcess(mp.Process):
 
 
 class SupervisorProcess(mp.Process):
-    def __init__(self, supervisor, devices='0'):
+    def __init__(self, supervisor, keep_train, new_students, devices='0'):
         super().__init__()
         print_green("Init Supervisor:{} Process on Device:{}.".format(supervisor.id, devices))
         self.supervisor = supervisor 
+        self.keep_train = keep_train
+        self.new_students = new_students
         self.devices= devices
         return
 
@@ -113,4 +115,4 @@ class SupervisorProcess(mp.Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = self.devices
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
-        self.supervisor.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
+        self.supervisor.run(keep_train=self.keep_train, new_students=[])
