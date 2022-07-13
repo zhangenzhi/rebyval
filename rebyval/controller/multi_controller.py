@@ -100,6 +100,7 @@ class StudentProcess(Process):
 
     def run(self):
         print("Hello World!")
+        import os
         os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
