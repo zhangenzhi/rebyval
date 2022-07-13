@@ -18,7 +18,7 @@ from rebyval.dataloader.utils import glob_tfrecords
 class Student(object):
     def __init__(self, student_args, supervisor=None, id=0, best_metric=0.5):
         super().__init__()
-        
+        ForkedPdb.set_trace()
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
@@ -57,8 +57,8 @@ class Student(object):
         os.environ['CUDA_VISIBLE_DEVICES'] = devices
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
-        # for gpu in gpus:
-        #     tf.config.experimental.set_memory_growth(gpu, True)
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
         # TODO: need dataloader registry
