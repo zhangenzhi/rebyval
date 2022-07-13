@@ -68,10 +68,12 @@ class MultiController(BaseController):
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
-                ForkedPdb().set_trace()
+                # ForkedPdb().set_trace()
                 self.args["supervisor"]['model']['initial_value'] = supervisor_vars
                 supervisor_info = self.args["supervisor"]['model']
-                p = Process(target = student.run, args=(self.queue, supervisor_info))
+                
+                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info)
+                # p = Process(target = student.run, args=(self.queue, supervisor_info))
                 p.start()
                 processes.append(p)
                 time.sleep(3)
