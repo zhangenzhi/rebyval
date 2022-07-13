@@ -90,7 +90,8 @@ class MultiController(BaseController):
         self.main_loop()
         print_green('[Task Status]: Task done!')
 
-class StudentProcess(Process):
+mp = mp.set_start_method("fork")
+class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None):
         super().__init__()
         print("Init Student Process.")
