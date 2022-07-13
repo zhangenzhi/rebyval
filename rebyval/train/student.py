@@ -18,7 +18,7 @@ from rebyval.dataloader.utils import glob_tfrecords
 class Student(object):
     def __init__(self, student_args, supervisor=None, id=0, best_metric=0.5):
         super().__init__()
-        ForkedPdb.set_trace()
+        ForkedPdb().set_trace()
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
