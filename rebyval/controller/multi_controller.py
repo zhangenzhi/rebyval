@@ -94,7 +94,7 @@ class StudentProcess(mp.Process):
         return
 
     def run(self):
-        os.environ['CUDA_VISIBLE_DEVICES'] = self.devices
+        # os.environ['CUDA_VISIBLE_DEVICES'] = self.devices
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info)
