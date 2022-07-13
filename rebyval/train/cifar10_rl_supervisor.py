@@ -1,4 +1,3 @@
-from numpy import reshape
 import tensorflow as tf
 from tqdm import trange
 

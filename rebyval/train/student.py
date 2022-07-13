@@ -53,7 +53,8 @@ class Student(object):
                 zip(gradients, self.supervisor.trainable_variables))
         print(loss)
 
-    def _build_enviroment(self):
+    def _build_enviroment(self, devices='0'):
+        os.environ['CUDA_VISIBLE_DEVICES'] = devices
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
         for gpu in gpus:
