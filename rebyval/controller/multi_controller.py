@@ -62,7 +62,7 @@ class MultiController(BaseController):
 
         # main loop
         total_students = [self._build_student() for i in range(main_loop['student_nums']*main_loop['nums'])]
-
+        ForkedPdb().set_trace()
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
@@ -101,7 +101,7 @@ class StudentProcess(mp.Process):
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         # print(self.gpus)
         # with tf.device('GPU:1'):
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices='1')
 
 
