@@ -1,7 +1,5 @@
-from heapq import merge
 import os
 from rebyval.tools.utils import *
-from rebyval.controller.utils import *
 from rebyval.controller.constants import default_parameters
 
 
