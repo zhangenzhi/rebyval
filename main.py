@@ -1,5 +1,5 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 import argparse
 
 from rebyval.tools.utils import get_yml_content
