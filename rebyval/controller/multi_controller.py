@@ -90,7 +90,7 @@ class MultiController(BaseController):
 class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
         super().__init__()
-        print("Init Student Process.")
+        print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
         self.student = student 
         self.new_student = new_student
         self.supervisor_info = supervisor_info
