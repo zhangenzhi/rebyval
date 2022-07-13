@@ -133,8 +133,8 @@ class Cifar10RLSupervisor(Supervisor):
                     for valid_step in v:
                         data = valid_iter.get_next()
                         inputs,labels = self.preprocess_weightspace(data)
-                        valid_loss = self._valid_step(inputs, labels,
-                                                    valid_step=valid_step, epoch=epoch)
+                        valid_loss = self._valid_step(inputs, labels)
+                                                    
                         self.mloss_fn.update_state(valid_loss)
                         v.set_postfix(sv_loss=valid_loss.numpy())
                     ev_loss = self.mloss_fn.result()
@@ -149,6 +149,6 @@ class Cifar10RLSupervisor(Supervisor):
             for test_step in t:
                 data = test_iter.get_next()
                 inputs,labels = self.preprocess_weightspace(data)
-                t_loss = self._test_step(inputs, labels, test_step = test_step)
+                t_loss = self._test_step(inputs, labels)
                 t.set_postfix(se_loss=t_loss.numpy())
         # self.model.summary()
