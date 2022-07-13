@@ -24,10 +24,10 @@ class MultiController(BaseController):
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
     def gpu_dispatch(self, student):
-        num_gpus = len(self.gpus)
+        num_gpus = len(self.devices)
         if student.id % num_gpus == 0:
             avail_gpu = student.id % num_gpus
-        return avail_gpu
+        return self.devices[avail_gpu]
         
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
