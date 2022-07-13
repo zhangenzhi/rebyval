@@ -1,4 +1,4 @@
-import tensorflow as tf
+# import tensorflow as tf
 
 from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
@@ -23,9 +23,9 @@ class BaseController:
 
 
     def _build_enviroment(self):
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
+        # gpus = tf.config.experimental.list_physical_devices("GPU")
+        # for gpu in gpus:
+        #     tf.config.experimental.set_memory_growth(gpu, True)
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
