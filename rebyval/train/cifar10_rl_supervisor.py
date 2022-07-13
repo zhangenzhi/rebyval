@@ -74,10 +74,6 @@ class Cifar10RLSupervisor(Supervisor):
             loss = self.loss_fn(labels, predictions)
         except:
             print_error("valid step error.")
-        
-        # with self.logger.as_default():
-        #     step = valid_step+epoch*self.dataloader.info['valid_step']
-        #     tf.summary.scalar("valid_loss", loss, step=step)
             
         return loss
 
@@ -90,9 +86,6 @@ class Cifar10RLSupervisor(Supervisor):
         except:
             print_error("test step error.")
             raise 
-        
-        # with self.logger.as_default():
-        #     tf.summary.scalar("test_loss", loss, step=test_step)
         
         return loss
 
