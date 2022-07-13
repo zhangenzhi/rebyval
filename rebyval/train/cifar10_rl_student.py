@@ -5,6 +5,9 @@ import tensorflow as tf
 import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+from rebyval.train.utils import ForkedPdb
+ForkedPdb().set_trace()
+
 # gpus = tf.config.experimental.list_physical_devices("GPU")
 # for gpu in gpus:
 #     tf.config.experimental.set_memory_growth(gpu, True)
@@ -12,7 +15,6 @@ import os
 # others
 import time
 from rebyval.train.student import Student
-from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_warning, print_green, print_error, print_normal
 
 class Cifar10RLStudent(Student):
