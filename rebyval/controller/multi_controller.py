@@ -97,10 +97,11 @@ class StudentProcess(mp.Process):
         return
 
     def run(self):
-        os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+        # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
-        print(self.gpus)
-        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices='1')
+        # print(self.gpus)
+        with tf.device(self.gpus[1]):
+            self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices='1')
 
 
 # class SupervisorProcess(mp.Process):
