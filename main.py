@@ -22,7 +22,7 @@ def args_parser():
     
 
 def main():
-    
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     cmd_args = args_parser()
     yaml_configs = get_yml_content(cmd_args.config)
     yaml_configs = check_args_from_input_config(yaml_configs)
