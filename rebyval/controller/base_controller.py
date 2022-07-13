@@ -23,12 +23,9 @@ class BaseController:
 
 
     def _build_enviroment(self):
-        # gpus = tf.config.experimental.list_physical_devices("GPU")
-        # for gpu in gpus:
-        #     tf.config.experimental.set_memory_growth(gpu, True)
-            
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
+        self.devices = self.context['devices']
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
     def _build_student(self, supervisor=None):

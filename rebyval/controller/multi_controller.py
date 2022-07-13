@@ -17,10 +17,6 @@ class MultiController(BaseController):
 
     def _build_enviroment(self):
         mp.set_start_method("spawn")
-
-        # self.gpus = tf.config.experimental.list_physical_devices("GPU")
-        # for gpu in self.gpus:
-        #     tf.config.experimental.set_memory_growth(gpu, True)
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
@@ -69,11 +65,12 @@ class MultiController(BaseController):
             # ForkedPdb().set_trace()
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
+                devices = str(self.gpu_dispatch(student=student))
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
                 self.args["supervisor"]['model']['initial_value'] = supervisor_vars
                 supervisor_info = self.args["supervisor"]['model']
                 
-                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info)
+                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
                 # p = Process(target = student.run, args=(self.queue, supervisor_info))
                 p.start()
                 processes.append(p)
@@ -90,7 +87,6 @@ class MultiController(BaseController):
         self.main_loop()
         print_green('[Task Status]: Task done!')
 
-# mp = mp.get_context('fork')
 class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
         super().__init__()
