@@ -48,6 +48,8 @@ class MultiController(BaseController):
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
             p = SupervisorProcess(self.supervisor, keep_train=keep_train, new_students=[], devices='0')
+            p.start()
+            self.supervisor = p.join()
             
     def main_loop(self):
 
@@ -116,3 +118,4 @@ class SupervisorProcess(mp.Process):
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
         self.supervisor.run(keep_train=self.keep_train, new_students=[])
+        return self.supervisor
