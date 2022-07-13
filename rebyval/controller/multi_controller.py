@@ -23,10 +23,9 @@ class MultiController(BaseController):
         self.devices = self.context['devices']
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
-    def gpu_dispatch(self, student):
+    def device_dispatch(self, student):
         num_gpus = len(self.devices)
-        if student.id % num_gpus == 0:
-            avail_gpu = student.id % num_gpus
+        avail_gpu = student.id % num_gpus
         return self.devices[avail_gpu]
         
     def warmup(self, warmup):
@@ -66,7 +65,7 @@ class MultiController(BaseController):
             # ForkedPdb().set_trace()
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
-                devices = str(self.gpu_dispatch(student=student))
+                devices = str(self.device_dispatch(student=student))
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
                 self.args["supervisor"]['model']['initial_value'] = supervisor_vars
                 supervisor_info = self.args["supervisor"]['model']
