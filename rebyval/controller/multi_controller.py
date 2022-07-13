@@ -82,10 +82,6 @@ class MultiController(BaseController):
             print_green("new_student:{}, welcome!".format(new_students))
             self.supervisor.run(keep_train=True, new_students=new_students)
 
-    def run(self):
-        print_green("Start to run!")        
-        self.main_loop()
-        print_green('[Task Status]: Task done!')
 
 class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
