@@ -66,7 +66,6 @@ class MultiController(BaseController):
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
-            # ForkedPdb().set_trace()
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 devices = str(self.device_dispatch(student=student))
@@ -101,7 +100,7 @@ class StudentProcess(mp.Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
-        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
+        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices='1')
 
 
 # class SupervisorProcess(mp.Process):
