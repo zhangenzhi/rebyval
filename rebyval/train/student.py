@@ -239,7 +239,7 @@ class Student(object):
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
-        # self.model.summary()
+        self.model.summary()
 
     def run(self, new_student=None, supervisor_info=None):
 
