@@ -16,7 +16,7 @@ class MultiController(BaseController):
         self.queue = Queue(maxsize=100)
 
     def _build_enviroment(self):
-        # mp.set_start_method("fork")
+        mp.set_start_method("spawn")
 
         # self.gpus = tf.config.experimental.list_physical_devices("GPU")
         # for gpu in self.gpus:
@@ -90,7 +90,7 @@ class MultiController(BaseController):
         self.main_loop()
         print_green('[Task Status]: Task done!')
 
-mp = mp.get_context('fork')
+# mp = mp.get_context('fork')
 class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None):
         super().__init__()
