@@ -56,4 +56,4 @@ experiment:
       name: MeanAbsoluteError #MeanAbsoluteError 
     train_loop:
         valid:
-          valid_gap: 100 
+          valid_gap: 10000 
