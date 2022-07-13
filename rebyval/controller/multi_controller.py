@@ -47,9 +47,10 @@ class MultiController(BaseController):
    
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
-            p = SupervisorProcess(self.supervisor, keep_train=keep_train, new_students=[], devices='0')
-            p.start()
-            self.supervisor = p.join()
+            self.supervisor.run(keep_train=keep_train, new_students=[])
+            # p = SupervisorProcess(self.supervisor, keep_train=keep_train, new_students=[], devices='0')
+            # p.start()
+            # self.supervisor = p.join()
             
     def main_loop(self):
 
@@ -103,19 +104,19 @@ class StudentProcess(mp.Process):
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
-class SupervisorProcess(mp.Process):
-    def __init__(self, supervisor, keep_train, new_students, devices='0'):
-        super().__init__()
-        print_green("Init Supervisor:{} Process on Device:{}.".format(supervisor.id, devices))
-        self.supervisor = supervisor 
-        self.keep_train = keep_train
-        self.new_students = new_students
-        self.devices= devices
-        return
+# class SupervisorProcess(mp.Process):
+#     def __init__(self, supervisor, keep_train, new_students, devices='0'):
+#         super().__init__()
+#         print_green("Init Supervisor:{} Process on Device:{}.".format(supervisor.id, devices))
+#         self.supervisor = supervisor 
+#         self.keep_train = keep_train
+#         self.new_students = new_students
+#         self.devices= devices
+#         return
 
-    def run(self):
-        os.environ['CUDA_VISIBLE_DEVICES'] = self.devices
-        self.gpus = tf.config.experimental.list_physical_devices("GPU")
-        print(self.gpus)
-        self.supervisor.run(keep_train=self.keep_train, new_students=[])
-        return self.supervisor
+#     def run(self):
+#         os.environ['CUDA_VISIBLE_DEVICES'] = self.devices
+#         self.gpus = tf.config.experimental.list_physical_devices("GPU")
+#         print(self.gpus)
+#         self.supervisor.run(keep_train=self.keep_train, new_students=[])
+#         return self.supervisor
