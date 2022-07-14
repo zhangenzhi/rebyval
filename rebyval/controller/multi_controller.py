@@ -36,7 +36,8 @@ class MultiController(BaseController):
         processes = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Process(target = student.run, args=(self.queue, None, '1'))
+            p = StudentProcess(student=student, new_student=self.queue, supervisor_info=None, devices='1')
+            # p = Process(target = student.run, args=(self.queue, None, '1'))
             p.start()
             processes.append(p)
             time.sleep(2)
