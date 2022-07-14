@@ -86,7 +86,7 @@ class MultiController(BaseController):
 
 
 class StudentProcess(mp.Process):
-    def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
+    def __init__(self, student, new_student=None, supervisor_info=None, devices='1'):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
         self.student = student 
@@ -101,7 +101,7 @@ class StudentProcess(mp.Process):
         # print(self.gpus)
         # with tf.device('GPU:1'):
         # ForkedPdb().set_trace()
-        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices='1')
+        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
 # class SupervisorProcess(mp.Process):
