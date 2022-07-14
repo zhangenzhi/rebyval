@@ -55,6 +55,7 @@ class MultiController(BaseController):
             p = SupervisorProcess(self.supervisor, keep_train=keep_train, queue=self.sp_queue, new_students=[], devices='0')
             p.start()
             p.join()
+            print("get supervisor")
             self.supervisor = self.queue.get()
             
     def main_loop(self):
@@ -119,6 +120,7 @@ class SupervisorProcess(mp.Process):
     def __init__(self, supervisor, keep_train, new_students, queue, devices='0'):
         super().__init__()
         print_green("Init Supervisor:{} Process on Device:{}.".format(supervisor.id, devices))
+        os.environ['CUDA_VISIBLE_DEVICES'] = devices
         self.supervisor = supervisor 
         self.keep_train = keep_train
         self.new_students = new_students
