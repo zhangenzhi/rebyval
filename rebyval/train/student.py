@@ -52,7 +52,7 @@ class Student(object):
         print(loss)
 
     def _build_enviroment(self, devices='0'):
-        os.environ['CUDA_VISIBLE_DEVICES'] = devices
+        # os.environ['CUDA_VISIBLE_DEVICES'] = devices
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
         for gpu in gpus:
