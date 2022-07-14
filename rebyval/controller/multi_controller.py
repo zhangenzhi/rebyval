@@ -59,7 +59,6 @@ class MultiController(BaseController):
             # self.supervisor = self.queue.get()
             
     def main_loop(self):
-        ForkedPdb().set_trace()
         main_loop = self.args['main_loop']
 
         # init weights pool

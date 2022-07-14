@@ -2,6 +2,7 @@ import os
 import tensorflow as tf
 
 from rebyval.tools.utils import *
+from rebyval.train.utils import ForkedPdb
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.factory import student_factory, supervisor_factory
@@ -83,7 +84,7 @@ class BaseController:
             self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
-        
+        ForkedPdb().set_trace()
         print_green("Start to run!")
         
         self.main_loop()
