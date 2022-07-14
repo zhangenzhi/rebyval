@@ -5,13 +5,11 @@ import argparse
 from rebyval.tools.utils import get_yml_content
 from rebyval.controller.utils import check_args_from_input_config
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
 from rebyval.controller.base_controller import BaseController
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from rebyval.controller.dist_controller import DistController
 from rebyval.controller.multi_controller import MultiController
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 def args_parser():
     parser = argparse.ArgumentParser('autosparsedl_config')
