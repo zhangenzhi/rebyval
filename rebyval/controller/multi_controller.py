@@ -36,7 +36,7 @@ class MultiController(BaseController):
         processes = []
         for i in range(init_samples):
             student = self._build_student()
-            p = Process(target = student.run, args=(self.queue,None,'1'))
+            p = Process(target = student.run, args=(self.queue, None, '1'))
             p.start()
             processes.append(p)
             time.sleep(2)
@@ -74,8 +74,8 @@ class MultiController(BaseController):
                 gpus = tf.config.experimental.list_physical_devices("GPU")
                 print("main_process:",gpus)
                 
-                # p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
-                p = Process(target = student.run, args=(self.queue, supervisor_info, devices))
+                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
+                # p = Process(target = student.run, args=(self.queue, supervisor_info, devices))
                 p.start()
                 processes.append(p)
                 time.sleep(3)
@@ -91,6 +91,7 @@ class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None, devices='1'):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
+        print_error(tf.config.experimental.list_physical_devices("GPU"))
         self.student = student 
         self.new_student = new_student
         self.supervisor_info = supervisor_info
