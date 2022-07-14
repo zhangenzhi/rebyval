@@ -135,7 +135,7 @@ class Supervisor(object):
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, keep_train=False, new_students=[], ):
+    def run(self, keep_train=False, new_students=[]):
         
         self.id += 1
         
