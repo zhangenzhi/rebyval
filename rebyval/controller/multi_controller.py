@@ -62,7 +62,6 @@ class MultiController(BaseController):
 
         # main loop
         total_students = [self._build_student() for i in range(main_loop['student_nums']*main_loop['nums'])]
-        ForkedPdb().set_trace()
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
