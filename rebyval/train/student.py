@@ -240,7 +240,7 @@ class Student(object):
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
         self.model.summary()
 
-    def run(self, new_student=None, supervisor_info=None, devices='0'):
+    def run(self, new_student=None, supervisor_info=None, devices='1'):
 
         # set enviroment
         self._build_enviroment(devices=devices)
