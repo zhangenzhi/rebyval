@@ -36,7 +36,8 @@ class MultiController(BaseController):
         processes = []
         for i in range(init_samples):
             student = self._build_student()
-            p = StudentProcess(student=student, new_student=self.queue, supervisor_info=None, devices='1')
+            devices = str(self.device_dispatch(student=student))
+            p = StudentProcess(student=student, new_student=self.queue, supervisor_info=None, devices=devices)
             # p = Process(target = student.run, args=(self.queue, None, '1'))
             p.start()
             processes.append(p)
@@ -90,7 +91,7 @@ class MultiController(BaseController):
 
 
 class StudentProcess(mp.Process):
-    def __init__(self, student, new_student=None, supervisor_info=None, devices='1'):
+    def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
