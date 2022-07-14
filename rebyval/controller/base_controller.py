@@ -7,7 +7,7 @@ from rebyval.train.utils import ForkedPdb
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.factory import student_factory, supervisor_factory
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 
 class BaseController:
     def __init__(self, yaml_configs):
@@ -21,6 +21,8 @@ class BaseController:
         else:
             self._student_ids = 0
         self._supervisor_ids = 0
+        
+        os.environ['CUDA_VISIBLE_DEVICES'] = '0'
         
         self.supervisor = self._build_supervisor()
 
