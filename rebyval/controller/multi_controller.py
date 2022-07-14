@@ -133,5 +133,7 @@ class SupervisorProcess(mp.Process):
         self.gpus = tf.config.experimental.list_physical_devices("GPU")
         print(self.gpus)
         self.supervisor.run(keep_train=self.keep_train, new_students=[])
+        print("put supervisor")
+        ForkedPdb().set_trace()
         self.queue.put(self.supervisor)
         
