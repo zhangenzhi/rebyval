@@ -49,6 +49,7 @@ class MultiController(BaseController):
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
    
         for j in range(supervisor_trains):
+            ForkedPdb().set_trace()
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
 
