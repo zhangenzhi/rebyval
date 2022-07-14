@@ -9,7 +9,7 @@ from rebyval.controller.utils import *
 from rebyval.train.factory import student_factory, supervisor_factory
 
 
-class BaseController:
+class BaseController(object):
     def __init__(self, yaml_configs):
         
         os.environ['CUDA_VISIBLE_DEVICES'] = '0'
