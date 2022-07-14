@@ -2,7 +2,7 @@ from tqdm import trange
 import numpy as np
 import tensorflow as tf
 
-import os
+# import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # from rebyval.train.utils import ForkedPdb

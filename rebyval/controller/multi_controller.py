@@ -65,6 +65,7 @@ class MultiController(BaseController):
         for j in range(main_loop['nums']):
             # mp students with supervisor
             processes = []
+            print_green(total_students[0])
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 devices = str(self.device_dispatch(student=student))
