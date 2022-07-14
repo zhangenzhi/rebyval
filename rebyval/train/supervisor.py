@@ -15,7 +15,7 @@ from rebyval.model.factory import model_factory
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir
 from rebyval.dataloader.utils import glob_tfrecords
 
-class Supervisor:
+class Supervisor(object):
     def __init__(self, supervisor_args, logger = None, id = 0):
         self.args = supervisor_args
         self.logger = logger
@@ -33,7 +33,6 @@ class Supervisor:
             tf.config.experimental.set_memory_growth(gpu, True)
             
     def _build_model(self):
-        #TODO: need model registry
         model = model_factory(self.args['model'])
 
         # model restore
@@ -42,7 +41,6 @@ class Supervisor:
         return model
 
     def _build_dataset(self, new_students = []):
-        #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         
         datadir = "weight_space"
