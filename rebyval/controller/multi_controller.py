@@ -74,8 +74,8 @@ class MultiController(BaseController):
                 gpus = tf.config.experimental.list_physical_devices("GPU")
                 print("main_process:",gpus)
                 
-                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
-                # p = Process(target = student.run, args=(self.queue, supervisor_info))
+                # p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
+                p = Process(target = student.run, args=(self.queue, supervisor_info, devices))
                 p.start()
                 processes.append(p)
                 time.sleep(3)
