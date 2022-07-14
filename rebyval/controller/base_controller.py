@@ -1,4 +1,6 @@
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 import tensorflow as tf
 
 from rebyval.tools.utils import *
@@ -84,7 +86,6 @@ class BaseController:
             self.supervisor.run(keep_train=True, new_students=new_students)
 
     def run(self):
-        ForkedPdb().set_trace()
         print_green("Start to run!")
         
         self.main_loop()
