@@ -50,6 +50,7 @@ class MultiController(BaseController):
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
+        tf.keras.backend.clear_session()
             # p = SupervisorProcess(self.supervisor, keep_train=keep_train, new_students=[], devices='0')
             # p.start()
             # self.supervisor = p.join()
