@@ -11,9 +11,7 @@ from rebyval.train.factory import student_factory, supervisor_factory
 
 class BaseController(object):
     def __init__(self, yaml_configs):
-        
-        os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
+    
         self.yaml_configs = yaml_configs
 
         self._build_enviroment()

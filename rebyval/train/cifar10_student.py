@@ -1,4 +1,4 @@
-
+import os
 from tqdm import trange
 import numpy as np
 import tensorflow as tf
