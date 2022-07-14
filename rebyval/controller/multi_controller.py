@@ -2,6 +2,9 @@ import os
 import time
 import tensorflow as tf
 import multiprocessing as mp
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 from torch import device
 from torch.multiprocessing import Pool, Queue, Process
 
