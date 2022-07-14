@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 import tensorflow as tf
-from rebyval.train.student import Student
 
 from rebyval.dataloader.factory import dataset_factory
 from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
