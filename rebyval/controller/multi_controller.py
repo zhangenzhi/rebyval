@@ -49,7 +49,6 @@ class MultiController(BaseController):
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
    
         for j in range(supervisor_trains):
-            ForkedPdb().set_trace()
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
 
@@ -60,7 +59,7 @@ class MultiController(BaseController):
             # self.supervisor = self.queue.get()
             
     def main_loop(self):
-
+        ForkedPdb().set_trace()
         main_loop = self.args['main_loop']
 
         # init weights pool
