@@ -1,5 +1,4 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 import tensorflow as tf
 
@@ -8,6 +7,7 @@ from rebyval.train.utils import ForkedPdb
 from rebyval.dataloader.utils import *
 from rebyval.controller.utils import *
 from rebyval.train.factory import student_factory, supervisor_factory
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 class BaseController:
     def __init__(self, yaml_configs):
