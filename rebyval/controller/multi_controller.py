@@ -104,7 +104,7 @@ class StudentProcess(mp.Process):
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_error(gpus)
-        # os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
         # print_error(tf.config.experimental.list_physical_devices("GPU"))
         self.student = student 
         self.new_student = new_student
