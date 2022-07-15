@@ -136,7 +136,7 @@ class Supervisor(object):
 
     def run(self, keep_train=False, new_students=[]):
         
-        os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+        os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
         
         self.id += 1
         
