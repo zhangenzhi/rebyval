@@ -8,7 +8,7 @@ from multiprocessing import Pool, Queue, Process
 
 # from torch.multiprocessing import Pool, Queue, Process
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 from rebyval.tools.utils import *
 from rebyval.train.utils import ForkedPdb
