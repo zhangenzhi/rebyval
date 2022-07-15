@@ -102,10 +102,10 @@ class StudentProcess(mp.Process):
     def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_error(gpus)
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
-        # print_error(tf.config.experimental.list_physical_devices("GPU"))
+
+        # os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
+        os.environ['CUDA_VISIBLE_DEVICES'] = devices
+
         self.student = student 
         self.new_student = new_student
         self.supervisor_info = supervisor_info
@@ -113,12 +113,9 @@ class StudentProcess(mp.Process):
         return
 
     def run(self):
-        # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
         gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_error(gpus)
-        # print(self.gpus)
-        # with tf.device('GPU:1'):
-        # ForkedPdb().set_trace()
+        print_red("Init Student:{} Process on Device:{}.".format(self.student.id, gpus))
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
