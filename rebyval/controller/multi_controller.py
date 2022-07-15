@@ -44,7 +44,6 @@ class MultiController(BaseController):
             student = self._build_student()
             devices = str(self.device_dispatch(student=student))
             p = StudentProcess(student=student, new_student=self.queue, supervisor_info=None, devices=devices)
-            # p = Process(target = student.run, args=(self.queue, None, '1'))
             p.start()
             processes.append(p)
             time.sleep(2)
@@ -56,12 +55,6 @@ class MultiController(BaseController):
         for j in range(supervisor_trains):
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
-
-            # p = SupervisorProcess(self.supervisor, keep_train=keep_train, queue=self.sp_queue, new_students=[], devices='0')
-            # p.start()
-            # p.join()
-            # print("get supervisor")
-            # self.supervisor = self.queue.get()
             
     def main_loop(self):
         main_loop = self.args['main_loop']
@@ -103,7 +96,6 @@ class StudentProcess(mp.Process):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
 
-        # os.environ['CUDA_VISIBLE_DEVICES'] = str(student.id % 4)
         os.environ['CUDA_VISIBLE_DEVICES'] = devices
 
         self.student = student 
