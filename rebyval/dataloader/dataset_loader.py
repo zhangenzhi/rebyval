@@ -121,7 +121,7 @@ class Cifar10DataLoader(BaseDataLoader):
         if self.dataloader_args['da']:
             train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
         train_dataset = train_dataset.prefetch(1)
-        train_dataset = train_dataset.repeat(epochs)
+        train_dataset = train_dataset.repeat(epochs).cache()
 
         # valid_dataset = full_dataset.skip(train_size)
         # valid_dataset = valid_dataset.take(valid_size).repeat(epochs)

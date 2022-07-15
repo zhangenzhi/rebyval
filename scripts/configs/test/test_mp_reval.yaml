@@ -8,8 +8,8 @@ experiment:
     warmup: 
       student_nums: 10
       supervisor_trains: 1
-    nums: 10
-    student_nums: 64
+    nums: 2
+    student_nums: 16
 
   student:
     dataloader:
