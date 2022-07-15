@@ -117,9 +117,9 @@ class StudentProcess(mp.Process):
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_error(gpus)
         # print(self.gpus)
-        with tf.device('GPU:1'):
+        # with tf.device('GPU:1'):
         # ForkedPdb().set_trace()
-            self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
+        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
 class SupervisorProcess(mp.Process):

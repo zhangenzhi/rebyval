@@ -263,7 +263,8 @@ class Student(object):
         self.writter, weight_dir = self._build_writter()
 
         # self.supervisor = self._build_supervisor_from_vars()
-        self.train(supervisor_info=supervisor_info)
+        with tf.device('GPU:1'):
+            self.train(supervisor_info=supervisor_info)
 
         self.writter.close()
         print('Finished training student {}'.format(self.id))
