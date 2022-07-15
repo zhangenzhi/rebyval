@@ -114,8 +114,8 @@ class StudentProcess(mp.Process):
 
     def run(self):
         # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-        # gpus = tf.config.experimental.list_physical_devices("GPU")
-        # print_error(gpus)
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        print_error(gpus)
         # print(self.gpus)
         # with tf.device('GPU:1'):
         # ForkedPdb().set_trace()
