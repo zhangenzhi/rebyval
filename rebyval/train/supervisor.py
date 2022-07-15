@@ -25,7 +25,7 @@ class Supervisor(object):
     
     def _build_enviroment(self, devices='0'):
 
-        os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2'
+        os.environ['CUDA_VISIBLE_DEVICES'] = '1,2'
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green(gpus)
         for gpu in gpus:
