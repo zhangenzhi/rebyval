@@ -102,7 +102,7 @@ class Cifar10RLStudent(Student):
         if self.id % 10 == 0:
             self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
         else:
-            self.action_sample = tf.reshape(tf.constant([0.01,0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0], dtype=tf.float32),shape=(-1,1))
+            self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         # scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
