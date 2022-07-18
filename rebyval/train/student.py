@@ -396,7 +396,7 @@ class Student(object):
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
         
-    def mem_experience_buffer(self, weight, metric, action, step=0):
+    def mem_experience_buffer(self, weight, metric, action, E_Q=0, step=0):
                   
         state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
         self.experience_buffer['states'].append(state)
@@ -410,18 +410,33 @@ class Student(object):
              self.experience_buffer['rewards'].append(tf.constant(0.0))
         else:
             self.experience_buffer['rewards'].append(metric - self.baseline)
-            
+        self.experience_buffer['E_Q'] = E_Q
+        
         self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.9):
+        
+        # actual limitted Q value
+        ForkedPdb().set_trace()
         s = len(self.experience_buffer['rewards'])
-        Q = [self.experience_buffer['rewards'][-1]]
+        end_Q = sum([df**i*self.experience_buffer['rewards'][i] for i in reversed(range(s))])
+        Q = [end_Q] 
         for i in reversed(range(s-1)):
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
         self.experience_buffer['Q'] = Q
+
+        
+        # # boostrap Q value
+        # s = len(self.experience_buffer['rewards'])
+        # Q = []
+        # for i in range(s):
+        #     q_value = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i]
+        #     Q.append(q_value)
+        # self.experience_buffer['Q'] = Q
+
 
         self._write_trail_to_tfrecord(self.experience_buffer)
         with self.logger.as_default():

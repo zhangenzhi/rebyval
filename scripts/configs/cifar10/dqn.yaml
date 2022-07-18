@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-act10-v7
+    name: fda-act10-nQ
     devices: [0,1,2,3]
     multi-p: True
 

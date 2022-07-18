@@ -4,12 +4,6 @@ import tensorflow as tf
 import multiprocessing as mp
 from multiprocessing import Pool, Queue, Process
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
-# from torch.multiprocessing import Pool, Queue, Process
-
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
 from rebyval.tools.utils import *
 from rebyval.train.utils import ForkedPdb
 from rebyval.controller.utils import *
@@ -75,11 +69,9 @@ class MultiController(BaseController):
                 supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
                 self.args["supervisor"]['model']['initial_value'] = supervisor_vars
                 supervisor_info = self.args["supervisor"]['model']
-                gpus = tf.config.experimental.list_physical_devices("GPU")
-                print("main_process:",gpus)
                 
                 p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
-                # p = Process(target = student.run, args=(self.queue, supervisor_info, devices))
+
                 p.start()
                 processes.append(p)
                 time.sleep(3)
