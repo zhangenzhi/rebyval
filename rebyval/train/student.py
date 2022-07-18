@@ -24,7 +24,8 @@ class Student(object):
         ## RL
         self.best_metric = best_metric
         self.baseline = 0.1
-        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'act_grads':[],'steps':[]}
+        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[],
+                                  'act_grads':[],'E_Q':[],'steps':[]}
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
@@ -410,7 +411,7 @@ class Student(object):
              self.experience_buffer['rewards'].append(tf.constant(0.0))
         else:
             self.experience_buffer['rewards'].append(metric - self.baseline)
-        self.experience_buffer['E_Q'] = E_Q
+        self.experience_buffer['E_Q'].append(tf.cast(E_Q, tf.float32))
         
         self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['act_grads'].append(action[1])
