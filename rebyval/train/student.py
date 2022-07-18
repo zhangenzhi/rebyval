@@ -419,7 +419,7 @@ class Student(object):
     def save_experience(self, df=0.9):
         
         # actual limitted Q value
-        ForkedPdb().set_trace()
+        # ForkedPdb().set_trace()
         s = len(self.experience_buffer['rewards'])
         end_Q = sum([df**i*self.experience_buffer['rewards'][i] for i in reversed(range(s))])
         Q = [end_Q] 
