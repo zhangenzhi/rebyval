@@ -418,16 +418,24 @@ class Student(object):
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.9):
+
         
         # actual limitted Q value
-        # ForkedPdb().set_trace()
         s = len(self.experience_buffer['rewards'])
-        end_Q = sum([df**i*self.experience_buffer['rewards'][i] for i in reversed(range(s))])
-        Q = [end_Q] 
+        Q = [self.experience_buffer['rewards'][-1]] 
         for i in reversed(range(s-1)):
             q_value = self.experience_buffer['rewards'][i] + df*Q[0]
             Q.insert(0, q_value)
         self.experience_buffer['Q'] = Q
+
+        # ForkedPdb().set_trace()
+        # s = len(self.experience_buffer['rewards'])
+        # end_Q = sum([df**i*self.experience_buffer['rewards'][i] for i in reversed(range(s))])
+        # Q = [end_Q] 
+        # for i in reversed(range(s-1)):
+        #     q_value = self.experience_buffer['rewards'][i] + df*Q[0]
+        #     Q.insert(0, q_value)
+        # self.experience_buffer['Q'] = Q
 
         
         # # boostrap Q value
