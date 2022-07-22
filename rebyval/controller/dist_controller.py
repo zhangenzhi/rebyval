@@ -13,8 +13,11 @@ class DistController(BaseController):
 
     def _build_enviroment(self):
         hvd.init()
-        config = tf.ConfigProto()
-        config.gpu_options.visible_device_list = str(hvd.local_rank())
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        if gpus:
+            tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
