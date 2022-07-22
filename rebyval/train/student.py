@@ -143,9 +143,6 @@ class Student(object):
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, first_batch=False):
         
-        # import pdb
-        # pdb.set_trace()
-
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             loss = self.loss_fn(labels, predictions)
@@ -220,16 +217,18 @@ class Student(object):
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
-                        data = train_iter.get_next()
                         if self.supervisor == None:
                             if self.dist:
                                 first_batch = True if epoch==0 and train_step==0 else False
-                                # data = (data['inputs'], data['labels'])
-                                # for (images, labels) in enumerate(dataset.take(10000 // hvd.size())):
-                                train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
+                                for i in range(hvd.size()):
+                                    data = train_iter.get_next()
+                                    train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
+                                train_step +=  hvd.size()-1
                             else:
+                                data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'])
                         else:
+                            data = train_iter.get_next()
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
