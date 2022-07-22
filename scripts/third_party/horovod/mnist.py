@@ -32,6 +32,11 @@ if gpus:
 
 # Build model and dataset
 (dataset,_),(_,_) = tf.keras.datasets.mnist.load_data()
+dataset = dataset.repeat() \
+    .shuffle(10000) \
+    .batch(128) \
+    .prefetch(tf.data.experimental.AUTOTUNE)
+
 mnist_model = get_model()
 loss = tf.losses.SparseCategoricalCrossentropy()
 opt = tf.optimizers.Adam(0.001 * hvd.size())
