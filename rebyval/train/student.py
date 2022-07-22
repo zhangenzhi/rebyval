@@ -54,10 +54,17 @@ class Student(object):
                 zip(gradients, self.supervisor.trainable_variables))
 
     def _build_enviroment(self, devices='0'):
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_green("devices:", gpus)
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
+        if self.dist:
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            if gpus:
+                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+        else:
+            gpus = tf.config.experimental.list_physical_devices("GPU")
+            print_green("devices:", gpus)
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
         dataset_args = self.args['dataloader']
