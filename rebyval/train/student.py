@@ -141,8 +141,8 @@ class Student(object):
 
         if self.dist:
             tape = hvd.DistributedGradientTape(tape)
-            grads = tape.gradient(loss, self.model.trainable_variables)
-            self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
             if first_batch:
                 hvd.broadcast_variables(self.model.variables, root_rank=0)
                 hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
