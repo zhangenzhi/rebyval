@@ -55,6 +55,7 @@ class Student(object):
 
     def _build_enviroment(self, devices='0'):
         if self.dist:
+            hvd.init()
             gpus = tf.config.experimental.list_physical_devices('GPU')
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
