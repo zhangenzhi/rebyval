@@ -79,9 +79,9 @@ def training_step(images, labels, first_batch):
 
 # Horovod: adjust number of steps based on number of GPUs.
 for batch, data in enumerate(dataset.take(10000 // hvd.size())):
-    import pdb
-    pdb.set_trace()
-    images = data['inputs']
+    # import pdb
+    # pdb.set_trace()
+    images = tf.reshape(data['inputs'],(-1,28,28,1))
     labels = data['labels']
     loss_value = training_step(images, labels, batch == 0)
 
