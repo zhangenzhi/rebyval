@@ -37,7 +37,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 390
+          valid_gap: 195
 
   supervisor:
     dataloader:
