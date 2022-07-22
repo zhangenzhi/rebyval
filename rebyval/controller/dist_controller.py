@@ -33,6 +33,7 @@ class DistController(BaseController):
         
         for i in range(init_samples):
             student = self._build_student()
+            student.dist = True
             student.run()
         
         for j in range(supervisor_trains):
