@@ -1,6 +1,6 @@
 import tensorflow as tf
 import horovod.tensorflow as hvd
-
+    
 def get_model():
     from tensorflow.keras import models
     from tensorflow.keras import layers
@@ -31,7 +31,7 @@ if gpus:
     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
 
 # Build model and dataset
-dataset = tf.keras.datasets.mnist
+dataset,_,_,_ = tf.keras.datasets.mnist.load_data()
 mnist_model = get_model()
 loss = tf.losses.SparseCategoricalCrossentropy()
 opt = tf.optimizers.Adam(0.001 * hvd.size())
