@@ -32,7 +32,7 @@ if gpus:
 
 # Build model and dataset
 (dataset,_),(_,_) = tf.keras.datasets.mnist.load_data()
-dataset = dataset.repeat() \
+dataset = dataset.repeat(-1) \
     .shuffle(10000) \
     .batch(128) \
     .prefetch(tf.data.experimental.AUTOTUNE)
