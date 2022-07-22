@@ -2,6 +2,7 @@ import os
 from tqdm import trange
 from datetime import datetime
 import tensorflow as tf
+import horovod.tensorflow as hvd
 
 # dataloader
 from rebyval.dataloader.factory import dataset_factory
@@ -16,13 +17,14 @@ from rebyval.dataloader.utils import glob_tfrecords
 
 
 class Student(object):
-    def __init__(self, student_args, supervisor=None, id=0, best_metric=0.5):
+    def __init__(self, student_args, supervisor=None, id=0, dist=False):
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
+        self.dist = dist
         
         ## RL
-        self.best_metric = best_metric
+        self.best_metric = 0.5
         self.baseline = 0.1
         self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[],
                                   'act_grads':[],'E_Q':[],'steps':[]}
@@ -50,17 +52,14 @@ class Student(object):
                 loss, self.supervisor.trainable_variables)
             supervisor_opt.apply_gradients(
                 zip(gradients, self.supervisor.trainable_variables))
-        print(loss)
 
     def _build_enviroment(self, devices='0'):
-        # os.environ['CUDA_VISIBLE_DEVICES'] = devices
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green("devices:", gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
-        # TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         dataloader = dataset_factory(dataset_args)
 
@@ -95,6 +94,8 @@ class Student(object):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
+        if self.dist:
+            optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
 
@@ -176,10 +177,12 @@ class Student(object):
         train_iter = iter(self.train_dataset)
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
+
+        if self.dist:
+            hooks = [hvd.BroadcastGlobalVariablesHook(0)]
         
         
         if supervisor_info != None:
-            # self.supervisor_info = supervisor_info
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
 
         # train, valid, write to tfrecords, test
