@@ -211,7 +211,7 @@ class Student(object):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            first_batch = True if e==0 and t == 0 else False
+                            first_batch = True if epoch==0 and train_step==0 else False
                             train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
                             # if self.dist:
                             #     for batch, (images, labels) in enumerate(dataset.take(10000 // hvd.size())):
