@@ -8,8 +8,8 @@ from rebyval.controller.base_controller import BaseController
 
 
 class DistController(BaseController):
-    def __init__(self,yaml_path=None):
-        super(DistController, self).__init__(yaml_path=yaml_path)
+    def __init__(self, yaml_configs):
+        super(DistController, self).__init__(yaml_configs=yaml_configs)
 
     def _build_enviroment(self):
         hvd.init()
