@@ -138,8 +138,18 @@ class Student(object):
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             loss = self.loss_fn(labels, predictions)
-        gradients = tape.gradient(loss, self.model.trainable_variables)
-        self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+
+        if self.dist:
+            tape = hvd.DistributedGradientTape(tape)
+            grads = tape.gradient(loss, self.model.trainable_variables)
+            self.opt.apply_gradients(zip(grads, self.model.trainable_variables))
+            if first_batch:
+                hvd.broadcast_variables(self.model.variables, root_rank=0)
+                hvd.broadcast_variables(self.opt.variables(), root_rank=0)
+        else:
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+
 
         self.mt_loss_fn.update_state(loss)
         
@@ -177,9 +187,6 @@ class Student(object):
         train_iter = iter(self.train_dataset)
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
-
-        if self.dist:
-            hooks = [hvd.BroadcastGlobalVariablesHook(0)]
         
         
         if supervisor_info != None:
@@ -204,7 +211,8 @@ class Student(object):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss,_ = self._train_step(data['inputs'], data['labels'])
+                            first_batch = True if e==0 and t == 0 else False
+                            train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
                         else:
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
