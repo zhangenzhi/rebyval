@@ -198,7 +198,7 @@ class Student(object):
         
 
         total_epochs = self.dataloader.info['epochs'] if not self.dist else int(self.dataloader.info['epochs']/hvd.size())
-        train_steps_per_epoch = self.dataloader.info['train_step'] if not self.dist else int(self.dataloader.info['train_step']/hvd.size())
+        train_steps_per_epoch = self.dataloader.info['train_step']
 
         if supervisor_info != None:
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
