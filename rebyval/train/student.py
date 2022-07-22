@@ -132,12 +132,12 @@ class Student(object):
         print(save_msg)
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, first_batch=False):
         
-        import pdb
-        pdb.set_trace()
-        
+        # import pdb
+        # pdb.set_trace()
+
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             loss = self.loss_fn(labels, predictions)
