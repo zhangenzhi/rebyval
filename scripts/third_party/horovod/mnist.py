@@ -1,3 +1,5 @@
+import numpy as np
+
 import tensorflow as tf
 import horovod.tensorflow as hvd
     
@@ -31,7 +33,14 @@ if gpus:
     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
 
 # Build model and dataset
-(dataset,_),(_,_) = tf.keras.datasets.mnist.load_data()
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+x_train = (x_train / 255.0).astype(np.float32)
+y_train = y_train.astype(np.float32)
+
+x_test = (x_test / 255.0).astype(np.float32)
+y_test = y_test.astype(np.float32)
+dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_train, 'labels': y_train})
 dataset = dataset.repeat(100) \
     .shuffle(10000) \
     .batch(128) \
