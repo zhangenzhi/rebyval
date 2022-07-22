@@ -220,10 +220,7 @@ class Student(object):
                         if self.supervisor == None:
                             if self.dist:
                                 first_batch = True if epoch==0 and train_step==0 else False
-                                for i in range(hvd.size()):
-                                    data = train_iter.get_next()
-                                    train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
-                                train_step +=  hvd.size()-1
+                                train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
                             else:
                                 data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'])
