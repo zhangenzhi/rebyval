@@ -196,25 +196,28 @@ class Student(object):
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
         
-        
+
+        total_epochs = self.dataloader.info['epochs'] if not self.dist else int(self.dataloader.info['epochs']/hvd.size())
+        train_steps_per_epoch = self.dataloader.info['train_step'] if not self.dist else int(self.dataloader.info['train_step']/hvd.size())
+
         if supervisor_info != None:
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
-        with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+        with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
 
                 # lr decay
                 if train_args["lr_decay"]:
-                    if epoch/self.dataloader.info['epochs'] == 0.5:
+                    if epoch/total_epochs == 0.5:
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                    elif epoch/self.dataloader.info['epochs'] == 0.75:
+                    elif epoch/total_epochs == 0.75:
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
-                with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
+                with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
                         if self.supervisor == None:
@@ -222,7 +225,7 @@ class Student(object):
                                 first_batch = True if epoch==0 and train_step==0 else False
                                 data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
-                                train_step += hvd.size() - 1
+                                # train_step += hvd.size() - 1
                             else:
                                 data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'])

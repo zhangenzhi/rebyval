@@ -28,10 +28,10 @@ experiment:
       name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
-      learning_rate: 0.1 # default 0.01
+      learning_rate: 1.0 # default 0.01
     train_loop:
         train:
-          lr_decay: False
+          lr_decay: True
           action: fix
           policy: greedy
         valid:
