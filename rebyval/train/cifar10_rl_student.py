@@ -145,7 +145,7 @@ class Cifar10RLStudent(Student):
         else:
             act = self.action_sample[index_max]
             alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
-            smoothed_act = (1-alpha)*self.pre_act + alpha *act
+            smoothed_act = (1-alpha)*self.pre_act + alpha*act
             gradients = [g*smoothed_act for g in t_grad]
             act = tf.squeeze(smoothed_act)
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]

@@ -2,14 +2,14 @@ experiment:
   context:
     name: fda-slr-v1
     devices: [0,1,2,3]
-    multi-p: False
+    multi-p: True
     dist: False
 
   main_loop:
     warmup: 
-      student_nums: 5
-      supervisor_trains: 1
-    nums: 1
+      student_nums: 20
+      supervisor_trains: 2
+    nums: 1000
     student_nums: 4
 
   student:
