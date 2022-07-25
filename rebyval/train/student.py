@@ -420,7 +420,7 @@ class Student(object):
 
         configs['num_of_students'] = len(glob_tfrecords(
             weight_dir, glob_pattern='*.tfrecords'))
-        configs['sample_per_student'] = int(self.dataloader.info['train_step'] / self.args['train_loop']['valid']['valid_gap']) * self.dataloader.info['epochs']
+        configs['sample_per_student'] = int(self.dataloader.info['train_step'] * self.dataloader.info['epochs'] / self.args['train_loop']['valid']['valid_gap'])
         configs['total_samples'] = configs['sample_per_student'] * \
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
