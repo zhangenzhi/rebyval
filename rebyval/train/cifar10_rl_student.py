@@ -125,7 +125,7 @@ class Cifar10RLStudent(Student):
         if (self.gloabl_train_step %  self.valid_gap )==0:
             import pdb
             pdb.set_trace()
-            self.pre_act = 1.0 if self.gloabl_train_step==self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
+            self.pre_act = 1.0 if self.gloabl_train_step<self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
             if self.train_args['action'] == 'fix':
                 self.action_sample,self.values = self.fix_action(t_grad=t_grad)
             elif self.train_args['action'] == 'neg':
