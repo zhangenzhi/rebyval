@@ -15,6 +15,7 @@ class Cifar10RLStudent(Student):
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_min = 0
         self.gloabl_train_step = 0
+        self.valid_gap = 100
         
         
     def elem_action(self, t_grad, num_act=1000):
@@ -121,7 +122,8 @@ class Cifar10RLStudent(Student):
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
                 
         # fixed action with pseudo sgd
-        if (self.gloabl_train_step % 30) ==0:
+        if (self.gloabl_train_step %  self.valid_gap ) ==0:
+            self.pre_act = 1.0 if self.gloabl_train_step ==  self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
             if self.train_args['action'] == 'fix':
                 self.action_sample,self.values = self.fix_action(t_grad=t_grad)
             elif self.train_args['action'] == 'neg':
@@ -142,8 +144,10 @@ class Cifar10RLStudent(Student):
             act = tf.concat([tf.reshape(tf.reduce_sum(a, axis=-1),(1,-1)) for a in act], axis=-1)
         else:
             act = self.action_sample[index_max]
-            gradients = [g*act for g in t_grad]
-            act = tf.squeeze(act)
+            alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
+            smoothed_act = (1-alpha)*self.pre_act + alpha *act
+            gradients = [g*smoothed_act for g in t_grad]
+            act = tf.squeeze(smoothed_act)
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
@@ -159,6 +163,7 @@ class Cifar10RLStudent(Student):
         train_loop_args = self.args['train_loop']
         self.train_args = train_loop_args['train']
         self.valid_args = train_loop_args['valid']
+        self.valid_gap = self.valid_args['valid_gap']
         self.test_args = train_loop_args['test']
 
         # dataset train, valid, test
