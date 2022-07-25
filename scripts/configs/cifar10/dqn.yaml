@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-slr-v1
+    name: fda-slr-gp100
     devices: [0,1,2,3]
     multi-p: True
     dist: False
@@ -38,7 +38,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 30
+          valid_gap: 100
 
   supervisor:
     dataloader:
