@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-act5-gp300
+    name: fda-act10-gp100
     devices: [0,1,2,3]
     multi-p: True
     dist: False
@@ -38,7 +38,7 @@ experiment:
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 300
+          valid_gap: 100
 
   supervisor:
     dataloader:
@@ -48,14 +48,14 @@ experiment:
       epochs: 100
     model:
       name: dnn # default dnn
-      units: [128,64,32,1] # default 128,64,64,32
+      units: [128,64,32,10] # default 128,64,64,32
       embedding: True
-      activations: [relu,relu,relu,relu] # default relu
+      activations: [relu,relu,relu,softmax] # default relu
     optimizer:
       name: sgd
       learning_rate: 0.01
     loss:
-      name: MeanAbsoluteError #MeanAbsoluteError 
+      name: MeanSquaredError #MeanAbsoluteError 
     train_loop:
         valid:
           valid_gap: 10000 

@@ -13,7 +13,7 @@ class Cifar10RLStudent(Student):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
-        self.index_min = 0
+        self.index_max = 0
         self.gloabl_train_step = 0
         self.valid_gap = 100
         
@@ -125,25 +125,27 @@ class Cifar10RLStudent(Student):
         if (self.gloabl_train_step %  self.valid_gap )==0:
             self.pre_act = 1.0 if self.gloabl_train_step<self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
             if self.train_args['action'] == 'fix':
-                self.action_sample,self.values = self.fix_action(t_grad=t_grad)
+                self.action_sample, self.values = self.fix_action(t_grad=t_grad)
             elif self.train_args['action'] == 'neg':
-                self.action_sample,self.values = self.neg_action(t_grad=t_grad)
+                self.action_sample, self.values = self.neg_action(t_grad=t_grad)
             elif self.train_args['action'] == 'elem':
-                self.action_sample,self.values = self.elem_action(t_grad=t_grad)
+                self.action_sample, self.values = self.elem_action(t_grad=t_grad)
             else:
-                self.action_sample,self.values = self.soft_action(t_grad=t_grad)
+                self.action_sample, self.values = self.soft_action(t_grad=t_grad)
 
-        # greedy policy
-        if self.train_args['policy'] == 'greedy':
-            index_max = self.greedy_policy(self.values)
+            # greedy policy
+            if self.train_args['policy'] == 'e_greedy':
+                self.index_max = self.e_greedy_policy(self.values)
+            else:
+                self.index_max = self.greedy_policy(self.values)
 
         # next state
         if self.train_args['action'] == 'elem':
-            act = [a[index_max] for a in self.action_sample]
+            act = [a[self.index_max] for a in self.action_sample]
             gradients = [g*a for g,a in zip(t_grad,act)]
             act = tf.concat([tf.reshape(tf.reduce_sum(a, axis=-1),(1,-1)) for a in act], axis=-1)
         else:
-            act = self.action_sample[index_max]
+            act = self.action_sample[self.index_max]
             alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
             smoothed_act = (1-alpha)*self.pre_act + alpha*act
             gradients = [g*smoothed_act for g in t_grad]
@@ -154,7 +156,7 @@ class Cifar10RLStudent(Student):
         self.mt_loss_fn.update_state(t_loss)
         
         reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
-        E_q = tf.squeeze(self.values[index_max])
+        E_q = tf.squeeze(self.values[self.index_max])
         return t_loss, E_q, act, reduced_grads, self.values
 
     def train(self, new_student=None, supervisor_info=None):
