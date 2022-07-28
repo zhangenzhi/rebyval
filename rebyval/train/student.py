@@ -454,7 +454,7 @@ class Student(object):
         # self.experience_buffer['Q'] = Q
         
         if self.supervisor == None:
-            # baseline withoud q-net
+            # baseline without q-net
             s = len(self.experience_buffer['rewards'])
             Q = [self.experience_buffer['rewards'][-1]] 
             for i in reversed(range(s-1)):
@@ -476,7 +476,6 @@ class Student(object):
                 Q.append(values)
                     
             self.experience_buffer['Q'] = Q
-
 
         self._write_trail_to_tfrecord(self.experience_buffer)
         with self.logger.as_default():
