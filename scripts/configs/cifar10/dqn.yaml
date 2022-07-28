@@ -2,7 +2,7 @@ experiment:
   context:
     name: fda-nq
     devices: [0,1,2,3]
-    multi-p: True
+    multi-p: False
     dist: False
 
   main_loop:
