@@ -193,8 +193,6 @@ class Cifar10RLStudent(Student):
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         # Valid
-                        import pdb
-                        pdb.set_trace()
                         if self.gloabl_train_step % self.valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
@@ -206,6 +204,8 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ev_metric = tf.reduce_mean(v_metrics)
+                            import pdb
+                            pdb.set_trace()
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
