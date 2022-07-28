@@ -13,7 +13,6 @@ class Cifar10RLStudent(Student):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
-        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
         self.index_max = 0
         self.gloabl_train_step = 0
         self.valid_gap = 100
@@ -151,6 +150,9 @@ class Cifar10RLStudent(Student):
         return t_loss, E_q, act, reduced_grads, self.values
 
     def train(self, new_student=None, supervisor_info=None):
+        
+        # action_sample
+        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
