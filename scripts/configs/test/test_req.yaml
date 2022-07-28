@@ -8,8 +8,8 @@ experiment:
     warmup: 
       student_nums: 5
       supervisor_trains: 1
-    nums: 100
-    student_nums: 8
+    nums: 1
+    student_nums: 4
 
   student:
     dataloader:
@@ -33,7 +33,7 @@ experiment:
         train:
           lr_decay: False
           action: fix
-          policy: greedy
+          policy: e-greedy
         valid:
           weight_space:
             format: sum_reduce
@@ -47,14 +47,14 @@ experiment:
       epochs: 10
     model:
       name: dnn # default dnn
-      units: [128,64,32,1] # default 128,64,64,32
+      units: [128,64,32,10] # default 128,64,64,32
       embedding: True
-      activations: [relu,relu,relu,relu] # default relu
+      activations: [relu,relu,relu,softmax] # default relu
     optimizer:
       name: sgd
       learning_rate: 0.01
     loss:
-      name: MeanAbsoluteError #MeanAbsoluteError 
+      name: MeanSquaredError #MeanAbsoluteError 
     train_loop:
         valid:
           valid_gap: 100 

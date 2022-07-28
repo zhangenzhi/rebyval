@@ -425,7 +425,7 @@ class Student(object):
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
         
-    def mem_experience_buffer(self, weight, metric, action, E_Q=0, step=0):
+    def mem_experience_buffer(self, weight, metric, action, values, E_Q=0, step=0):
                   
         state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
         self.experience_buffer['states'].append(state)
@@ -433,46 +433,49 @@ class Student(object):
         self.experience_buffer['metrics'].append(metric)
         
         # reward function
-        if metric > self.best_metric:
-            self.best_metric = metric + self.baseline/10
-        if metric <= self.baseline:
-             self.experience_buffer['rewards'].append(tf.constant(0.0))
-        else:
-            self.experience_buffer['rewards'].append(metric - self.baseline)
+        self.experience_buffer['rewards'].append(metric)
         self.experience_buffer['E_Q'].append(tf.cast(E_Q, tf.float32))
         
+        # expect state values 
+        self.experience_buffer['values'].append(values)
         self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
-    def save_experience(self, df=0.9):
+    def save_experience(self, df=0.95):
 
         
         # actual limitted Q value
-        s = len(self.experience_buffer['rewards'])
-        Q = [self.experience_buffer['rewards'][-1]] 
-        for i in reversed(range(s-1)):
-            q_value = self.experience_buffer['rewards'][i] + df*Q[0]
-            Q.insert(0, q_value)
-        self.experience_buffer['Q'] = Q
-
-        # ForkedPdb().set_trace()
         # s = len(self.experience_buffer['rewards'])
-        # end_Q = sum([df**i*self.experience_buffer['rewards'][i] for i in reversed(range(s))])
-        # Q = [end_Q] 
+        # Q = [self.experience_buffer['rewards'][-1]] 
         # for i in reversed(range(s-1)):
         #     q_value = self.experience_buffer['rewards'][i] + df*Q[0]
         #     Q.insert(0, q_value)
         # self.experience_buffer['Q'] = Q
-
         
-        # # boostrap Q value
-        # s = len(self.experience_buffer['rewards'])
-        # Q = []
-        # for i in range(s):
-        #     q_value = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i]
-        #     Q.append(q_value)
-        # self.experience_buffer['Q'] = Q
+        if self.supervisor == None:
+            # baseline withoud q-net
+            s = len(self.experience_buffer['rewards'])
+            Q = [self.experience_buffer['rewards'][-1]] 
+            for i in reversed(range(s-1)):
+                q_value = self.experience_buffer['rewards'][i] + df*Q[0]
+                Q.insert(0, q_value)
+            self.experience_buffer['Q'] = Q
+        else:
+            # boostrap Q value
+            s = len(self.experience_buffer['rewards'])
+            Q = []
+            for i in range(s):
+                act_q = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i+1]
+                values = self.experience_buffer['values'][i]
+                if self.id%10 != 0:
+                    idx = max(range(len(values)), key=values.__getitem__)
+                else:
+                    idx = 1
+                values[idx] = act_q
+                Q.append(values)
+                    
+            self.experience_buffer['Q'] = Q
 
 
         self._write_trail_to_tfrecord(self.experience_buffer)

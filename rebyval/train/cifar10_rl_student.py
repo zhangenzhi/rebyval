@@ -13,6 +13,7 @@ class Cifar10RLStudent(Student):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
+        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
         self.index_max = 0
         self.gloabl_train_step = 0
         self.valid_gap = 100
@@ -85,26 +86,16 @@ class Cifar10RLStudent(Student):
         return self.action_sample, self.values
     
     def fix_action(self, t_grad):
-        # fixed action with pseudo sgd
-        flat_grads = [tf.reshape(tf.math.reduce_sum(g, axis= -1), shape=(-1)) for g in t_grad]
-        flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
-        flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
-        flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
-        if self.id % 10 == 0:
-            self.action_sample = tf.random.uniform(minval=1.0, maxval=1.0, shape=(10,1))
-        else:
-            self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
-        scaled_gards = flat_grad * self.action_sample
-        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-        # scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-        # select wights with best Q-value
-        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
-        states_actions = {'state':var_copy, 'action':scaled_gards,'step':steps}
-        self.values = self.supervisor(states_actions)
+        flat_weights = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
+        state = tf.reshape(tf.concat(flat_weights, axis=0), (1,-1))
+        self.values = self.supervisor(state)
         return self.action_sample, self.values
     
     def greedy_policy(self, values):
-        return max(range(len(values)), key=values.__getitem__) 
+        if self.id%10==0:
+            return self.action_sample
+        else:
+            return max(range(len(values)), key=values.__getitem__) 
     
     def e_greedy_policy(self, values, epsilon=0.1):
         roll = np.random.uniform()
