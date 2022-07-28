@@ -98,8 +98,8 @@ class StudentProcess(mp.Process):
 
     def run(self):
 
-        # gpus = tf.config.experimental.list_physical_devices("GPU")
-        # print_red("Init Student:{} Process on Device:{}.".format(self.student.id, gpus))
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        print_red("Init Student:{} Process on Device:{}.".format(self.student.id, gpus))
         self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
