@@ -180,6 +180,7 @@ class Cifar10RLStudent(Student):
                             train_loss, grads = self._train_step(data['inputs'], data['labels'])
                             act_grad = tf.concat([tf.reshape(tf.reduce_sum(g,axis=-1),(1,-1)) for g in grads], axis=-1)
                             action = tf.ones(shape=act_grad.shape, dtype=tf.float32) if self.train_args['action']=='elem' else 1.0
+                            values = -1.0
                             E_Q = -1.0
                         else:
                             train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
@@ -204,6 +205,7 @@ class Cifar10RLStudent(Student):
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
+                                                       values=values,
                                                        E_Q = E_Q,
                                                        step=self.gloabl_train_step)
                         self.gloabl_train_step += 1
