@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fda-mse
+    name: fda-nq
     devices: [0,1,2,3]
     multi-p: True
     dist: False
