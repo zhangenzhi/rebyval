@@ -36,7 +36,7 @@ class Cifar10RLSupervisor(Supervisor):
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         with tf.GradientTape() as tape:
-            predictions = self.model(inputs, training=True)
+            predictions = self.model(inputs, training=True)+1.0
             predictions = tf.squeeze(predictions)
             loss = self.loss_fn(labels, predictions)
 
