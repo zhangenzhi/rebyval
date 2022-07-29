@@ -461,13 +461,11 @@ class Student(object):
                 q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
                 t_Q.insert(0, q_value)
             Q = []
-            import pdb
-            pdb.set_trace()
             for i in range(len(t_Q)):
                 values = self.experience_buffer['values'][i]
-                list_values = list(values.numpy())
-                list_values[1] = t_Q[i]
-                Q.append(tf.constant(list_values))
+                np_values = values.numpy()
+                np_values[1] = t_Q[i].numpy()
+                Q.append(tf.constant(np_values))
             self.experience_buffer['Q'] = Q
         else:
             # boostrap Q value
