@@ -204,8 +204,7 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ev_metric = tf.reduce_mean(v_metrics)
-                            import pdb
-                            pdb.set_trace()
+                                
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
