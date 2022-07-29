@@ -82,8 +82,6 @@ class Cifar10RLSupervisor(Supervisor):
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
         try:
-            import pdb
-            pdb.set_trace()
             predictions = self.model(inputs, training=True)
             predictions = tf.squeeze(predictions)
             labels = tf.reshape(labels,predictions.shape)
