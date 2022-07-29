@@ -183,7 +183,7 @@ class Cifar10RLStudent(Student):
                             act_grad = tf.concat([tf.reshape(tf.reduce_sum(g,axis=-1),(1,-1)) for g in grads], axis=-1)
                             action = tf.ones(shape=act_grad.shape, dtype=tf.float32) if self.train_args['action']=='elem' else 1.0
                             values = tf.ones(shape=self.action_sample.shape, dtype=tf.float32)
-                            E_Q = 1.0
+                            E_Q = 0.0
                         else:
                             train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                             with self.logger.as_default():

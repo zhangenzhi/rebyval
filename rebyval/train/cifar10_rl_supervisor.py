@@ -70,7 +70,7 @@ class Cifar10RLSupervisor(Supervisor):
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels):
         try:
-            predictions = self.model(inputs, training=False)+1.0
+            predictions = self.model(inputs, training=False)
             predictions = tf.squeeze(predictions)
             labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
@@ -84,7 +84,7 @@ class Cifar10RLSupervisor(Supervisor):
         try:
             import pdb
             pdb.set_trace()
-            predictions = self.model(inputs, training=True)+1.0
+            predictions = self.model(inputs, training=True)
             predictions = tf.squeeze(predictions)
             labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
