@@ -477,7 +477,7 @@ class Student(object):
                 values = self.experience_buffer['values'][i]
                 np_values = values.numpy()
                 if self.id%10 != 0:
-                    idx = max(range(len(values)), key=values.__getitem__)
+                    idx = self.act_idx[i]
                 else:
                     idx = 1
                 np_values[idx] = act_q
