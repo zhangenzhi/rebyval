@@ -461,8 +461,9 @@ class Student(object):
                 q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
                 t_Q.insert(0, q_value)
             Q = []
-            for v in t_Q:
-                values[1] = v
+            for i in range(len(t_Q)):
+                values = self.experience_buffer['values'][i]
+                values[1] = t_Q[i]
                 Q.append(values)
             self.experience_buffer['Q'] = Q
         else:
@@ -486,4 +487,7 @@ class Student(object):
             for i in range(len(Q)):
                 tf.summary.scalar("T_Q", Q[i], step=i)
         print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
-        return self.best_metric - self.baseline/10              
+        return self.best_metric - self.baseline/10
+    
+    def evaluate(self):
+        pass              
