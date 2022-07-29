@@ -425,7 +425,7 @@ class Student(object):
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
         
-    def mem_experience_buffer(self, weight, metric, action, values, E_Q=0, step=0):
+    def mem_experience_buffer(self, weight, metric, action, values, E_Q=1.0, step=0):
                   
         state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
         self.experience_buffer['states'].append(state)
@@ -474,12 +474,13 @@ class Student(object):
             for i in range(s):
                 act_q = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i+1]
                 values = self.experience_buffer['values'][i]
+                np_values = values.numpy()
                 if self.id%10 != 0:
                     idx = max(range(len(values)), key=values.__getitem__)
                 else:
                     idx = 1
-                values[idx] = act_q
-                Q.append(values)
+                np_values[idx] = act_q
+                Q.append(tf.constant(np_values))
                     
             self.experience_buffer['Q'] = Q
 
