@@ -101,6 +101,7 @@ class DNN(tf.keras.Model):
             
         else:
             self.state_emb = Linear(units=1024)
+            self.state_bn = keras.layers.BatchNormalization()
             # self.action_emb = Linear(units=1024)
             # self.step_emb   = Linear(units=256)
 
@@ -134,7 +135,8 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
 
         if self.embedding:
-            s_x = self.state_emb(inputs['state'])
+            s_x = self.state_bn(inputs['state'])
+            s_x = self.state_emb(s_x)
             # a_x = self.action_emb(inputs['action'])
             # t_x = self.step_emb(inputs['step'])
             
