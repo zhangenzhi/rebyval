@@ -38,7 +38,7 @@ class Cifar10RLSupervisor(Supervisor):
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)+1.0
             predictions = tf.squeeze(predictions)
-            labels = tf.squeeze(labels)
+            labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
 
         gradients = tape.gradient(loss, self.model.trainable_variables)
@@ -82,11 +82,9 @@ class Cifar10RLSupervisor(Supervisor):
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
         try:
-            import pdb
-            pdb.set_trace()
             predictions = self.model(inputs, training=True)+1.0
             predictions = tf.squeeze(predictions)
-            labels = tf.squeeze(labels)
+            labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
         except:
             print_error("test step error.")
