@@ -463,8 +463,9 @@ class Student(object):
             Q = []
             for i in range(len(t_Q)):
                 values = self.experience_buffer['values'][i]
-                values[1] = t_Q[i]
-                Q.append(values)
+                list_values = list(values.numpy())
+                list_values[1] = t_Q[i]
+                Q.append(tf.constant(list_values))
             self.experience_buffer['Q'] = Q
         else:
             # boostrap Q value
