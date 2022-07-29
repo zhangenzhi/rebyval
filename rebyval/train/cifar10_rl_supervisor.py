@@ -17,19 +17,13 @@ class Cifar10RLSupervisor(Supervisor):
     def preprocess_weightspace(self, raw_inputs):
         # label
         labels = raw_inputs.pop('Q')
-        # labels = tf.reshape(labels,shape=(-1,1))
 
-        # # states
-        # inputs = raw_inputs.pop('states')
-        # ForkedPdb().set_trace()
         # states & actions
         state = raw_inputs.pop('states')
         act_grad = raw_inputs.pop('act_grads')
         step = tf.reshape(raw_inputs.pop('steps'), shape=(-1,1,1))
         
         inputs = {'state':state, 'action':act_grad}
-        
-        # inputs = tf.reshape(inputs,shape=(labels.shape[0],-1))
         
         return inputs, labels
         
