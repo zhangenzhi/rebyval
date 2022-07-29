@@ -456,10 +456,14 @@ class Student(object):
         if self.supervisor == None:
             # baseline without q-net
             s = len(self.experience_buffer['rewards'])
-            Q = [self.experience_buffer['rewards'][-1]] 
+            t_Q = [self.experience_buffer['rewards'][-1]] 
             for i in reversed(range(s-1)):
-                q_value = self.experience_buffer['rewards'][i] + df*Q[0]
-                Q.insert(0, q_value)
+                q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
+                t_Q.insert(0, q_value)
+            Q = []
+            for v in t_Q:
+                values[1] = v
+                Q.append(values)
             self.experience_buffer['Q'] = Q
         else:
             # boostrap Q value
