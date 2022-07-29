@@ -93,7 +93,7 @@ class Cifar10RLStudent(Student):
     
     def greedy_policy(self, values):
         if self.id%10==0:
-            return self.action_sample
+            return 1
         else:
             return max(range(len(values)), key=values.__getitem__) 
     
