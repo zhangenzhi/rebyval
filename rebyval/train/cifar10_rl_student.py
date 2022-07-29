@@ -87,6 +87,8 @@ class Cifar10RLStudent(Student):
     def fix_action(self, t_grad):
         flat_weights = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
         state = tf.reshape(tf.concat(flat_weights, axis=0), (1,-1))
+        import pdb
+        pdb.set_trace()
         self.values = self.supervisor(state)
         return self.action_sample, self.values
     
