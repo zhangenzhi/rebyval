@@ -481,7 +481,7 @@ class Student(object):
                 else:
                     idx = 1
                 np_values[idx] = act_q
-                Q.append(tf.constant(np_values))
+                Q.append(tf.reshape(tf.constant(np_values),shape=(-1,1)))
                     
             self.experience_buffer['Q'] = Q
 
