@@ -71,7 +71,7 @@ class Cifar10RLSupervisor(Supervisor):
         try:
             predictions = self.model(inputs, training=False)+1.0
             predictions = tf.squeeze(predictions)
-            labels = tf.squeeze(labels)
+            labels = tf.reshape(labels,(-1,))
             loss = self.loss_fn(labels, predictions)
         except:
             print_error("valid step error.")
@@ -83,7 +83,7 @@ class Cifar10RLSupervisor(Supervisor):
         try:
             import pdb
             pdb.set_trace()
-            predictions = self.model(inputs, training=True)
+            predictions = self.model(inputs, training=True)+1.0
             predictions = tf.squeeze(predictions)
             labels = tf.squeeze(labels)
             loss = self.loss_fn(labels, predictions)
