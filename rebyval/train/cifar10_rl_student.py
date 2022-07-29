@@ -14,6 +14,7 @@ class Cifar10RLStudent(Student):
 
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_max = 0
+        self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
         
@@ -128,6 +129,7 @@ class Cifar10RLStudent(Student):
                 self.index_max = self.e_greedy_policy(self.values)
             else:
                 self.index_max = self.greedy_policy(self.values)
+            self.act_idx.append(self.index_max) 
 
         # next state
         if self.train_args['action'] == 'elem':

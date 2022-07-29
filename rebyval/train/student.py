@@ -472,7 +472,8 @@ class Student(object):
             s = len(self.experience_buffer['rewards'])
             Q = []
             for i in range(s):
-                act_q = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i+1]
+                e_q = self.experience_buffer['E_Q'][i+1] if i+1!=s else self.experience_buffer['E_Q'][-1]
+                act_q = self.experience_buffer['rewards'][i] + df*e_q
                 values = self.experience_buffer['values'][i]
                 np_values = values.numpy()
                 if self.id%10 != 0:
