@@ -58,6 +58,7 @@ class Cifar10RLSupervisor(Supervisor):
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             predictions = tf.squeeze(predictions)
+            labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
@@ -71,7 +72,7 @@ class Cifar10RLSupervisor(Supervisor):
         try:
             predictions = self.model(inputs, training=False)+1.0
             predictions = tf.squeeze(predictions)
-            labels = tf.reshape(labels,(-1,))
+            labels = tf.reshape(labels,predictions.shape)
             loss = self.loss_fn(labels, predictions)
         except:
             print_error("valid step error.")
