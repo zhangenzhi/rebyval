@@ -147,8 +147,4 @@ class Cifar10RLSupervisor(Supervisor):
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels)
                 t.set_postfix(se_loss=t_loss.numpy())
-                
-        if self.id == 10:
-            import pdb
-            pdb.set_trace()
         # self.model.summary()

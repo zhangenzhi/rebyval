@@ -34,7 +34,7 @@ experiment:
         train:
           lr_decay: False
           action: fix
-          policy: greedy
+          policy: e_greedy
         valid:
           weight_space:
             format: sum_reduce

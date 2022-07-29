@@ -443,15 +443,6 @@ class Student(object):
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
     def save_experience(self, df=0.9):
-
-        
-        # actual limitted Q value
-        # s = len(self.experience_buffer['rewards'])
-        # Q = [self.experience_buffer['rewards'][-1]] 
-        # for i in reversed(range(s-1)):
-        #     q_value = self.experience_buffer['rewards'][i] + df*Q[0]
-        #     Q.insert(0, q_value)
-        # self.experience_buffer['Q'] = Q
         
         if self.supervisor == None:
             # baseline without q-net
