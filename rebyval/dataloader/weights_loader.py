@@ -137,7 +137,7 @@ class DNNWeightsLoader(BaseDataLoader):
             filelist = self.replay_buffer
                 
         
-        
+        self.info = self.get_info_inference(num_of_students=len(filelist),sample_per_student=self.info['sample_per_student'])
         full_dataset = self._load_tensor_from_tfrecord(filelist=filelist, feature_config=self.feature_config)
         full_dataset = full_dataset.shuffle(self.info['total_samples'])
         
