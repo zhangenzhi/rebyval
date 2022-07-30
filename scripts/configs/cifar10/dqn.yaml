@@ -1,13 +1,13 @@
 experiment:
   context:
-    name: nq-dexp
+    name: nq-dexp-e5
     devices: [0,1,2,3]
     multi-p: False
     dist: False
 
   main_loop:
     warmup: 
-      student_nums: 0
+      student_nums: 5
       supervisor_trains: 1
     nums: 1000
     student_nums: 1
@@ -44,7 +44,7 @@ experiment:
     dataloader:
       name: dnn_sr_RL
       exp: decay
-      replay_window: 8
+      replay_window: 32
       batch_size: 32
       epochs: 100
     model:

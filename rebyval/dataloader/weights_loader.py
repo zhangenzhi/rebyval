@@ -14,6 +14,7 @@ class DNNWeightsLoader(BaseDataLoader):
         super(DNNWeightsLoader, self).__init__(dataloader_args=dataloader_args)
         self.feature_config, self.info = self._feature_config_parse(self.dataloader_args['path'], 
                                                     name='feature_configs.yaml')
+        self.replay_buffer = []
         self.replay_buffer = self._build_replay_buffer()
         
     def _build_replay_buffer(self):
