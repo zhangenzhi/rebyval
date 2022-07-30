@@ -17,7 +17,7 @@ class DNNWeightsLoader(BaseDataLoader):
         self.replay_buffer = self._build_replay_buffer()
         
     def _build_replay_buffer(self):
-
+        # Take care of random restart
         replay_buffer = glob_tfrecords(
         self.dataloader_args['path'], glob_pattern='*.tfrecords')
         if len(replay_buffer) > self.dataloader_args["replay_window"]:
@@ -117,12 +117,26 @@ class DNNWeightsLoader(BaseDataLoader):
         
         print_green("weight_space_path:{}".format(self.dataloader_args['path']))
         filelist = glob_tfrecords(self.dataloader_args['path'], glob_pattern='*.tfrecords')
-        if len(filelist) > self.dataloader_args['replay_window']:
-            random.shuffle(filelist)
-            filelist = list(set(filelist) - set(new_students))
-            past = [filelist.pop() for _ in range(self.dataloader_args['replay_window'] - len(new_students))]
-            filelist = new_students + past
-        print("filelist length: {}".format(len(filelist)))
+        
+        # random exp
+        if self.dataloader_args['exp'] == "random":
+            if len(filelist) > self.dataloader_args['replay_window']:
+                random.shuffle(filelist)
+                filelist = list(set(filelist) - set(new_students))
+                past = [filelist.pop() for _ in range(self.dataloader_args['replay_window'] - len(new_students))]
+                filelist = new_students + past
+            print("filelist length: {}".format(len(filelist)))
+        elif self.dataloader_args['exp'] == "decay":
+            #decay exp
+            if len(self.replay_buffer) > self.dataloader_args['replay_window']:
+                for i in range(len(new_students)):
+                    self.replay_buffer.pop(0)
+                self.replay_buffer += new_students
+            else:
+                self.replay_buffer += new_students
+            filelist = self.replay_buffer
+                
+        
         
         full_dataset = self._load_tensor_from_tfrecord(filelist=filelist, feature_config=self.feature_config)
         full_dataset = full_dataset.shuffle(self.info['total_samples'])
