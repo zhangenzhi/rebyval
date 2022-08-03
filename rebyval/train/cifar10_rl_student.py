@@ -98,11 +98,13 @@ class Cifar10RLStudent(Student):
             return max(range(len(values)), key=values.__getitem__) 
     
     def e_greedy_policy(self, values):
+        
+        if self.id%10==0:
+            return max(range(len(values)), key=values.__getitem__) 
+        
         roll = np.random.uniform()
         if roll < self.epsilon:
             return np.random.randint(len(values))
-        elif self.id%10==0:
-            return max(range(len(values)), key=values.__getitem__) 
         else:
             return max(range(len(values)), key=values.__getitem__) 
     
