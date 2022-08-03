@@ -11,12 +11,12 @@ class Cifar10RLStudent(Student):
     
     def __init__(self, student_args, supervisor = None, id = 0):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
-
-        self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
+        
         self.index_max = 0
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
+        self.epsilon = 0.5
         
         
     def elem_action(self, t_grad, num_act=1000):
@@ -97,10 +97,12 @@ class Cifar10RLStudent(Student):
         else:
             return max(range(len(values)), key=values.__getitem__) 
     
-    def e_greedy_policy(self, values, epsilon=0.5):
+    def e_greedy_policy(self, values):
         roll = np.random.uniform()
-        if roll < epsilon:
+        if roll < self.epsilon:
             return np.random.randint(len(values))
+        elif self.id%10==0:
+            return max(range(len(values)), key=values.__getitem__) 
         else:
             return max(range(len(values)), key=values.__getitem__) 
     
