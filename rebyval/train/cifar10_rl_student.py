@@ -105,6 +105,7 @@ class Cifar10RLStudent(Student):
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+        scaled_vars = tf.reshape(scaled_vars,shape=(10,1,-1))
         # select wights with best Q-value
         steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':scaled_vars, 'action':scaled_gards,'step':steps}
