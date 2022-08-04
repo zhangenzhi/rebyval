@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: nq-dexp-e5-max-b1
+    name: td-dexp-e5-max-b1
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -36,7 +36,7 @@ experiment:
           action: fix
           policy: e_greedy
         valid:
-          q_mode: static
+          q_mode: TD
           weight_space:
             format: sum_reduce
           valid_gap: 100
@@ -50,7 +50,7 @@ experiment:
       epochs: 100
     model:
       name: dnn # default dnn
-      units: [128,64,32,1] # default 128,64,64,32
+      units: [128,64,32,10] # default 128,64,64,32
       embedding: True
       activations: [relu,relu,relu,relu] # default relu
     optimizer:

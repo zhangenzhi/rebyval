@@ -442,10 +442,41 @@ class Student(object):
         self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
-    def save_experience(self, df=0.9):
+    def save_experience(self, q_mode="TD", df=0.9):
         
-        if self.supervisor == None:
-            # baseline without q-net
+        if q_mode == "TD":
+            if self.supervisor == None:
+                # baseline without q-net
+                s = len(self.experience_buffer['rewards'])
+                t_Q = [self.experience_buffer['rewards'][-1]] 
+                for i in reversed(range(s-1)):
+                    q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
+                    t_Q.insert(0, q_value)
+                Q = []
+                for i in range(len(t_Q)):
+                    values = self.experience_buffer['values'][i]
+                    np_values = values.numpy()
+                    np_values[1] = t_Q[i].numpy()
+                    Q.append(tf.constant(np_values))
+                self.experience_buffer['Q'] = Q
+            else:
+                # boostrap Q value
+                s = len(self.experience_buffer['rewards'])
+                Q = []
+                for i in range(s):
+                    e_q = self.experience_buffer['E_Q'][i+1] if i+1!=s else self.experience_buffer['E_Q'][-1]
+                    act_q = self.experience_buffer['rewards'][i] + df*e_q
+                    values = self.experience_buffer['values'][i]
+                    np_values = values.numpy()
+                    if self.id%10 != 0:
+                        idx = self.act_idx[i]
+                    else:
+                        idx = 1
+                    np_values[idx] = act_q
+                    Q.append(tf.reshape(tf.constant(np_values),shape=(-1,1)))
+                        
+                self.experience_buffer['Q'] = Q
+        else:
             s = len(self.experience_buffer['rewards'])
             t_Q = [self.experience_buffer['rewards'][-1]] 
             for i in reversed(range(s-1)):
@@ -458,30 +489,11 @@ class Student(object):
                 np_values[1] = t_Q[i].numpy()
                 Q.append(tf.constant(np_values))
             self.experience_buffer['Q'] = Q
-        else:
-            # boostrap Q value
-            s = len(self.experience_buffer['rewards'])
-            Q = []
-            for i in range(s):
-                e_q = self.experience_buffer['E_Q'][i+1] if i+1!=s else self.experience_buffer['E_Q'][-1]
-                act_q = self.experience_buffer['rewards'][i] + df*e_q
-                values = self.experience_buffer['values'][i]
-                np_values = values.numpy()
-                if self.id%10 != 0:
-                    idx = self.act_idx[i]
-                else:
-                    idx = 1
-                np_values[idx] = act_q
-                Q.append(tf.reshape(tf.constant(np_values),shape=(-1,1)))
-                    
-            self.experience_buffer['Q'] = Q
+            
 
         self._write_trail_to_tfrecord(self.experience_buffer)
         with self.logger.as_default():
             for i in range(len(Q)):
                 tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
         print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
-        return self.best_metric - self.baseline/10
-    
-    def evaluate(self):
-        pass              
+        return self.best_metric - self.baseline/10     
