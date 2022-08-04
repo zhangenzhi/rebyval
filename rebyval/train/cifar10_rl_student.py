@@ -248,7 +248,7 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
         # self.model.summary()
-        self.save_experience()
+        self.save_experience(q_mode=self.valid_args["q_mode"])
                 
                 
         

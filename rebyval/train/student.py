@@ -442,7 +442,7 @@ class Student(object):
         self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
-    def save_experience(self, q_mode="TD", df=0.9):
+    def save_experience(self, q_mode="static", df=0.9):
         
         if q_mode == "TD":
             if self.supervisor == None:
