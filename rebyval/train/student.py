@@ -482,13 +482,7 @@ class Student(object):
             for i in reversed(range(s-1)):
                 q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
                 t_Q.insert(0, q_value)
-            Q = []
-            for i in range(len(t_Q)):
-                values = self.experience_buffer['values'][i]
-                np_values = values.numpy()
-                np_values[1] = t_Q[i].numpy()
-                Q.append(tf.constant(np_values))
-            self.experience_buffer['Q'] = Q
+            self.experience_buffer['Q'] = t_Q
             
 
         self._write_trail_to_tfrecord(self.experience_buffer)
