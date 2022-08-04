@@ -224,7 +224,6 @@ class Cifar10RLStudent(Student):
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
                                                        action=(action, act_grad), 
-                                                       values=values,
                                                        E_Q = E_Q,
                                                        step=self.gloabl_train_step)
                         self.gloabl_train_step += 1
