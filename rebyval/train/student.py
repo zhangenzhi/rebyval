@@ -479,11 +479,11 @@ class Student(object):
                 self.experience_buffer['Q'] = Q
         else:
             s = len(self.experience_buffer['rewards'])
-            t_Q = [self.experience_buffer['rewards'][-1]] 
+            Q = [self.experience_buffer['rewards'][-1]] 
             for i in reversed(range(s-1)):
-                q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
-                t_Q.insert(0, q_value)
-            self.experience_buffer['Q'] = t_Q
+                q_value = self.experience_buffer['rewards'][i] + df*Q[0]
+                Q.insert(0, q_value)
+            self.experience_buffer['Q'] = Q
             
 
         self._write_trail_to_tfrecord(self.experience_buffer)
