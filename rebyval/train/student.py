@@ -491,7 +491,9 @@ class Student(object):
                 for i in range(len(Q)):
                     tf.summary.scalar("T_Q", tf.squeeze(Q[i]), step=i)
             
-
+        import pdb
+        pdb.set_trace()
+        
         self._write_trail_to_tfrecord(self.experience_buffer)
 
         return self.best_metric - self.baseline/10     
