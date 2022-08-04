@@ -437,7 +437,8 @@ class Student(object):
         self.experience_buffer['E_Q'].append(tf.cast(E_Q, tf.float32))
         
         # expect state values 
-        self.experience_buffer['values'].append(values)
+        if values !=None :
+            self.experience_buffer['values'].append(values)
         self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['act_grads'].append(action[1])
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
