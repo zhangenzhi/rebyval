@@ -18,6 +18,12 @@ class Cifar10RLStudent(Student):
         self.valid_gap = 100
         self.epsilon = 0.5
         
+        ## RL
+        self.best_metric = 0.5
+        self.baseline = 0.1
+        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[],
+                                  'act_grads':[],'E_Q':[], 'steps':[]}
+        
         
     def elem_action(self, t_grad, num_act=1000):
         # fixed action with pseudo sgd
