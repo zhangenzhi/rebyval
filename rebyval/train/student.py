@@ -477,6 +477,9 @@ class Student(object):
                     Q.append(tf.reshape(tf.constant(np_values),shape=(-1,1)))
                         
                 self.experience_buffer['Q'] = Q
+            with self.logger.as_default():
+                for i in range(len(Q)):
+                    tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
         else:
             s = len(self.experience_buffer['rewards'])
             Q = [self.experience_buffer['rewards'][-1]] 
@@ -484,11 +487,11 @@ class Student(object):
                 q_value = self.experience_buffer['rewards'][i] + df*Q[0]
                 Q.insert(0, q_value)
             self.experience_buffer['Q'] = Q
+            with self.logger.as_default():
+                for i in range(len(Q)):
+                    tf.summary.scalar("T_Q", tf.squeeze(Q[i]), step=i)
             
 
         self._write_trail_to_tfrecord(self.experience_buffer)
-        with self.logger.as_default():
-            for i in range(len(Q)):
-                tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
-        print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
+
         return self.best_metric - self.baseline/10     
