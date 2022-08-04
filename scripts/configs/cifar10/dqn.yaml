@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: nq-dexp-e5-max-b1
+    name: sv
     devices: [0,1,2,3]
     multi-p: False
     dist: False
