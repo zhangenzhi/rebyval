@@ -9,14 +9,14 @@ experiment:
     warmup: 
       student_nums: 5
       supervisor_trains: 1
-    nums: 1
+    nums: 1000
     student_nums: 1
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 512
-      epochs: 10
+      epochs: 100
       da: True
       task: RL
     model:
