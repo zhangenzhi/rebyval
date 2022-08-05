@@ -98,7 +98,7 @@ class Cifar10RLStudent(Student):
         flat_vars = [tf.reshape(tf.math.reduce_sum(v, axis= -1), shape=(-1)) for v in self.model.trainable_variables] 
         flat_grad = tf.reshape(tf.concat(flat_grads, axis=0), (1,-1))
         flat_var = tf.reshape(tf.concat(flat_vars, axis=0), (1,-1))
-        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.0], dtype=tf.float32),shape=(-1,1))
+        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate

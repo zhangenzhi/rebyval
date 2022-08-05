@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: sv-max
+    name: sv-gp10
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -39,7 +39,7 @@ experiment:
           q_mode: static
           weight_space:
             format: sum_reduce
-          valid_gap: 100
+          valid_gap: 10
 
   supervisor:
     dataloader:
