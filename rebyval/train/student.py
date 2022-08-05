@@ -107,7 +107,11 @@ class Student(object):
             "student-{}-".format(self.id) + \
             datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
-        check_mkdir(logdir)
+        if self.dist:
+            if hvd.local_rank() == 0:
+                check_mkdir(logdir)
+        else:
+            check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
         return logger
 
