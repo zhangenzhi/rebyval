@@ -207,10 +207,10 @@ class Student(object):
 
                 # lr decay
                 if train_args["lr_decay"]:
-                    if epoch/total_epochs == 0.5:
+                    if epoch == int(0.5*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                    elif epoch/total_epochs == 0.75:
+                    elif epoch == int(0.75*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
