@@ -97,6 +97,7 @@ class Student(object):
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
         if self.dist:
+            optimizer.learning_rate = optimizer.learning_rate * hvd.size()
             optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
@@ -190,8 +191,10 @@ class Student(object):
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
         
-
-        total_epochs = self.dataloader.info['epochs'] if not self.dist else int(self.dataloader.info['epochs']/hvd.size())
+        
+        total_epochs = self.dataloader.info['epochs']  
+        if self.dist:
+            total_epochs = int(total_epochs/hvd.size())
         train_steps_per_epoch = self.dataloader.info['train_step']
 
         if supervisor_info != None:
