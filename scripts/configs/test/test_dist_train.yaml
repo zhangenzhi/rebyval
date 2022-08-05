@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: dist-test
+    name: dist-train
     devices: [0,1,2,3]
     multi-p: False
     dist: True
