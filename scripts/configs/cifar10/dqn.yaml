@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: sv
+    name: sv-max
     devices: [0,1,2,3]
     multi-p: False
     dist: False
