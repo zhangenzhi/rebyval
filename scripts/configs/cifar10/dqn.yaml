@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: sv-gp10
+    name: sv-gp10-su10
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -8,7 +8,7 @@ experiment:
   main_loop:
     warmup: 
       student_nums: 5
-      supervisor_trains: 1
+      supervisor_trains: 5
     nums: 1000
     student_nums: 1
 
@@ -47,7 +47,7 @@ experiment:
       exp: decay
       replay_window: 32
       batch_size: 32
-      epochs: 100
+      epochs: 10
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
