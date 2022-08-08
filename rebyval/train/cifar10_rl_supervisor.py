@@ -3,7 +3,6 @@ from tqdm import trange
 
 from rebyval.train.supervisor import Supervisor
 from rebyval.tools.utils import print_error
-from rebyval.train.utils import ForkedPdb
 
 class Cifar10RLSupervisor(Supervisor):
     def __init__(self, supervisor_args, logger = None, id = 0):
