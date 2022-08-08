@@ -462,7 +462,7 @@ class Student(object):
             keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
             reduced_grads = tf.concat([reduced_grad,keep_grads], axis=-1)
         elif self.valid_args['weight_space'] == 'no_reduce':
-            reduced_grads = gradients
+            reduced_grads = tf.concat([tf.reshape(g,(1,-1)) for g in gradients], axis=1)
         self.experience_buffer['act_grads'].append(reduced_grads)
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
