@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fr
+    name: fr-ep100
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -16,7 +16,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 512
-      epochs: 10
+      epochs: 100
       da: True
       task: RL
     model:
