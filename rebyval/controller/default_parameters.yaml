@@ -30,8 +30,7 @@ experiment:
       train:
         epochs: 10 # default 10
       valid:
-        weight_space:
-            format: tensor #tensor,numpy,tensor_sum_reduce
+        weight_space: tensor #tensor,numpy,tensor_sum_reduce
         save_model:
           save_in: student # or name as your wish
           save_after_epoch: 1 # save latest and best model per 1000 steps
