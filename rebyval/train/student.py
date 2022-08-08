@@ -427,8 +427,16 @@ class Student(object):
         save_yaml_contents(contents=configs, file_path=config_path)
         
     def mem_experience_buffer(self, weight, metric, action, values=None, E_Q=1.0, step=0):
-                  
-        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
+        
+        if self.valid_args['weight_space'] == 'sum_reduce':
+            state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
+        elif self.valid_args['weight_space'] == 'first_reduce':
+            first_layer = weight[:2]
+            last_layer = weight[2:]
+            reduced_state = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in first_layer], axis=-1)
+            keep_state =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
+            state = tf.concat([reduced_state,keep_state], axis=-1)
+            
         self.experience_buffer['states'].append(state)
         
         self.experience_buffer['metrics'].append(metric)

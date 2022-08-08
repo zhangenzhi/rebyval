@@ -169,7 +169,17 @@ class Cifar10RLStudent(Student):
             
         self.mt_loss_fn.update_state(t_loss)
         
-        reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
+        if self.valid_args['weight_space'] == 'sum_reduce':
+            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
+        elif self.valid_args['weight_space'] == 'first_reduce':
+            first_layer = gradients[:2]
+            last_layer = gradients[2:]
+            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
+            keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
+            reduced_grads = tf.concat([reduced_grads,keep_grads], axis=-1)
+        else:
+            reduced_grads = gradients
+            
         E_q = tf.squeeze(self.values[self.index_max])
         return t_loss, E_q, act, reduced_grads, self.values
 
@@ -213,7 +223,7 @@ class Cifar10RLStudent(Student):
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         # Valid
-                        if self.gloabl_train_step % self.valid_args['valid_gap'] == 0:
+                        if self.gloabl_train_step % self.valid_gap == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 vv_metrics = []
