@@ -135,6 +135,8 @@ class DNN(tf.keras.Model):
     def call(self, inputs):
 
         if self.embedding:
+            import pdb
+            pdb.set_trace()
             s_x = self.state_bn(inputs['state'])
             s_x = self.state_emb(s_x)
             # a_x = self.action_emb(inputs['action'])
