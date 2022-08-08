@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fr-ep100
+    name: fr-resnet
     devices: [0,1,2,3]
     multi-p: False
     dist: False
