@@ -11,7 +11,6 @@ from rebyval.dataloader.factory import dataset_factory
 from rebyval.model.factory import model_factory
 
 # others
-from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 

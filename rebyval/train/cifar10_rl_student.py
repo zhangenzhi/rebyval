@@ -270,7 +270,7 @@ class Cifar10RLStudent(Student):
                     
         self.save_experience(q_mode=self.valid_args["q_mode"])
         
-    def save_experience(self, q_mode="static", df=0.9):
+    def save_experience(self, q_mode="static", df=0.99):
         
         if q_mode == "TD":
             if self.supervisor == None:
