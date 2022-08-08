@@ -188,9 +188,9 @@ class Cifar10RLStudent(Student):
         elif self.valid_args['weight_space'] == 'first_reduce':
             first_layer = gradients[:2]
             last_layer = gradients[2:]
-            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
+            reduced_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
             keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
-            reduced_grads = tf.concat([reduced_grads,keep_grads], axis=-1)
+            reduced_grads = tf.concat([reduced_grad,keep_grads], axis=-1)
         else:
             reduced_grads = gradients
             
