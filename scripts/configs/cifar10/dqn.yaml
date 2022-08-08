@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: sv-gp10-su10
+    name: fr-test
     devices: [0,1,2,3]
     multi-p: False
     dist: False
