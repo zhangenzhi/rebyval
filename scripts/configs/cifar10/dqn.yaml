@@ -37,7 +37,7 @@ experiment:
           policy: e_greedy
         valid:
           q_mode: static
-          weight_space: sum_reduce
+          weight_space: first_reduce
           valid_gap: 10
 
   supervisor:
