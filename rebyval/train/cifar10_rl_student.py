@@ -104,7 +104,7 @@ class Cifar10RLStudent(Student):
             flat_grad = tf.concat([reduced_grads,keep_grads], axis=-1)
             
         if self.valid_args['weight_space'] == 'sum_reduce':
-            flat_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in self.model.trainable_variables], axis=-1)
+            flat_var = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in self.model.trainable_variables], axis=-1)
         elif self.valid_args['weight_space'] == 'first_reduce':
             first_layer = self.model.trainable_variables[:2]
             last_layer = self.model.trainable_variables[2:]
