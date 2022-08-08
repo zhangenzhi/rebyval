@@ -182,20 +182,9 @@ class Cifar10RLStudent(Student):
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
         self.mt_loss_fn.update_state(t_loss)
-        
-        if self.valid_args['weight_space'] == 'sum_reduce':
-            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
-        elif self.valid_args['weight_space'] == 'first_reduce':
-            first_layer = gradients[:2]
-            last_layer = gradients[2:]
-            reduced_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
-            keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
-            reduced_grads = tf.concat([reduced_grad,keep_grads], axis=-1)
-        else:
-            reduced_grads = gradients
             
         E_q = tf.squeeze(self.values[self.index_max])
-        return t_loss, E_q, act, reduced_grads, self.values
+        return t_loss, E_q, act, gradients, self.values
 
     def train(self, new_student=None, supervisor_info=None):
         
@@ -224,8 +213,7 @@ class Cifar10RLStudent(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss, grads = self._train_step(data['inputs'], data['labels'])
-                            act_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in grads], axis=-1)
+                            train_loss, act_grad = self._train_step(data['inputs'], data['labels'])
                             action = tf.ones(shape=act_grad.shape, dtype=tf.float32) if self.train_args['action']=='elem' else 1.0
                             E_Q = 0.0
                         else:
