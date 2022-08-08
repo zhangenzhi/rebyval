@@ -48,7 +48,7 @@ experiment:
       batch_size: 32
       epochs: 10
     model:
-      name: resnet56 # default dnn
+      name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
       embedding: True
       activations: [relu,relu,relu,relu] # default relu
