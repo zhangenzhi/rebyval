@@ -38,7 +38,7 @@ experiment:
         valid:
           q_mode: static
           weight_space: no_reduce
-          valid_gap: 10
+          valid_gap: 30
 
   supervisor:
     dataloader:
