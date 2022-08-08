@@ -464,6 +464,9 @@ class Student(object):
         self.experience_buffer['act_grads'].append(reduced_grads)
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
         
+        import pdb
+        pdb.set_trace()
+        
     def save_experience(self, q_mode="static", df=0.9):
         
         if q_mode == "TD":
