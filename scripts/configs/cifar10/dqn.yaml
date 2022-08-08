@@ -45,7 +45,7 @@ experiment:
       name: dnn_sr_RL
       exp: decay
       replay_window: 32
-      batch_size: 32
+      batch_size: 128
       epochs: 10
     model:
       name: dnn # default dnn
