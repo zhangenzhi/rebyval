@@ -100,17 +100,21 @@ class Cifar10RLStudent(Student):
             first_layer = t_grad[:2]
             last_layer = t_grad[2:]
             reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
-            keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
+            keep_grads =tf.concat([tf.reshape(g,(1,-1)) for g in last_layer], axis=-1)
             flat_grad = tf.concat([reduced_grads,keep_grads], axis=-1)
+        elif self.valid_args['weight_space'] == 'no_reduce':
+            flat_grad = tf.concat([tf.reshape(g,(1,-1)) for g in t_grad], axis=-1)
             
         if self.valid_args['weight_space'] == 'sum_reduce':
-            flat_var = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in self.model.trainable_variables], axis=-1)
+            flat_var = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in self.model.trainable_variables], axis=-1)
         elif self.valid_args['weight_space'] == 'first_reduce':
             first_layer = self.model.trainable_variables[:2]
             last_layer = self.model.trainable_variables[2:]
-            reduced_vars = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
+            reduced_vars = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in first_layer], axis=-1)
             keep_vars =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
             flat_var = tf.concat([reduced_vars,keep_vars], axis=-1)
+        elif self.valid_args['weight_space'] == 'no_reduce':
+            flat_var = tf.concat([tf.reshape(w,(1,-1)) for w in self.model.trainable_variables], axis=-1)
         
         self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * self.action_sample

@@ -436,6 +436,8 @@ class Student(object):
             reduced_state = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in first_layer], axis=-1)
             keep_state =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
             state = tf.concat([reduced_state,keep_state], axis=-1)
+        elif self.valid_args['weight_space'] == 'no_reduce':
+            state = tf.concat([tf.reshape(w,(1,-1)) for w in weight], axis=1)
             
         self.experience_buffer['states'].append(state)
         
@@ -459,13 +461,10 @@ class Student(object):
             reduced_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
             keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
             reduced_grads = tf.concat([reduced_grad,keep_grads], axis=-1)
-        else:
+        elif self.valid_args['weight_space'] == 'no_reduce':
             reduced_grads = gradients
         self.experience_buffer['act_grads'].append(reduced_grads)
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
-        
-        import pdb
-        pdb.set_trace()
         
     def save_experience(self, q_mode="static", df=0.9):
         
