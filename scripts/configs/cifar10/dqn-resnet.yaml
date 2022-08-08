@@ -15,7 +15,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 128
+      batch_size: 512
       epochs: 100
       da: True
       task: RL
