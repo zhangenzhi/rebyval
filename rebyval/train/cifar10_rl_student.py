@@ -285,7 +285,7 @@ class Cifar10RLStudent(Student):
                     
         self.save_experience(q_mode=self.valid_args["q_mode"])
         
-    def save_experience(self, q_mode="static", df=0.99):
+    def save_experience(self, q_mode="static", df=0.9):
         
         if q_mode == "TD":
             if self.supervisor == None:
@@ -328,7 +328,7 @@ class Cifar10RLStudent(Student):
             for i in reversed(range(s-1)):
                 q_value = self.experience_buffer['rewards'][i] + df*Q[0]
                 Q.insert(0, q_value)
-            self.experience_buffer['Q'] = [v/50.0 for v in Q]
+            self.experience_buffer['Q'] = [v for v in Q]
             with self.logger.as_default():
                 for i in range(len(Q)):
                     tf.summary.scalar("T_Q", tf.squeeze(Q[i]), step=i)
