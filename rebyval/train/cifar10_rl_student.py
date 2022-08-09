@@ -216,6 +216,16 @@ class Cifar10RLStudent(Student):
         # tqdm update, logger
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
+                
+                # lr decay
+                if self.train_args["lr_decay"]:
+                    if epoch == int(0.5*total_epochs):
+                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                    elif epoch == int(0.75*total_epochs):
+                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
+                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                        
                 # Train
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
