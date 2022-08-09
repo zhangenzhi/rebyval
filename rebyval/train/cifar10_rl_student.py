@@ -1,6 +1,7 @@
 from tqdm import trange
 import numpy as np
 import tensorflow as tf
+import horovod.tensorflow as hvd
 
 # others
 import time
@@ -206,6 +207,10 @@ class Cifar10RLStudent(Student):
         
         if supervisor_info != None:
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
+        
+        total_epochs = self.dataloader.info['epochs']
+        if self.dist:
+            total_epochs = int(total_epochs/hvd.size())
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
