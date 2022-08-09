@@ -17,7 +17,7 @@ class Cifar10RLStudent(Student):
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
-        self.epsilon = 0.5 + self.id*0.001/2.0 - 0.1
+        self.epsilon = 0.5 + self.id*0.001/2.0
         
         ## RL
         self.best_metric = 0.5
