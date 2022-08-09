@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fr-rb100
+    name: fr-rb128
     devices: [0,1,2,3]
     multi-p: False
     dist: False
