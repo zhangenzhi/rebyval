@@ -17,7 +17,7 @@ class Cifar10RLStudent(Student):
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
-        self.epsilon = 0.5
+        self.epsilon = 0.5 + self.id*0.001/2.0 - 0.1
         
         ## RL
         self.best_metric = 0.5
@@ -117,11 +117,11 @@ class Cifar10RLStudent(Student):
         elif self.valid_args['weight_space'] == 'no_reduce':
             flat_var = tf.concat([tf.reshape(w,(1,-1)) for w in self.model.trainable_variables], axis=-1)
         
-        self.action_sample = tf.reshape(tf.constant([0.1,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0], dtype=tf.float32),shape=(-1,1))
+        self.action_sample = tf.reshape(tf.constant([0.1,0.5,1.0,2.5,5.0], dtype=tf.float32),shape=(-1,1))
         scaled_gards = flat_grad * self.action_sample
         var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
         scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-        scaled_vars = tf.reshape(scaled_vars,shape=(10,1,-1))
+        scaled_vars = tf.reshape(scaled_vars,shape=(self.action_sample.as_list()[0],1,-1))
         # select wights with best Q-value
         steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
         states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
