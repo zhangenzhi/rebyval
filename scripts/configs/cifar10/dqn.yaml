@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: fr-rb10-nc
+    name: fr-rb32-df99
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -44,8 +44,8 @@ experiment:
     dataloader:
       name: dnn_sr_RL
       exp: decay
-      replay_window: 10
-      batch_size: 32
+      replay_window: 32
+      batch_size: 128
       epochs: 10
     model:
       name: dnn # default dnn
