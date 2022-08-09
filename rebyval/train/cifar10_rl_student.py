@@ -214,7 +214,7 @@ class Cifar10RLStudent(Student):
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
-        with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+        with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
                 # Train
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
