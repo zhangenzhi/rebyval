@@ -259,6 +259,7 @@ class Cifar10RLStudent(Student):
                                 tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
                                 tf.summary.scalar("action", action, step=self.gloabl_train_step)
                                 # tf.summary.histogram("values", values, step=self.gloabl_train_step)
+                                wandb.log({"student-{}-E_Q".format(self.id):E_Q})
                                 
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
@@ -286,7 +287,7 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
-                wandb.log({"ett_metric":ett_metric})
+                wandb.log({"student-{}-ett_metric".format(self.id):ett_metric})
                     
         self.save_experience(q_mode=self.valid_args["q_mode"])
         

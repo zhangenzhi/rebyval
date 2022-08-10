@@ -135,6 +135,7 @@ class Cifar10RLSupervisor(Supervisor):
                 with self.logger.as_default():
                     tf.summary.scalar("epoch_train_loss", et_loss, step=self.dataloader.info['epochs']*self.id+epoch)
                     tf.summary.scalar("epoch_valid_loss", ev_loss, step=self.dataloader.info['epochs']*self.id+epoch)
+                    wandb.log({"epoch_train_loss":et_loss})
         
         with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
             for test_step in t:
