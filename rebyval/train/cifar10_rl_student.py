@@ -234,17 +234,14 @@ class Cifar10RLStudent(Student):
                         if self.supervisor == None:
                             train_loss, act_grad = self._train_step(data['inputs'], data['labels'])
                             action = tf.ones(shape=act_grad.shape, dtype=tf.float32) if self.train_args['action']=='elem' else 1.0
-                            E_Q = 0.0
+                            E_Q = -1.0
                         else:
                             train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
-                            with self.logger.as_default():
-                                tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
-                                tf.summary.scalar("action", action, step=self.gloabl_train_step)
-                                # tf.summary.histogram("values", values, step=self.gloabl_train_step)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         # Valid
                         if self.gloabl_train_step % self.valid_gap == 0:
+                                
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
                                 vv_metrics = []
@@ -255,6 +252,11 @@ class Cifar10RLStudent(Student):
                                     vv_metrics.append(v_metrics)
                                 ev_loss = self.mv_loss_fn.result()
                                 ev_metric = tf.reduce_mean(v_metrics)
+                                E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
+                            with self.logger.as_default():
+                                tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
+                                tf.summary.scalar("action", action, step=self.gloabl_train_step)
+                                # tf.summary.histogram("values", values, step=self.gloabl_train_step)
                                 
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 
@@ -287,7 +289,7 @@ class Cifar10RLStudent(Student):
         
     def save_experience(self, q_mode="static", df=0.9):
         
-        if q_mode == "TD":
+        if q_mode == "TD-NQ":
             if self.supervisor == None:
                 # baseline without q-net
                 s = len(self.experience_buffer['rewards'])
@@ -322,7 +324,19 @@ class Cifar10RLStudent(Student):
             with self.logger.as_default():
                 for i in range(len(Q)):
                     tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
-        else:
+                    
+        elif q_mode == "TD":
+            s = len(self.experience_buffer['rewards'])
+            Q = []
+            for i in range(s):
+                q_value = self.experience_buffer['rewards'][i] + df*self.experience_buffer['E_Q'][i]
+                Q.append(q_value)
+            self.experience_buffer['Q'] = [v for v in Q]
+            with self.logger.as_default():
+                for i in range(len(Q)):
+                    tf.summary.scalar("T_Q", tf.squeeze(Q[i]), step=i)
+                    
+        elif q_mode == 'static':
             s = len(self.experience_buffer['rewards'])
             # Q = [self.experience_buffer['rewards'][-1]] 
             Q = [tf.constant(10.0,shape=self.experience_buffer['rewards'][-1].shape)] 

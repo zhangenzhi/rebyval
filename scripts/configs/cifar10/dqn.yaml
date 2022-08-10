@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: ed10
+    name: TD
     devices: [0,1,2,3]
     multi-p: False
     dist: False
@@ -36,7 +36,7 @@ experiment:
           action: fix
           policy: e_greedy
         valid:
-          q_mode: static
+          q_mode: TD
           weight_space: first_reduce
           valid_gap: 10
 
