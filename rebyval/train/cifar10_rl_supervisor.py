@@ -1,3 +1,4 @@
+import wandb
 import tensorflow as tf
 from tqdm import trange
 
@@ -142,3 +143,4 @@ class Cifar10RLSupervisor(Supervisor):
                 t_loss = self._test_step(inputs, labels)
                 t.set_postfix(se_loss=t_loss.numpy())
         # self.model.summary()
+        # wandb.tensorflow.log(tf.summary.merge_all())

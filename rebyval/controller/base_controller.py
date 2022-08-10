@@ -1,4 +1,5 @@
 import os
+import wandb
 
 import tensorflow as tf
 
@@ -29,6 +30,8 @@ class BaseController(object):
         self.context = self.args['context']
         self.devices = self.context['devices']
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
+        
+        wandb.init(config=self.args, project="req")
 
     def _build_student(self, supervisor=None):
         student_args = self.args["student"]
