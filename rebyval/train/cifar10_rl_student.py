@@ -324,8 +324,8 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
         else:
             s = len(self.experience_buffer['rewards'])
-            Q = [self.experience_buffer['rewards'][-1]] 
-            Q = [10.0] 
+            # Q = [self.experience_buffer['rewards'][-1]] 
+            Q = [tf.constant(10.0,shape=self.experience_buffer['rewards'][-1].shape)] 
             for i in reversed(range(s-1)):
                 q_value = self.experience_buffer['rewards'][i] + df*Q[0]
                 Q.insert(0, q_value)
