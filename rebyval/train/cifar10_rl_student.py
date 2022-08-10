@@ -325,6 +325,7 @@ class Cifar10RLStudent(Student):
         else:
             s = len(self.experience_buffer['rewards'])
             Q = [self.experience_buffer['rewards'][-1]] 
+            Q = [10.0] 
             for i in reversed(range(s-1)):
                 q_value = self.experience_buffer['rewards'][i] + df*Q[0]
                 Q.insert(0, q_value)
