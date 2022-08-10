@@ -1,4 +1,5 @@
 import os
+import wandb
 from tqdm import trange
 from datetime import datetime
 import tensorflow as tf
@@ -112,6 +113,7 @@ class Student(object):
         else:
             check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
+        self.wb = wandb.init(config=self.args, project=self.args['context'], name="student-{}-".format(self.id)+datetime.now().strftime("%Y%m%d-%H%M%S"))
         return logger
 
     def _build_writter(self):

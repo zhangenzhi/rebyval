@@ -1,4 +1,6 @@
 import os
+from unicodedata import name
+import wandb
 from datetime import datetime
 
 import tensorflow as tf
@@ -74,6 +76,7 @@ class Supervisor(object):
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
+        self.wb = wandb.init(config=self.args, project=self.args['context'], name= "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S"))
         return logger
 
     def model_restore(self, model):

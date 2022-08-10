@@ -259,7 +259,7 @@ class Cifar10RLStudent(Student):
                                 tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
                                 tf.summary.scalar("action", action, step=self.gloabl_train_step)
                                 # tf.summary.histogram("values", values, step=self.gloabl_train_step)
-                                wandb.log({"student-{}-E_Q".format(self.id):E_Q})
+                                self.wb.log({"student-{}-E_Q".format(self.id):E_Q})
                                 
                             self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                                        metric=ev_metric, 

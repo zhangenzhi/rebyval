@@ -1,0 +1,21 @@
+{
+    "os": "macOS-12.4-x86_64-i386-64bit",
+    "python": "3.9.13",
+    "heartbeatAt": "2022-08-10T11:30:47.812787",
+    "startedAt": "2022-08-10T11:30:45.830407",
+    "docker": null,
+    "cpu_count": 6,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "<python with no main file>",
+    "git": {
+        "remote": "https://github.com/zhangenzhi/rebyval.git",
+        "commit": "bb9bb339b3b1927afd564fb19dfbfb9c7f173947"
+    },
+    "email": "zezzz@zezzz.imac.lab",
+    "root": "/Users/zezzz/work/rebyval",
+    "host": "zezzz.local",
+    "username": "zezzz",
+    "executable": "/Users/zezzz/micromamba/bin/python3"
+}
