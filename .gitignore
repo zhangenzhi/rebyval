@@ -12,3 +12,4 @@ data/
 build/
 dist/
 log/
+wandb/
