@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: bl-aneal-5s-eg001
+    name: ed10
     devices: [0,1,2,3]
     multi-p: False
     dist: False
