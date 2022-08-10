@@ -34,6 +34,7 @@ class BaseController(object):
 
     def _build_student(self, supervisor=None):
         student_args = self.args["student"]
+        student_args['context'] = self.context
         student_args['log_path'] = self.log_path
 
         student = student_factory(student_args=student_args, 
@@ -46,6 +47,7 @@ class BaseController(object):
     def _build_supervisor(self):
         student_args = self.args["student"]
         supervisor_args = self.args["supervisor"]
+        supervisor_args['context'] = self.context
         supervisor_args['log_path'] = self.log_path
 
         supervisor = supervisor_factory(supervisor_args=supervisor_args,
