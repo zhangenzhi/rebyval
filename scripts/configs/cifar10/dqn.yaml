@@ -10,7 +10,7 @@ experiment:
       student_nums: 5
       supervisor_trains: 5
     nums: 200
-    student_nums: 5
+    student_nums: 1
 
   student:
     dataloader:
@@ -46,7 +46,7 @@ experiment:
       exp: decay
       replay_window: 10
       batch_size: 128
-      epochs: 50
+      epochs: 10
     model:
       name: dnn # default dnn
       units: [128,64,32,1] # default 128,64,64,32
