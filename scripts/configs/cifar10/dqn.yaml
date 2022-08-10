@@ -44,7 +44,7 @@ experiment:
     dataloader:
       name: dnn_sr_RL
       exp: decay
-      replay_window: 32
+      replay_window: 10
       batch_size: 128
       epochs: 50
     model:
