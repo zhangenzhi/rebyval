@@ -286,9 +286,9 @@ class Cifar10RLStudent(Student):
                     tf.summary.scalar("ev_metric", ev_metric, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+                wandb.log({"ett_metric":ett_metric})
                     
         self.save_experience(q_mode=self.valid_args["q_mode"])
-        wandb.tensorflow.log(tf.summary.merge_all())
         
     def save_experience(self, q_mode="static", df=0.9):
         
