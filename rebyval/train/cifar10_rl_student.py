@@ -340,6 +340,7 @@ class Cifar10RLStudent(Student):
             
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
+            ev_metric = values[int(len(self.action_sample)/2)]
             
         else:
             self.mv_loss_fn.reset_states()
@@ -354,6 +355,8 @@ class Cifar10RLStudent(Student):
         # save sample
         if self.valid_args["q_mode"] == "TD":
             E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
+        elif self.valid_args["q_mode"] == "TD_NQ":
+            E_Q = values[]
         elif self.valid_args["q_mode"] == "static":
             E_Q = E_Q
         self.wb.log({"E_Q":E_Q, "action":action, "values":values})  # wandb log
