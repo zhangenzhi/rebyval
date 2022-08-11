@@ -323,7 +323,7 @@ class Cifar10RLStudent(Student):
             self.optimizer.apply_gradients(zip(back_grad, self.model.trainable_variables))
             
             for i in range(len(self.action_sample)):
-                grad = t_grad * self.action_sample[i]
+                grad = [t_g * self.action_sample[i] for t_g in t_grad]
                 self.optimizer.apply_gradients(zip(grad, self.model.trainable_variables))
                 self.mv_loss_fn.reset_states()
                 vv_metrics = []
