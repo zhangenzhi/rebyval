@@ -308,7 +308,7 @@ class Cifar10RLStudent(Student):
         
         # action
         t_grad = action[1]
-        reduced_grads = reduced_grads(t_grad)
+        reduced_grads = self.reduced_space(t_grad)
         self.experience_buffer['act_grads'].append(reduced_grads)
         self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
