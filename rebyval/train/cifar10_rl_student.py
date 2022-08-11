@@ -327,7 +327,7 @@ class Cifar10RLStudent(Student):
                 self.optimizer.apply_gradients(zip(grad, self.model.trainable_variables))
                 self.mv_loss_fn.reset_states()
                 vv_metrics = []
-                for valid_step in self.dataloader.info['valid_step']:
+                for valid_step in range(self.dataloader.info['valid_step']):
                     v_data = valid_iter.get_next()
                     v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
                     vv_metrics.append(v_metrics)
@@ -344,7 +344,7 @@ class Cifar10RLStudent(Student):
         else:
             self.mv_loss_fn.reset_states()
             vv_metrics = []
-            for valid_step in self.dataloader.info['valid_step']:
+            for valid_step in range(self.dataloader.info['valid_step']):
                 v_data = valid_iter.get_next()
                 v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
                 vv_metrics.append(v_metrics)
