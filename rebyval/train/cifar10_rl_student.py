@@ -241,6 +241,9 @@ class Cifar10RLStudent(Student):
         
     def save_experience(self, q_mode="static", df=0.9):
         
+        import pdb
+        pdb.set_trace()
+        
         if q_mode == "TD-NQ":
             if self.supervisor == None:
                 # baseline without q-net
@@ -334,9 +337,6 @@ class Cifar10RLStudent(Student):
                 re_grad = [-g for g in grad]
                 self.optimizer.apply_gradients(zip(re_grad, self.model.trainable_variables))
             values = [10.0 * v for v in raw_values]
-            
-            import pdb
-            pdb.set_trace()
             
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
