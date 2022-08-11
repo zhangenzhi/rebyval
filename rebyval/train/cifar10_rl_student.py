@@ -201,6 +201,9 @@ class Cifar10RLStudent(Student):
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                         
                 # Train
+                import pdb
+                pdb.set_trace()
+                
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
