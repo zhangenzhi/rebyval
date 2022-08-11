@@ -33,9 +33,6 @@ class Cifar10TDStudent(Student):
     
     def e_greedy_policy(self, values):
         
-        if self.id%10==0:
-            return max(range(len(values)), key=values.__getitem__) 
-        
         roll = np.random.uniform()
         if roll < self.epsilon:
             return np.random.randint(len(values))
@@ -53,33 +50,17 @@ class Cifar10TDStudent(Student):
         # fixed action with pseudo sgd
         if (self.gloabl_train_step %  self.valid_gap )==0:
             self.pre_act = 1.0 if self.gloabl_train_step<self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
-            if self.train_args['action'] == 'fix':
-                self.action_sample, self.values = self.fix_action(t_grad=t_grad)
-            elif self.train_args['action'] == 'neg':
-                self.action_sample, self.values = self.neg_action(t_grad=t_grad)
-            elif self.train_args['action'] == 'elem':
-                self.action_sample, self.values = self.elem_action(t_grad=t_grad)
-            else:
-                self.action_sample, self.values = self.soft_action(t_grad=t_grad)
-
-            # greedy policy
-            if self.train_args['policy'] == 'e_greedy':
-                self.index_max = self.e_greedy_policy(self.values)
-            else:
-                self.index_max = self.greedy_policy(self.values)
+            self.action_sample, self.values = self.fix_action(t_grad=t_grad)
+            self.index_max = self.e_greedy_policy(self.values)
             self.act_idx.append(self.index_max) 
 
         # next state
-        if self.train_args['action'] == 'elem':
-            act = [a[self.index_max] for a in self.action_sample]
-            gradients = [g*a for g,a in zip(t_grad,act)]
-            act = tf.concat([tf.reshape(tf.reduce_sum(a, axis=-1),(1,-1)) for a in act], axis=-1)
-        else:
-            act = self.action_sample[self.index_max]
-            alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
-            smoothed_act = (1-alpha)*self.pre_act + alpha*act
-            gradients = [g*smoothed_act for g in t_grad]
-            act = tf.squeeze(smoothed_act)
+        act = self.action_sample[self.index_max]
+        alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
+        smoothed_act = (1-alpha)*self.pre_act + alpha*act
+        gradients = [g*smoothed_act for g in t_grad]
+        act = tf.squeeze(smoothed_act)
+        
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             

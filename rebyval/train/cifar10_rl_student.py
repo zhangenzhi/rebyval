@@ -1,3 +1,4 @@
+from turtle import forward
 from tqdm import trange
 
 import wandb
@@ -19,14 +20,27 @@ class Cifar10RLStudent(Student):
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
-        self.epsilon = 0.5 + self.id*0.001/2.0
         
         ## RL
         self.best_metric = 0.5
+        self.epsilon = 0.5 + self.id*0.001/2.0
+        self.action_sample = [0.1,0.5,1.0,2.5,5.0]
         self.baseline = 0.1
-        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[],
+        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'values':[],
                                   'act_grads':[],'E_Q':[], 'steps':[]}
-        
+    
+    def reduced_space(self, state):
+        if self.valid_args['weight_space'] == 'sum_reduce':
+            flat_state = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in state], axis=-1)
+        elif self.valid_args['weight_space'] == 'first_reduce':
+            first_layer = state[:2]
+            last_layer = state[2:]
+            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
+            keep_grads =tf.concat([tf.reshape(g,(1,-1)) for g in last_layer], axis=-1)
+            flat_state = tf.concat([reduced_grads,keep_grads], axis=-1)
+        elif self.valid_args['weight_space'] == 'no_reduce':
+            flat_state = tf.concat([tf.reshape(g,(1,-1)) for g in state], axis=-1)
+        return flat_state
         
     def elem_action(self, t_grad, num_act=1000):
         # fixed action with pseudo sgd
@@ -94,53 +108,29 @@ class Cifar10RLStudent(Student):
         self.values = self.supervisor(states_actions)
         return self.action_sample, self.values
     
-    def fix_action(self, t_grad):
-
-        # fixed action with pseudo sgd
-        if self.valid_args['weight_space'] == 'sum_reduce':
-            flat_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in t_grad], axis=-1)
-        elif self.valid_args['weight_space'] == 'first_reduce':
-            first_layer = t_grad[:2]
-            last_layer = t_grad[2:]
-            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
-            keep_grads =tf.concat([tf.reshape(g,(1,-1)) for g in last_layer], axis=-1)
-            flat_grad = tf.concat([reduced_grads,keep_grads], axis=-1)
-        elif self.valid_args['weight_space'] == 'no_reduce':
-            flat_grad = tf.concat([tf.reshape(g,(1,-1)) for g in t_grad], axis=-1)
-            
-        if self.valid_args['weight_space'] == 'sum_reduce':
-            flat_var = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in self.model.trainable_variables], axis=-1)
-        elif self.valid_args['weight_space'] == 'first_reduce':
-            first_layer = self.model.trainable_variables[:2]
-            last_layer = self.model.trainable_variables[2:]
-            reduced_vars = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in first_layer], axis=-1)
-            keep_vars =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
-            flat_var = tf.concat([reduced_vars,keep_vars], axis=-1)
-        elif self.valid_args['weight_space'] == 'no_reduce':
-            flat_var = tf.concat([tf.reshape(w,(1,-1)) for w in self.model.trainable_variables], axis=-1)
-        
-        self.action_sample = tf.reshape(tf.constant([0.1,0.5,1.0,2.5,5.0], dtype=tf.float32),shape=(-1,1))
-        scaled_gards = flat_grad * self.action_sample
-        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-        scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-        scaled_vars = tf.reshape(scaled_vars,shape=(self.action_sample.shape.as_list()[0],1,-1))
-        # select wights with best Q-value
-        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*self.action_sample.shape[0], dtype=tf.float32),shape=(-1,1))
-        states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
-        self.values = self.supervisor(states_actions)
+    def fix_n_action(self):
+        flat_var = self.reduced_space(self.model.trainable_variables)
+        state = tf.reshape(tf.concat(flat_var, axis=0), (1,1,-1))
+        self.values = self.supervisor({'state':state})
         return self.action_sample, self.values
     
-    def greedy_policy(self, values):
-        if self.id%10==0:
-            return 1
-        else:
-            return max(range(len(values)), key=values.__getitem__) 
+    def fix_action(self, t_grad):
+        action_samples = tf.reshape(tf.constant(self.action_sample, dtype=tf.float32),shape=(-1,1))
+        # fixed action with pseudo sgd
+        flat_grad = self.reduced_space(t_grad)
+        flat_var = self.reduced_space(self.model.trainable_variables)
+        
+        scaled_gards = flat_grad * action_samples
+        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+        scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+        scaled_vars = tf.reshape(scaled_vars,shape=(action_samples.shape.as_list()[0],1,-1))
+        # select wights with best Q-value
+        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*action_samples.shape[0], dtype=tf.float32),shape=(-1,1))
+        states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
+        self.values = self.supervisor(states_actions)
+        return action_samples, self.values
     
     def e_greedy_policy(self, values):
-        
-        if self.id%10==0:
-            return max(range(len(values)), key=values.__getitem__) 
-        
         roll = np.random.uniform()
         if roll < self.epsilon:
             return np.random.randint(len(values))
@@ -154,45 +144,28 @@ class Cifar10RLStudent(Student):
             predictions = self.model(inputs, training=True)
             t_loss = self.loss_fn(labels, predictions)
         t_grad = tape_t.gradient(t_loss, self.model.trainable_variables)
+        self.mt_loss_fn.update_state(t_loss)
                 
         # fixed action with pseudo sgd
         if (self.gloabl_train_step %  self.valid_gap )==0:
-            self.pre_act = 1.0 if self.gloabl_train_step<self.valid_gap else self.action_sample[self.greedy_policy(self.values)]
             if self.train_args['action'] == 'fix':
-                self.action_sample, self.values = self.fix_action(t_grad=t_grad)
-            elif self.train_args['action'] == 'neg':
-                self.action_sample, self.values = self.neg_action(t_grad=t_grad)
-            elif self.train_args['action'] == 'elem':
-                self.action_sample, self.values = self.elem_action(t_grad=t_grad)
-            else:
-                self.action_sample, self.values = self.soft_action(t_grad=t_grad)
+                _, values = self.fix_action(t_grad=t_grad)
+            elif self.train_args['action'] == 'fix_n':
+                _, values = self.fix_n_action()
 
             # greedy policy
-            if self.train_args['policy'] == 'e_greedy':
-                self.index_max = self.e_greedy_policy(self.values)
-            else:
-                self.index_max = self.greedy_policy(self.values)
-            self.act_idx.append(self.index_max) 
+            index_max = self.e_greedy_policy(values)
+            E_Q = tf.squeeze(values[index_max])
+            self.act_idx.append(index_max) 
 
         # next state
-        if self.train_args['action'] == 'elem':
-            act = [a[self.index_max] for a in self.action_sample]
-            gradients = [g*a for g,a in zip(t_grad,act)]
-            act = tf.concat([tf.reshape(tf.reduce_sum(a, axis=-1),(1,-1)) for a in act], axis=-1)
-        else:
-            act = self.action_sample[self.index_max]
-            alpha = (self.gloabl_train_step %  self.valid_gap)/self.valid_gap
-            smoothed_act = (1-alpha)*self.pre_act + alpha*act
-            gradients = [g*smoothed_act for g in t_grad]
-            act = tf.squeeze(smoothed_act)
+        act = self.action_sample[index_max]
+        gradients = [g*act for g in t_grad]
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
-        self.mt_loss_fn.update_state(t_loss)
-            
-        E_q = tf.squeeze(self.values[self.index_max])
-        return t_loss, E_q, act, gradients, self.values
-
+        return t_loss, E_Q, act, t_grad, values
+    
     def train(self, new_student=None, supervisor_info=None):
         
         # parse train loop control args
@@ -234,39 +207,19 @@ class Cifar10RLStudent(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss, act_grad = self._train_step(data['inputs'], data['labels'])
-                            action = tf.ones(shape=act_grad.shape, dtype=tf.float32) if self.train_args['action']=='elem' else 1.0
+                            train_loss, t_grad = self._train_step(data['inputs'], data['labels'])
+                            action = 1.0
+                            idx = int(len(self.action_sample)/2)
+                            values = tf.ones(shape=(len(self.action_sample)), dtype=tf.float32)
                             E_Q = -1.0
                         else:
-                            train_loss, E_Q, action, act_grad, values = self._rl_train_step(data['inputs'], data['labels'])
+                            train_loss, E_Q, action, t_grad, values = self._rl_train_step(data['inputs'], data['labels'])
                         t.set_postfix(st_loss=train_loss.numpy())
                         
-                        # Valid
+                        # Valid && Evaluate
                         if self.gloabl_train_step % self.valid_gap == 0:
-                                
-                            with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
-                                self.mv_loss_fn.reset_states()
-                                vv_metrics = []
-                                for valid_step in v:
-                                    v_data = valid_iter.get_next()
-                                    v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
-                                    v.set_postfix(sv_loss=v_loss.numpy())
-                                    vv_metrics.append(v_metrics)
-                                ev_loss = self.mv_loss_fn.result()
-                                ev_metric = tf.reduce_mean(v_metrics)
-                                E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
-                            with self.logger.as_default():
-                                tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
-                                tf.summary.scalar("action", action, step=self.gloabl_train_step)
-                                # tf.summary.histogram("values", values, step=self.gloabl_train_step)
-                                self.wb.log({"student-{}-E_Q".format(self.id):E_Q})
-                                
-                            self.mem_experience_buffer(weight=self.model.trainable_weights, 
-                                                       metric=ev_metric, 
-                                                       action=(action, act_grad), 
-                                                       E_Q = E_Q,
-                                                       step=self.gloabl_train_step)
-                        self.gloabl_train_step += 1
+                            ev_metric = self.evaluate(valid_iter=valid_iter, E_Q = E_Q, values = values, action=action, t_grad = t_grad)
+                    self.gloabl_train_step += 1
                     et_loss = self.mt_loss_fn.result()
                 
                 # Test
@@ -280,51 +233,31 @@ class Cifar10RLStudent(Student):
                         tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric = tf.reduce_mean(tt_metrics)
-                    
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
-                with self.logger.as_default():
-                    tf.summary.scalar("et_loss", et_loss, step=epoch)
-                    tf.summary.scalar("ev_metric", ev_metric, step=epoch)
-                    tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
-                    tf.summary.scalar("ett_metric", ett_metric, step=epoch)
-                wandb.log({"student-{}-ett_metric".format(self.id):ett_metric})
-                    
+                # wandb log
+                self.wb.log({"ett_metric":ett_metric, "et_loss":et_loss, "ev_metric":ev_metric, "ett_mloss":ett_loss})     
+                
         self.save_experience(q_mode=self.valid_args["q_mode"])
+        self.wb.finish()
         
     def save_experience(self, q_mode="static", df=0.9):
         
         if q_mode == "TD-NQ":
             if self.supervisor == None:
                 # baseline without q-net
-                s = len(self.experience_buffer['rewards'])
-                t_Q = [self.experience_buffer['rewards'][-1]] 
-                for i in reversed(range(s-1)):
-                    q_value = self.experience_buffer['rewards'][i] + df*t_Q[0]
-                    t_Q.insert(0, q_value)
-                Q = []
-                for i in range(len(t_Q)):
-                    values = self.experience_buffer['values'][i]
-                    np_values = values.numpy()
-                    np_values[1] = t_Q[i].numpy()
-                    Q.append(tf.constant(np_values))
-                self.experience_buffer['Q'] = Q
+                values = self.experience_buffer['values']
+                self.experience_buffer['Q'] = values
             else:
                 # boostrap Q value
-                s = len(self.experience_buffer['rewards'])
-                Q = []
-                for i in range(s):
-                    e_q = self.experience_buffer['E_Q'][i+1] if i+1!=s else self.experience_buffer['E_Q'][-1]
-                    act_q = self.experience_buffer['rewards'][i] + df*e_q
-                    values = self.experience_buffer['values'][i]
-                    np_values = values.numpy()
-                    if self.id%10 != 0:
-                        idx = self.act_idx[i]
-                    else:
-                        idx = 1
-                    np_values[idx] = act_q
-                    Q.append(tf.reshape(tf.constant(np_values),shape=(-1,1)))
-                        
-                self.experience_buffer['Q'] = Q
+                values = self.experience_buffer['values']
+                rewards = len(self.experience_buffer['rewards'])
+                for i in range(len(rewards)):
+                    np_values = values[i].numpy()
+                    e_q = rewards[i] + df * values[i][self.act_idx[i]] 
+                    np_values[self.act_idx[i]] = e_q
+                    values[i] = tf.reshape(tf.constant(np_values), shape=values[i].shape)
+                self.experience_buffer['Q'] = values
+                
             with self.logger.as_default():
                 for i in range(len(Q)):
                     tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
@@ -357,44 +290,78 @@ class Cifar10RLStudent(Student):
         return self.best_metric - self.baseline/10 
     
     def mem_experience_buffer(self, weight, metric, action, values=None, E_Q=1.0, step=0):
-        
-        if self.valid_args['weight_space'] == 'sum_reduce':
-            state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
-        elif self.valid_args['weight_space'] == 'first_reduce':
-            first_layer = weight[:2]
-            last_layer = weight[2:]
-            reduced_state = tf.concat([tf.reshape(tf.reduce_sum(w, axis=-1),(1,-1)) for w in first_layer], axis=-1)
-            keep_state =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
-            state = tf.concat([reduced_state,keep_state], axis=-1)
-        elif self.valid_args['weight_space'] == 'no_reduce':
-            state = tf.concat([tf.reshape(w,(1,-1)) for w in weight], axis=1)
             
-        self.experience_buffer['states'].append(state)
-        
-        self.experience_buffer['metrics'].append(metric)
+        # state
+        reduced_state = self.reduced_space(weight)
+        self.experience_buffer['states'].append(reduced_state)
         
         # reward function
+        self.experience_buffer['metrics'].append(metric)
         self.experience_buffer['rewards'].append(metric)
         self.experience_buffer['E_Q'].append(tf.cast(E_Q, tf.float32))
         
         # expect state values 
         if values !=None :
             self.experience_buffer['values'].append(values)
-        self.experience_buffer['actions'].append(tf.constant(action[0]))
         
-        gradients = action[1]
-        if self.valid_args['weight_space'] == 'sum_reduce':
-            reduced_grads = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in gradients], axis=-1)
-        elif self.valid_args['weight_space'] == 'first_reduce':
-            first_layer = gradients[:2]
-            last_layer = gradients[2:]
-            reduced_grad = tf.concat([tf.reshape(tf.reduce_sum(g, axis=-1),(1,-1)) for g in first_layer], axis=-1)
-            keep_grads =tf.concat([tf.reshape(w,(1,-1)) for w in last_layer], axis=-1)
-            reduced_grads = tf.concat([reduced_grad,keep_grads], axis=-1)
-        elif self.valid_args['weight_space'] == 'no_reduce':
-            reduced_grads = tf.concat([tf.reshape(g,(1,-1)) for g in gradients], axis=1)
+        # action
+        t_grad = action[1]
+        reduced_grads = reduced_grads(t_grad)
         self.experience_buffer['act_grads'].append(reduced_grads)
+        self.experience_buffer['actions'].append(tf.constant(action[0]))
         self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
+        
+        
+    def evaluate(self, valid_iter, E_Q, values, action, t_grad):
+        
+        # warmup sample 
+        if self.supervisor == None and self.valid_args["q_mode"] == "TD_NQ":
+            raw_values = []
+            back_grad = [-action*g for g in t_grad]
+            self.optimizer.apply_gradients(zip(back_grad, self.model.trainable_variables))
+            
+            for i in range(len(self.action_sample)):
+                grad = t_grad * self.action_sample[i]
+                self.optimizer.apply_gradients(zip(grad, self.model.trainable_variables))
+                self.mv_loss_fn.reset_states()
+                vv_metrics = []
+                for valid_step in self.dataloader.info['valid_step']:
+                    v_data = valid_iter.get_next()
+                    v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
+                    vv_metrics.append(v_metrics)
+                ev_loss = self.mv_loss_fn.result()
+                ev_metric = tf.reduce_mean(v_metrics)
+                raw_values.append(ev_metric)
+                re_grad = [-g for g in grad]
+                self.optimizer.apply_gradients(zip(re_grad, self.model.trainable_variables))
+            values = [10.0 * v for v in raw_values]
+            
+            fore_grad =  [action*g for g in t_grad]
+            self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
+            
+        else:
+            self.mv_loss_fn.reset_states()
+            vv_metrics = []
+            for valid_step in self.dataloader.info['valid_step']:
+                v_data = valid_iter.get_next()
+                v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
+                vv_metrics.append(v_metrics)
+            ev_loss = self.mv_loss_fn.result()
+            ev_metric = tf.reduce_mean(v_metrics)
+        
+        # save sample
+        if self.valid_args["q_mode"] == "TD":
+            E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
+        elif self.valid_args["q_mode"] == "static":
+            E_Q = E_Q
+        self.wb.log({"E_Q":E_Q, "action":action})  # wandb log
+        self.mem_experience_buffer(weight=self.model.trainable_weights, 
+                                metric=ev_metric, 
+                                action=(action, t_grad), 
+                                E_Q = E_Q,
+                                values= values,
+                                step=self.gloabl_train_step)
+        return ev_metric
                 
                 
         
