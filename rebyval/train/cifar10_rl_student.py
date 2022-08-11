@@ -1,4 +1,3 @@
-from turtle import forward
 from tqdm import trange
 
 import wandb
