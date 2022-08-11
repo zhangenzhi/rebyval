@@ -3,7 +3,7 @@ experiment:
     name: TDNQ
     devices: [0,1,2,3]
     multi-p: False
-    dist: True
+    dist: False
 
   main_loop:
     warmup: 
