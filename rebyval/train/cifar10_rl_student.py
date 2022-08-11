@@ -356,7 +356,7 @@ class Cifar10RLStudent(Student):
             E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
         elif self.valid_args["q_mode"] == "static":
             E_Q = E_Q
-        self.wb.log({"E_Q":E_Q, "action":action})  # wandb log
+        self.wb.log({"E_Q":E_Q, "action":action, "values":values})  # wandb log
         self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                 metric=ev_metric, 
                                 action=(action, t_grad), 
