@@ -313,9 +313,6 @@ class Cifar10RLStudent(Student):
         
     def evaluate(self, valid_iter, E_Q, values, action, t_grad):
         
-        import pdb
-        pdb.set_trace()
-        
         # warmup sample 
         if self.supervisor == None and self.valid_args["q_mode"] == "TD_NQ":
             raw_values = []
@@ -337,6 +334,9 @@ class Cifar10RLStudent(Student):
                 re_grad = [-g for g in grad]
                 self.optimizer.apply_gradients(zip(re_grad, self.model.trainable_variables))
             values = [10.0 * v for v in raw_values]
+            
+            import pdb
+            pdb.set_trace()
             
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
