@@ -201,9 +201,6 @@ class Cifar10RLStudent(Student):
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                         
                 # Train
-                import pdb
-                pdb.set_trace()
-                
                 with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     for train_step in t:
@@ -315,6 +312,9 @@ class Cifar10RLStudent(Student):
         
         
     def evaluate(self, valid_iter, E_Q, values, action, t_grad):
+        
+        import pdb
+        pdb.set_trace()
         
         # warmup sample 
         if self.supervisor == None and self.valid_args["q_mode"] == "TD_NQ":
