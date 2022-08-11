@@ -17,7 +17,7 @@ experiment:
       name: cifar10 # default cifar10
       batch_size: 512
       epochs: 100
-      da: True
+      da: False
       task: RL
     model:
       name: dnn # default dnn
@@ -32,7 +32,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: True
+          lr_decay: False
           action: fix_n
           policy: e_greedy
         valid:

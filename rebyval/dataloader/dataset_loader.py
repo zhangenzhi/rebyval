@@ -129,7 +129,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
         # all 1w test
-        test_dataset = test_dataset.shuffle(test_size).batch(self.dataloader_args['batch_size']).repeat(epochs)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(epochs)
         valid_dataset = test_dataset
         
         # test_dataset = test_dataset.shuffle(test_size)
