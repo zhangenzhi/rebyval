@@ -280,7 +280,7 @@ class Cifar10RLStudent(Student):
                 
             with self.logger.as_default():
                 for i in range(len(values)):
-                    tf.summary.scalar("T_Q", tf.squeeze(values[self.act_idx[i]]), step=i)
+                    tf.summary.scalar("T_Q", tf.squeeze(values[i][self.act_idx[i]]), step=i)
 
                     
         elif q_mode == "TD":
