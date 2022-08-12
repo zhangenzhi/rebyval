@@ -15,7 +15,7 @@ class Cifar10RLStudent(Student):
     def __init__(self, student_args, supervisor = None, id = 0):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
         
-        self.index_max = 0
+        self.index_max = int(len(self.action_sample))
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
@@ -155,12 +155,12 @@ class Cifar10RLStudent(Student):
                 _, values = self.fix_n_action()
 
             # greedy policy
-            index_max = self.e_greedy_policy(values)
-            E_Q = tf.squeeze(values[index_max])
-            self.act_idx.append(index_max) 
+            self.index_max = self.e_greedy_policy(values)
+            E_Q = tf.squeeze(values[self.index_max])
+            self.act_idx.append(self.index_max) 
 
         # next state
-        act = self.action_sample[index_max]
+        act = self.action_sample[self.index_max]
         gradients = [g*act for g in t_grad]
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
@@ -243,8 +243,8 @@ class Cifar10RLStudent(Student):
         
     def save_experience(self, q_mode="static", df=0.9):
         
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         
         if q_mode == "TD-NQ":
             if self.supervisor == None:

@@ -7,16 +7,16 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 5
-      supervisor_trains: 1
-    nums: 1
+      student_nums: 0
+      supervisor_trains: 5
+    nums: 200
     student_nums: 5
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 512
-      epochs: 10
+      epochs: 100
       da: True
       task: RL
     model:
@@ -44,7 +44,7 @@ experiment:
     dataloader:
       name: dnn_sr_RL
       exp: decay
-      replay_window: 10
+      replay_window: 20
       batch_size: 128
       epochs: 10
     model:
