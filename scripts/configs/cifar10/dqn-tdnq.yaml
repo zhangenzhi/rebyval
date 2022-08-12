@@ -36,7 +36,7 @@ experiment:
           action: fix_n
           policy: e_greedy
         valid:
-          q_mode: TD_NQ
+          q_mode: TD-NQ
           weight_space: sum_reduce
           valid_gap: 30
 
