@@ -15,7 +15,6 @@ class Cifar10RLStudent(Student):
     def __init__(self, student_args, supervisor = None, id = 0):
         super(Cifar10RLStudent, self).__init__(student_args, supervisor,id)
         
-        self.index_max = int(len(self.action_sample))
         self.act_idx = []
         self.gloabl_train_step = 0
         self.valid_gap = 100
@@ -24,6 +23,7 @@ class Cifar10RLStudent(Student):
         self.best_metric = 0.5
         self.epsilon = 0.5 + self.id*0.001/2.0
         self.action_sample = [0.1,0.5,1.0,2.5,5.0]
+        self.index_max = int(len(self.action_sample))
         self.baseline = 0.1
         self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'values':[],
                                   'act_grads':[],'E_Q':[], 'steps':[]}
