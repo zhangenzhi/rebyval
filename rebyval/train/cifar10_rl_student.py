@@ -350,7 +350,7 @@ class Cifar10RLStudent(Student):
                     v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
                     vv_metrics.append(v_metrics)
                 ev_loss = self.mv_loss_fn.result()
-                ev_metric = tf.reduce_mean(v_metrics)
+                ev_metric = tf.reduce_mean(vv_metrics)
                 raw_values.append(ev_metric)
                 re_grad = [-g for g in grad]
                 self.optimizer.apply_gradients(zip(re_grad, self.model.trainable_variables))
@@ -368,7 +368,7 @@ class Cifar10RLStudent(Student):
                 v_loss, v_metrics = self._valid_step(v_data['inputs'], v_data['labels'])
                 vv_metrics.append(v_metrics)
             ev_loss = self.mv_loss_fn.result()
-            ev_metric = tf.reduce_mean(v_metrics)
+            ev_metric = tf.reduce_mean(vv_metrics)
         
         # save sample
         if self.valid_args["q_mode"] == "TD":
