@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: ns-static
+    name: ns-TD
     devices: [0,1,2,3]
     multi-p: False
     dist: False
