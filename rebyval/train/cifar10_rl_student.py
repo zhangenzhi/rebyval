@@ -135,7 +135,7 @@ class Cifar10RLStudent(Student):
         pdb.set_trace()
         state =  self.model.trainable_variables
         next_states = []
-        for act in self.action_samples :
+        for act in self.action_sample :
             n_s = [s - act*self.optimizer.learning_rate*g for s,g in zip(state, t_grad)]
             next_states.append(n_s)
         reduced_states = [self.reduced_space(s) for s in next_states]
