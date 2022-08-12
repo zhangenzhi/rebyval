@@ -221,7 +221,7 @@ class Cifar10RLStudent(Student):
                         if self.supervisor == None:
                             train_loss, t_grad = self._train_step(data['inputs'], data['labels'])
                             action = 1.0
-                            idx = int(len(self.action_sample)/2)
+                            self.act_idx.append(int(len(self.action_sample)/2))
                             values = tf.ones(shape=(len(self.action_sample)), dtype=tf.float32)
                             E_Q = -1.0
                         else:
@@ -280,10 +280,8 @@ class Cifar10RLStudent(Student):
                 
             with self.logger.as_default():
                 for i in range(len(values)):
-                    if self.supervisor == None:
-                        tf.summary.scalar("T_Q", tf.squeeze(values[len(values[i])/2]), step=i)
-                    else:
-                        tf.summary.scalar("T_Q", tf.squeeze(max(values)), step=i)
+                    tf.summary.scalar("T_Q", tf.squeeze(values[self.act_idx[i]]), step=i)
+
                     
         elif q_mode == "TD":
             s = len(self.experience_buffer['rewards'])
