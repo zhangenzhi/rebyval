@@ -378,6 +378,9 @@ class Cifar10RLStudent(Student):
         elif self.valid_args["q_mode"] == "static":
             E_Q = E_Q
         # self.wb.log({"E_Q":E_Q, "action":action, "values":values})  # wandb log
+        with self.logger.as_default():
+            tf.summary.scalar("E_Q", E_Q, step=self.gloabl_train_step)
+            tf.summary.scalar("action", action, step=self.gloabl_train_step)
         self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                 metric=ev_metric, 
                                 action=(action, t_grad), 
