@@ -231,7 +231,7 @@ class Cifar10RLStudent(Student):
                         # Valid && Evaluate
                         if self.gloabl_train_step % self.valid_gap == 0:
                             ev_metric = self.evaluate(valid_iter=valid_iter, E_Q = E_Q, values = values, action=action, t_grad = t_grad)
-                    self.gloabl_train_step += 1
+                        self.gloabl_train_step += 1
                     et_loss = self.mt_loss_fn.result()
                 
                 # Test
