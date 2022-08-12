@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: TD
+    name: norm-state
     devices: [0,1,2,3]
     multi-p: False
     dist: False
