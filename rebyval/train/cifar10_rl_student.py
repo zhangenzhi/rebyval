@@ -335,7 +335,7 @@ class Cifar10RLStudent(Student):
     def evaluate(self, valid_iter, E_Q, values, action, t_grad):
         
         # warmup sample 
-        if self.supervisor == None and self.valid_args["q_mode"] == "TD_NQ":
+        if self.supervisor == None and self.valid_args["q_mode"] == "TD-NQ":
             raw_values = []
             back_grad = [-action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(back_grad, self.model.trainable_variables))
