@@ -151,13 +151,13 @@ class Cifar10RLStudent(Student):
         # fixed action with pseudo sgd
         if (self.gloabl_train_step %  self.valid_gap )==0:
             if self.train_args['action'] == 'fix':
-                _, values = self.fix_action(t_grad=t_grad)
+                _, self.values = self.fix_action(t_grad=t_grad)
             elif self.train_args['action'] == 'fix_n':
-                _, values = self.fix_n_action()
+                _, self.values = self.fix_n_action()
 
             # greedy policy
-            self.index_max = self.e_greedy_policy(values)
-            self.E_Q = tf.squeeze(values[self.index_max])
+            self.index_max = self.e_greedy_policy(self.values)
+            self.E_Q = tf.squeeze(self.values[self.index_max])
             self.act_idx.append(self.index_max) 
 
         # next state
@@ -166,7 +166,7 @@ class Cifar10RLStudent(Student):
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
-        return t_loss, self.E_Q, act, t_grad, values
+        return t_loss, self.E_Q, act, t_grad, self.values
     
     def train(self, new_student=None, supervisor_info=None):
         
