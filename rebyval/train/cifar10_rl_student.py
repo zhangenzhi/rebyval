@@ -131,16 +131,14 @@ class Cifar10RLStudent(Student):
         # steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*action_samples.shape[0], dtype=tf.float32),shape=(-1,1))
         # states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
         
-        import pdb
-        pdb.set_trace()
         state =  self.model.trainable_variables
         next_states = []
         for act in self.action_sample :
             n_s = [s - act*self.optimizer.learning_rate*g for s,g in zip(state, t_grad)]
             next_states.append(n_s)
         reduced_states = [self.reduced_space(s) for s in next_states]
-        scaled_states = tf.concat(reduced_states, axis=-1)    
-        states_actions = {'state':tf.squeeze(scaled_states)}
+        scaled_states = tf.concat(reduced_states, axis=0)    
+        states_actions = {'state':scaled_states}
         self.values = self.supervisor(states_actions)
         return action_samples, self.values
     
