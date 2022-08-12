@@ -355,7 +355,7 @@ class Cifar10RLStudent(Student):
                 raw_values.append(ev_metric)
                 re_grad = [-g for g in grad]
                 self.optimizer.apply_gradients(zip(re_grad, self.model.trainable_variables))
-            values = [10.0 * v for v in raw_values]
+            values = tf.concat([10.0 * v for v in raw_values], axis=0)
             
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
