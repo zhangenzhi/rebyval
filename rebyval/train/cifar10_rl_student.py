@@ -24,6 +24,7 @@ class Cifar10RLStudent(Student):
         self.epsilon = 0.5 + self.id*0.001/2.0
         self.action_sample = [0.1,0.5,1.0,2.5,5.0]
         self.index_max = int(len(self.action_sample))
+        self.E_Q = 1.0
         self.baseline = 0.1
         self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'values':[],
                                   'act_grads':[],'E_Q':[], 'steps':[]}
@@ -156,7 +157,7 @@ class Cifar10RLStudent(Student):
 
             # greedy policy
             self.index_max = self.e_greedy_policy(values)
-            E_Q = tf.squeeze(values[self.index_max])
+            self.E_Q = tf.squeeze(values[self.index_max])
             self.act_idx.append(self.index_max) 
 
         # next state
@@ -165,7 +166,7 @@ class Cifar10RLStudent(Student):
         clip_grads = [tf.clip_by_value(g, clip_value_min=-1.0, clip_value_max=1.0) for g in gradients]
         self.optimizer.apply_gradients(zip(clip_grads, self.model.trainable_variables))
             
-        return t_loss, E_Q, act, t_grad, values
+        return t_loss, self.E_Q, act, t_grad, values
     
     def train(self, new_student=None, supervisor_info=None):
         
