@@ -279,8 +279,11 @@ class Cifar10RLStudent(Student):
                 self.experience_buffer['Q'] = values
                 
             with self.logger.as_default():
-                for i in range(len(Q)):
-                    tf.summary.scalar("T_Q", tf.squeeze(max(Q[i])), step=i)
+                for i in range(len(values)):
+                    if self.supervisor == None:
+                        tf.summary.scalar("T_Q", tf.squeeze(values[len(values[i])/2]), step=i)
+                    else:
+                        tf.summary.scalar("T_Q", tf.squeeze(max(values)), step=i)
                     
         elif q_mode == "TD":
             s = len(self.experience_buffer['rewards'])
