@@ -119,16 +119,28 @@ class Cifar10RLStudent(Student):
     def fix_action(self, t_grad):
         action_samples = tf.reshape(tf.constant(self.action_sample, dtype=tf.float32),shape=(-1,1))
         # fixed action with pseudo sgd
-        flat_grad = self.reduced_space(t_grad)
-        flat_var = self.reduced_space(self.model.trainable_variables)
         
-        scaled_gards = flat_grad * action_samples
-        var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
-        scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
-        scaled_vars = tf.reshape(scaled_vars,shape=(action_samples.shape.as_list()[0],1,-1))
-        # select wights with best Q-value
-        steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*action_samples.shape[0], dtype=tf.float32),shape=(-1,1))
-        states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
+        # flat_grad = tf.concat([tf.reshape(g,(1,-1)) for g in t_grad], axis=-1)
+        # flat_var = tf.concat([tf.reshape(w,(1,-1)) for w in self.model.trainable_variables], axis=-1)
+        
+        # scaled_gards = [grad * action_samples for grad in t_grad]
+        # var_copy = tf.reshape(tf.tile(flat_var, [scaled_gards.shape.as_list()[0], 1]), scaled_gards.shape)
+        # scaled_vars = var_copy - scaled_gards * self.optimizer.learning_rate
+        # scaled_vars = tf.reshape(scaled_vars,shape=(action_samples.shape.as_list()[0],1,-1))
+        # # select wights with best Q-value
+        # steps = tf.reshape(tf.constant([self.gloabl_train_step/10000]*action_samples.shape[0], dtype=tf.float32),shape=(-1,1))
+        # states_actions = {'state':tf.squeeze(scaled_vars), 'action':scaled_gards,'step':steps}
+        
+        import pdb
+        pdb.set_trace()
+        state =  self.model.trainable_variables
+        next_states = []
+        for act in self.action_samples :
+            n_s = [s - act*self.optimizer.learning_rate*g for s,g in zip(state, t_grad)]
+            next_states.append(n_s)
+        reduced_states = [self.reduced_space(s) for s in next_states]
+        scaled_states = tf.concat(reduced_states, axis=-1)    
+        states_actions = {'state':tf.squeeze(scaled_states)}
         self.values = self.supervisor(states_actions)
         return action_samples, self.values
     
@@ -237,10 +249,15 @@ class Cifar10RLStudent(Student):
                     ett_metric = tf.reduce_mean(tt_metrics)
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 # wandb log
-                self.wb.log({"ett_metric":ett_metric, "et_loss":et_loss, "ev_metric":ev_metric, "ett_mloss":ett_loss})     
+                with self.logger.as_default():
+                    tf.summary.scalar("et_loss", et_loss, step=epoch)
+                    tf.summary.scalar("ev_loss", ev_metric, step=epoch)
+                    tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
+                    tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+                # self.wb.log({"ett_metric":ett_metric, "et_loss":et_loss, "ev_metric":ev_metric, "ett_mloss":ett_loss})     
                 
         self.save_experience(q_mode=self.valid_args["q_mode"])
-        self.wb.finish()
+        # self.wb.finish()
         
     def save_experience(self, q_mode="static", df=0.9):
         
@@ -362,7 +379,7 @@ class Cifar10RLStudent(Student):
             E_Q = 10.0 * ev_metric if E_Q < 0.0 else E_Q
         elif self.valid_args["q_mode"] == "static":
             E_Q = E_Q
-        self.wb.log({"E_Q":E_Q, "action":action, "values":values})  # wandb log
+        # self.wb.log({"E_Q":E_Q, "action":action, "values":values})  # wandb log
         self.mem_experience_buffer(weight=self.model.trainable_weights, 
                                 metric=ev_metric, 
                                 action=(action, t_grad), 
