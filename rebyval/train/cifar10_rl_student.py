@@ -121,7 +121,7 @@ class Cifar10RLStudent(Student):
     
     def fix_n_action(self):
         flat_var = self.reduced_space(self.model.trainable_variables)
-        state = tf.reshape(tf.concat(flat_var, axis=0), (1,1,-1))
+        state = tf.reshape(tf.concat(flat_var, axis=0), (1,-1))
         self.values = self.supervisor({'state':state})
         return self.action_sample, self.values
     
