@@ -276,7 +276,7 @@ class Cifar10RLStudent(Student):
             else:
                 # boostrap Q value
                 values = self.experience_buffer['values']
-                rewards = len(self.experience_buffer['rewards'])
+                rewards = self.experience_buffer['rewards']
                 for i in range(len(rewards)):
                     np_values = values[i].numpy()
                     e_q = rewards[i] + df * values[i][self.act_idx[i]] 
