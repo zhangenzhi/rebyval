@@ -365,7 +365,6 @@ class Cifar10RLStudent(Student):
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
             ev_metric = values[int(len(self.action_sample)/2)]
-            self.act_idx.append(self.index_max) 
             
         else:
             self.mv_loss_fn.reset_states()
@@ -376,6 +375,7 @@ class Cifar10RLStudent(Student):
                 vv_metrics.append(v_metrics)
             ev_loss = self.mv_loss_fn.result()
             ev_metric = tf.reduce_mean(vv_metrics)
+            self.act_idx.append(self.index_max) 
         
         # save sample
         if self.valid_args["q_mode"] == "TD":
