@@ -277,6 +277,8 @@ class Cifar10RLStudent(Student):
                 # boostrap Q value
                 values = self.experience_buffer['values']
                 rewards = self.experience_buffer['rewards']
+                import pdb
+                pdb.set_trace()
                 for i in range(len(rewards)):
                     np_values = values[i].numpy()
                     e_q = rewards[i] + df * values[i][self.act_idx[i]] 
