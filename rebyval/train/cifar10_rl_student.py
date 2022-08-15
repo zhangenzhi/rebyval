@@ -177,7 +177,6 @@ class Cifar10RLStudent(Student):
             # greedy policy
             self.index_max = self.e_greedy_policy(self.values)
             self.E_Q = tf.squeeze(self.values[self.index_max])
-            self.act_idx.append(self.index_max) 
 
         # next state
         act = self.action_sample[self.index_max]
@@ -277,8 +276,6 @@ class Cifar10RLStudent(Student):
                 # boostrap Q value
                 values = self.experience_buffer['values']
                 rewards = self.experience_buffer['rewards']
-                import pdb
-                pdb.set_trace()
                 for i in range(len(rewards)):
                     np_values = values[i].numpy()
                     e_q = rewards[i] + df * values[i][self.act_idx[i]] 
@@ -368,6 +365,7 @@ class Cifar10RLStudent(Student):
             fore_grad =  [action*g for g in t_grad]
             self.optimizer.apply_gradients(zip(fore_grad, self.model.trainable_variables))
             ev_metric = values[int(len(self.action_sample)/2)]
+            self.act_idx.append(self.index_max) 
             
         else:
             self.mv_loss_fn.reset_states()
