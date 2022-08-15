@@ -21,7 +21,16 @@ class Cifar10RLStudent(Student):
         
         ## RL
         self.best_metric = 0.5
-        self.epsilon = 0.5 + self.id*0.001/2.0
+        
+        if self.id < 100:
+            self.epsilon = 0.5 
+        if self.id >= 100:
+            self.epsilon = 0.75
+        if self.id >= 300:
+            self.epsilon = 0.875
+        if self.id >= 700:
+            self.epsilon = 0.925
+            
         self.action_sample = [0.1,0.5,1.0,2.5,5.0]
         self.index_max = int(len(self.action_sample))
         self.E_Q = 1.0
@@ -159,7 +168,7 @@ class Cifar10RLStudent(Student):
         self.mt_loss_fn.update_state(t_loss)
                 
         # fixed action with pseudo sgd
-        if (self.gloabl_train_step %  self.valid_gap )==0:
+        if (self.gloabl_train_step %  (self.valid_gap*30) )==0:
             if self.train_args['action'] == 'fix':
                 _, self.values = self.fix_action(t_grad=t_grad)
             elif self.train_args['action'] == 'fix_n':
