@@ -38,7 +38,7 @@ experiment:
         valid:
           q_mode: TD-NQ
           weight_space: sum_reduce
-          valid_gap: 30
+          valid_gap: 10
 
   supervisor:
     dataloader:
