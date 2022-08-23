@@ -85,10 +85,10 @@ class Cifar10DataLoader(BaseDataLoader):
     def load_dataset(self, epochs=-1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
-        # x_train = (x_train / 255.0).astype(np.float32)
+        x_train = (x_train / 255.0).astype(np.float32)
         y_train = y_train.astype(np.float32)
         
-        # x_test = (x_test / 255.0).astype(np.float32)
+        x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
         if self.dataloader_args['da']:
             x_train,x_test = normalization(x_train, x_test)
@@ -119,7 +119,7 @@ class Cifar10DataLoader(BaseDataLoader):
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         # data augmentation
         if self.dataloader_args['da']:
-            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs']),'labels': x['labels']}, num_parallel_calls=16)
+            train_dataset = train_dataset.map(lambda x:{'inputs':data_augmentation(x['inputs'], training=True),'labels': x['labels']}, num_parallel_calls=16)
         train_dataset = train_dataset.prefetch(1)
         train_dataset = train_dataset.repeat(epochs)
 
