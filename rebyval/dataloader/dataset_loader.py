@@ -85,10 +85,10 @@ class Cifar10DataLoader(BaseDataLoader):
     def load_dataset(self, epochs=-1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
-        x_train = (x_train / 255.0).astype(np.float32)
+        # x_train = (x_train / 255.0).astype(np.float32)
         y_train = y_train.astype(np.float32)
         
-        x_test = (x_test / 255.0).astype(np.float32)
+        # x_test = (x_test / 255.0).astype(np.float32)
         y_test = y_test.astype(np.float32)
         if self.dataloader_args['da']:
             x_train,x_test = normalization(x_train, x_test)
