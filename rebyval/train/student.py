@@ -272,6 +272,7 @@ class Student(object):
                     for test_step in t:
                         t_data = test_iter.get_next()
                         t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
+                        print(t_metric)
                         t.set_postfix(test_loss=t_loss.numpy())
                         tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
