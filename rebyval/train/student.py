@@ -105,10 +105,10 @@ class Student(object):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
-        optimizer.momentum=0.9
         self.base_lr = optimizer_args['learning_rate']
         if self.dist:
             optimizer.learning_rate = optimizer.learning_rate * hvd.size()
+            optimizer.momentum=0.9
             optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
