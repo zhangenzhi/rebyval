@@ -31,8 +31,10 @@ def glob_tfrecords(input_dirs, glob_pattern="example", recursively=False):
 def normalization(train_images, test_images):
     mean = np.mean(train_images, axis=(0, 1, 2, 3))
     std = np.std(train_images, axis=(0, 1, 2, 3))
-    train_images = (train_images - mean) / (std + 1e-7)
-    test_images = (test_images - mean) / (std + 1e-7)
+    # train_images = (train_images - mean) / (std + 1e-7)
+    # test_images = (test_images - mean) / (std + 1e-7)
+    train_images = train_images - mean
+    test_images = test_images - mean
     return train_images, test_images
 
 def unpack_tarfile(input_dirs):
