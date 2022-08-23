@@ -211,16 +211,16 @@ class Student(object):
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
                 # lr increase
-                # if train_args["lr_increase"] and epoch<=10:
-                #      self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10
+                if train_args["lr_increase"] and epoch<=20:
+                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/20*4
                      
                 # lr decay
                 if train_args["lr_decay"]:
                     if epoch == int(0.5*total_epochs):
-                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.5
+                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
                     elif epoch == int(0.75*total_epochs):
-                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.2
+                        self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
 
                 with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
