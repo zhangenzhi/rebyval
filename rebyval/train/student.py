@@ -212,7 +212,7 @@ class Student(object):
             for epoch in e:
                 # lr increase
                 if train_args["lr_increase"] and epoch<=10:
-                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*train_args["lr_increase"]/10
+                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10
                      
                 # lr decay
                 if train_args["lr_decay"]:
