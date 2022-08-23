@@ -29,7 +29,7 @@ experiment:
       name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
-      learning_rate: 0.12 # default 0.01
+      learning_rate: 0.0125 # default 0.01
     train_loop:
         train:
           lr_increase: 1
