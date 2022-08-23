@@ -16,7 +16,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 300
+      epochs: 400
       da: True
       # task: rl
     model:
@@ -31,7 +31,7 @@ experiment:
       learning_rate: 0.25 # default 0.01
     train_loop:
         train:
-          lr_increase: 2
+          lr_increase: 1
           lr_decay: True
           action: fix
           policy: greedy
