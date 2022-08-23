@@ -67,6 +67,15 @@ class Student(object):
 
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
+    
+    def _reset_dataset(self):
+        self.train_dataset, self.valid_dataset, self.test_dataset, self.dataloader = self._build_dataset()
+        # dataset train, valid, test
+        train_iter = iter(self.train_dataset)
+        valid_iter = iter(self.valid_dataset)
+        test_iter = iter(self.test_dataset)
+        return train_iter, valid_iter, test_iter
+        
 
     def _build_model(self):
         model = model_factory(self.args['model'])
@@ -268,6 +277,7 @@ class Student(object):
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
+                train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
