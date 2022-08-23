@@ -96,6 +96,7 @@ class Student(object):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
+        self.base_lr = optimizer_args['learning_rate']
         if self.dist:
             optimizer.learning_rate = optimizer.learning_rate * hvd.size()
             optimizer = hvd.DistributedOptimizer(optimizer)
@@ -211,7 +212,7 @@ class Student(object):
             for epoch in e:
                 # lr increase
                 if train_args["lr_increase"] and epoch<=10:
-                     self.optimizer.learning_rate += train_args["lr_increase"]/10*train_args["lr_increase"]
+                     self.optimizer.learning_rate += self.base_lr*train_args["lr_increase"]/10
                      
                 # lr decay
                 if train_args["lr_decay"]:
