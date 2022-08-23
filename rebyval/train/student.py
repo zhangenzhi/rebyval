@@ -209,7 +209,10 @@ class Student(object):
         # tqdm update, logger
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
-
+                # lr increase
+                if train_args["lr_increase"] and epoch<=10:
+                     self.optimizer.learning_rate += train_args["lr_increase"]/10*train_args["lr_increase"]
+                     
                 # lr decay
                 if train_args["lr_decay"]:
                     if epoch == int(0.5*total_epochs):
