@@ -211,8 +211,8 @@ class Student(object):
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
                 # lr increase
-                if train_args["lr_increase"] and epoch<=20:
-                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/20*4
+                if train_args["lr_increase"] and epoch<10:
+                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
                      
                 # lr decay
                 if train_args["lr_decay"]:
