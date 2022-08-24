@@ -41,6 +41,8 @@ experiment:
           weight_space:
             format: sum_reduce
           valid_gap: 195
+        test:
+          epoch: -1
 
   supervisor:
     dataloader:
