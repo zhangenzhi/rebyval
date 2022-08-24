@@ -270,7 +270,7 @@ class Student(object):
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    self.test_metrics.reset_state()
+                    self.test_metrics.reset_states()
                     tt_metrics = []
                     for test_step in t:
                         t_data = test_iter.get_next()
