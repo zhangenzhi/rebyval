@@ -283,7 +283,7 @@ class Student(object):
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
-                train_iter, valid_iter, test_iter = self._reset_dataset()
+                # train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)

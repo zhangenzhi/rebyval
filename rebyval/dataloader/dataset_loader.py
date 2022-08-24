@@ -82,7 +82,7 @@ class Cifar10DataLoader(BaseDataLoader):
                      'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
-    def load_dataset(self, epochs=1, format=None):
+    def load_dataset(self, epochs=-1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
         x_train = (x_train / 255.0).astype(np.float32)
