@@ -17,6 +17,7 @@ def conv2d_bn(x, filters, kernel_size, weight_decay=.0, strides=(1, 1)):
                    strides=strides,
                    padding='same',
                    use_bias=False,
+                   kernel_initializer='he_normal' # test he init
                    kernel_regularizer=l2(weight_decay)
                    )(x)
     layer = BatchNormalization()(layer)
@@ -98,7 +99,9 @@ def ResNetForCIFAR10(classes, name, input_shape, block_layers_num, weight_decay)
         x = ResidualBlock(x, filters=64, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
     x = AveragePooling2D(pool_size=(8, 8), padding='valid')(x)
     x = Flatten()(x)
-    x = Dense(classes, activation='softmax')(x)
+    x = Dense(classes, 
+              kernel_initializer='he_normal', # test he init
+              activation='softmax')(x)
     model = Model(input, x, name=name)
     return model
 
