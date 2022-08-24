@@ -269,7 +269,7 @@ class Student(object):
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                     et_loss = self.mt_loss_fn.result()
-                    etr_metric = tf.reduce_mean(tt_metrics)
+                    etr_metric = tf.reduce_mean(etr_metrics)
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
