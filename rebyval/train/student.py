@@ -270,7 +270,7 @@ class Student(object):
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    tt_metrics.reset_state()
+                    self.test_metrics.reset_state()
                     tt_metrics = []
                     for test_step in t:
                         t_data = test_iter.get_next()
@@ -279,7 +279,7 @@ class Student(object):
                         t.set_postfix(test_loss=t_loss.numpy())
                         # tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
-                    ett_metric = tt_metrics.result()
+                    ett_metric =  self.test_metrics.result()
                     # ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
