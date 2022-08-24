@@ -4,7 +4,7 @@ experiment:
     # devices: [0,1,2,3]
     devices: [0,1,2,3,4,5,6,7]
     multi-p: False
-    dist: True
+    dist: False
 
   main_loop:
     warmup: 
@@ -17,7 +17,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 1000
+      epochs: 200
       da: True
       # task: rl
     model:
