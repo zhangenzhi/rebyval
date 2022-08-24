@@ -26,7 +26,7 @@ experiment:
     loss:
       name: CategoricalCrossentropy
     metrics: 
-      name: Accuracy
+      name: CategoricalAccuracy
     optimizer:
       name: sgd # default SGD
       learning_rate: 0.1 # default 0.01
