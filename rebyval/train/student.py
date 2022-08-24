@@ -98,7 +98,7 @@ class Student(object):
         metrics = self.args['metrics']
         train_metrics = tf.keras.metrics.get(metrics['name'])
         valid_metrics = tf.keras.metrics.get(metrics['name'])
-        test_metrics = tf.keras.metrics.get(metrics['name'])()
+        test_metrics = tf.keras.metrics.get(metrics['name'])
         return train_metrics, valid_metrics, test_metrics
 
     def _build_optimizer(self):
