@@ -12,7 +12,7 @@ class ModelFactory():
                            'resnet50':ResNet50,
                            'resnet56':ResNet56, 
                            'nresnet56':nResNet56, 
-                           't-resnet56':ResNet56ForCIFAR10(input_shape=(32, 32, 3), classes=10, weight_decay=1e-4), 
+                           't-resnet56':ResNet56ForCIFAR10, 
                            'vgg16':VGG16,
                            'vgg11':VGG11}
 
@@ -22,7 +22,7 @@ class ModelFactory():
     def get_model(self, model_args):
         model_cls = self.model_list[model_args['name']]
         if model_args['name'] == 't-resnet56':
-            return model_cls
+            return model_cls(input_shape=(32, 32, 3), classes=10, weight_decay=1e-4)
         model = model_cls(**model_args)
         return model
   
