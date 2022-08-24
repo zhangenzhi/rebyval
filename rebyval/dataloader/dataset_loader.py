@@ -78,7 +78,7 @@ class Cifar10DataLoader(BaseDataLoader):
         super(Cifar10DataLoader, self).__init__(dataloader_args=dataloader_args)
         self.info = {'train_size':50000,'test_size':10000,'image_size':[32,32,3],
                      'train_step': int(50000/dataloader_args['batch_size']),
-                     'valid_step': int(5000/dataloader_args['batch_size']),
+                     'valid_step': int(10000/dataloader_args['batch_size']),
                      'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
@@ -129,7 +129,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
         # all 1w test
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(epochs)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']).repeat(-1)
         valid_dataset = test_dataset
         
         # test_dataset = test_dataset.shuffle(test_size)
