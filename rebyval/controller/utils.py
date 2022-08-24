@@ -9,7 +9,10 @@ def check_args_from_input_config(input_config):
     print_dict(merged_configs)
     return merged_configs
 
-def check_and_merge(input_config, default_configs, indent=0):
+def check_and_merge(input_config, default_configs, indent=0, use=False):
+    if use == False:
+        return input_config
+    
     for key, value in default_configs.items():
         if key not in input_config:
             input_config[key] = value
