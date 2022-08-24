@@ -109,6 +109,7 @@ class Student(object):
         if self.dist:
             optimizer.learning_rate = optimizer.learning_rate * hvd.size()
             optimizer.momentum=0.9
+            optimizer.nestrov = False
             optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
@@ -190,11 +191,11 @@ class Student(object):
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        self.test_metrics(labels, predictions)
-        # test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
+        # self.test_metrics(labels, predictions)
+        test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
-        # return loss, test_metrics
-        return loss
+        return loss, test_metrics
+        # return loss
 
     def train(self, supervisor_info=None):
         
@@ -243,7 +244,6 @@ class Student(object):
                                 first_batch = True if epoch==0 and train_step==0 else False
                                 data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
-                                # train_step += hvd.size() - 1
                             else:
                                 data = train_iter.get_next()
                                 train_loss,_ = self._train_step(data['inputs'], data['labels'])
@@ -273,14 +273,14 @@ class Student(object):
                     tt_metrics = []
                     for test_step in t:
                         t_data = test_iter.get_next()
-                        # t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
-                        t_loss = self._test_step(t_data['inputs'], t_data['labels'])
+                        t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
+                        # t_loss = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
-                        # tt_metrics.append(t_metric)
+                        tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric =  self.test_metrics.result()
-                    self.test_metrics.reset_state()
-                    # ett_metric = tf.reduce_mean(tt_metrics)
+                    # self.test_metrics.reset_state()
+                    ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 train_iter, valid_iter, test_iter = self._reset_dataset()
