@@ -26,7 +26,7 @@ experiment:
       classes: 10
     loss:
       name:
-        class_name: "CategoricalCrossentropy",
+        class_name: "CategoricalCrossentropy"
         config: 
            from_logits: True
     metrics: 
