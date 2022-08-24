@@ -21,6 +21,8 @@ class ModelFactory():
     
     def get_model(self, model_args):
         model_cls = self.model_list[model_args['name']]
+        if model_args['name'] == 't-resnet56':
+            return model_cls
         model = model_cls(**model_args)
         return model
   
