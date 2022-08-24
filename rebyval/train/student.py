@@ -278,7 +278,7 @@ class Student(object):
                         t.set_postfix(test_loss=t_loss.numpy())
                         tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
-                    ett_metric =  self.test_metrics.result()
+                    # ett_metric =  self.test_metrics.result()
                     # self.test_metrics.reset_state()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
