@@ -25,7 +25,10 @@ experiment:
       name: t-resnet56 # default dnn
       classes: 10
     loss:
-      name: CategoricalCrossentropy
+      name:
+        class_name: "CategoricalCrossentropy",
+        config: 
+           from_logits: True
     metrics: 
       name: categorical_accuracy
     optimizer:
