@@ -98,7 +98,7 @@ class Student(object):
         metrics = self.args['metrics']
         train_metrics = tf.keras.metrics.get(metrics['name'])
         valid_metrics = tf.keras.metrics.get(metrics['name'])
-        test_metrics = tf.keras.metrics.get(metrics['name'])
+        test_metrics = tf.keras.metrics.get(metrics['name'])()
         return train_metrics, valid_metrics, test_metrics
 
     def _build_optimizer(self):
@@ -270,7 +270,7 @@ class Student(object):
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    self.test_metrics.reset_states()
+                    self.test_metrics.reset_state()
                     tt_metrics = []
                     for test_step in t:
                         t_data = test_iter.get_next()
