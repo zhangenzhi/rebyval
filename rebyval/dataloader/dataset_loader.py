@@ -82,7 +82,7 @@ class Cifar10DataLoader(BaseDataLoader):
                      'test_step': int(10000/dataloader_args['batch_size']),
                      'epochs': dataloader_args['epochs']}
 
-    def load_dataset(self, epochs=-1, format=None):
+    def load_dataset(self, epochs=1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
         x_train = (x_train / 255.0).astype(np.float32)
@@ -96,19 +96,6 @@ class Cifar10DataLoader(BaseDataLoader):
         # one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test = tf.keras.utils.to_categorical(y_test, 10)
-        
-        # data_augmentation = tf.keras.Sequential(
-        #                         [
-        #                             tf.keras.layers.Normalization(),
-        #                             tf.keras.layers.Resizing(32, 32),
-        #                             tf.keras.layers.RandomFlip("horizontal"),
-        #                             tf.keras.layers.RandomRotation(factor=0.02),
-        #                             tf.keras.layers.RandomZoom(height_factor=0.2, width_factor=0.2),
-        #                         ],
-        #                         name="data_augmentation",
-        #                     )
-        # # Compute the mean and the variance of the training data for normalization.
-        # data_augmentation.layers[0].adapt(x_train)
         
         data_augmentation = tf.keras.Sequential([
                             preprocessing.RandomFlip(mode="horizontal"),
