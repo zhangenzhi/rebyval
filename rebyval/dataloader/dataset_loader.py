@@ -85,39 +85,39 @@ class Cifar10DataLoader(BaseDataLoader):
     def load_dataset(self, epochs=-1, format=None):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
-        # x_train = (raw_x_train / 255.0).astype(np.float32)
-        # y_train = raw_y_train.astype(np.float32)
+        x_train = (x_train / 255.0).astype(np.float32)
+        y_train = y_train.astype(np.float32)
         
-        # x_test = (raw_x_test / 255.0).astype(np.float32)
-        # y_test = raw_y_test.astype(np.float32)
-        # if self.dataloader_args['da']:
-        #     x_train,x_test = normalization(raw_x_train, raw_x_test)
+        x_test = (x_test / 255.0).astype(np.float32)
+        y_test = y_test.astype(np.float32)
+        if self.dataloader_args['da']:
+            x_train,x_test = normalization(x_train, x_test)
         
         # one-hot
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test = tf.keras.utils.to_categorical(y_test, 10)
         
-        data_augmentation = tf.keras.Sequential(
-                                [
-                                    tf.keras.layers.Normalization(),
-                                    tf.keras.layers.Resizing(32, 32),
-                                    tf.keras.layers.RandomFlip("horizontal"),
-                                    tf.keras.layers.RandomRotation(factor=0.02),
-                                    tf.keras.layers.RandomZoom(height_factor=0.2, width_factor=0.2),
-                                ],
-                                name="data_augmentation",
-                            )
-        # Compute the mean and the variance of the training data for normalization.
-        data_augmentation.layers[0].adapt(x_train)
+        # data_augmentation = tf.keras.Sequential(
+        #                         [
+        #                             tf.keras.layers.Normalization(),
+        #                             tf.keras.layers.Resizing(32, 32),
+        #                             tf.keras.layers.RandomFlip("horizontal"),
+        #                             tf.keras.layers.RandomRotation(factor=0.02),
+        #                             tf.keras.layers.RandomZoom(height_factor=0.2, width_factor=0.2),
+        #                         ],
+        #                         name="data_augmentation",
+        #                     )
+        # # Compute the mean and the variance of the training data for normalization.
+        # data_augmentation.layers[0].adapt(x_train)
         
-        # data_augmentation = tf.keras.Sequential([
-        #                     preprocessing.RandomFlip(mode="horizontal"),
-        #                     preprocessing.RandomContrast(0.1),
-        #                     preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
-        #                     preprocessing.RandomCrop(32, 32),
-        #                     preprocessing.RandomRotation(factor=(-0.1, 0.1)),
-        #                     preprocessing.RandomZoom(0.1)
-        #                     ])
+        data_augmentation = tf.keras.Sequential([
+                            preprocessing.RandomFlip(mode="horizontal"),
+                            preprocessing.RandomContrast(0.1),
+                            preprocessing.RandomTranslation(height_factor=0.1, width_factor=0.1),
+                            preprocessing.RandomCrop(32, 32),
+                            preprocessing.RandomRotation(factor=(-0.1, 0.1)),
+                            preprocessing.RandomZoom(0.2)
+                            ])
 
         full_size = len(x_train)
         test_size = len(x_test)
