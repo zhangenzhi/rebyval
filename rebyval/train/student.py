@@ -190,9 +190,11 @@ class Student(object):
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
+        self.test_metrics.update_state(labels, predictions)
+        # test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
-        return loss, test_metrics
+        # return loss, test_metrics
+        return loss
 
     def train(self, supervisor_info=None):
         
@@ -268,14 +270,17 @@ class Student(object):
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
+                    tt_metrics.reset_state()
                     tt_metrics = []
                     for test_step in t:
                         t_data = test_iter.get_next()
-                        t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
+                        # t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
+                        t_loss = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
-                        tt_metrics.append(t_metric)
+                        # tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
-                    ett_metric = tf.reduce_mean(tt_metrics)
+                    ett_metric = tt_metrics.result()
+                    # ett_metric = tf.reduce_mean(tt_metrics)
                     
                 e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
                 # train_iter, valid_iter, test_iter = self._reset_dataset()

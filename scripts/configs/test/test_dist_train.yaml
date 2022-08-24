@@ -17,16 +17,16 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 200
+      epochs: 192
       da: True
       # task: rl
     model:
       name: t-resnet56 # default dnn
       classes: 10
     loss:
-      name: CategoricalCrossentropy
+      name: categorical_crossentropy
     metrics: 
-      name: categorical_accuracy
+      name: accuracy
     optimizer:
       name: sgd # default SGD
       learning_rate: 0.1 # default 0.01
