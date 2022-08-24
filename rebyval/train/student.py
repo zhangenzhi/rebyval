@@ -158,6 +158,7 @@ class Student(object):
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             loss = self.loss_fn(labels, predictions)
+            train_metrics = tf.reduce_mean(self.train_metrics(labels, predictions))
 
         if self.dist:
             tape = hvd.DistributedGradientTape(tape)
@@ -173,7 +174,7 @@ class Student(object):
 
         self.mt_loss_fn.update_state(loss)
         
-        return loss, gradients
+        return loss, gradients, train_metrics
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels):
@@ -191,7 +192,6 @@ class Student(object):
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        # self.test_metrics(labels, predictions)
         test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
         return loss, test_metrics
@@ -238,15 +238,17 @@ class Student(object):
 
                 with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
+                    etr_metrics = []
                     for train_step in t:
                         if self.supervisor == None:
                             if self.dist:
                                 first_batch = True if epoch==0 and train_step==0 else False
                                 data = train_iter.get_next()
-                                train_loss,_ = self._train_step(data['inputs'], data['labels'], first_batch)
+                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'], first_batch)
                             else:
                                 data = train_iter.get_next()
-                                train_loss,_ = self._train_step(data['inputs'], data['labels'])
+                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'])
+                            etr_metrics.append(step_train_metric)
                         else:
                             data = train_iter.get_next()
                             train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
@@ -267,6 +269,7 @@ class Student(object):
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                     et_loss = self.mt_loss_fn.result()
+                    etr_metric = tf.reduce_mean(tt_metrics)
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
@@ -274,15 +277,12 @@ class Student(object):
                     for test_step in t:
                         t_data = test_iter.get_next()
                         t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
-                        # t_loss = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
                         tt_metrics.append(t_metric)
                     ett_loss = self.mtt_loss_fn.result()
-                    # ett_metric =  self.test_metrics.result()
-                    # self.test_metrics.reset_state()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
-                e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
+                e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy, ett_loss=ett_loss.numpy(), ett_metric=ett_metric.numpy())
                 # train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
