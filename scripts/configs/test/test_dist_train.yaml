@@ -22,7 +22,7 @@ experiment:
       da: True
       # task: rl
     model:
-      name: t-resnet56 # default dnn
+      name: resnet56 # default dnn
       classes: 10
     loss:
       name:
