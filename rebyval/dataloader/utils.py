@@ -31,15 +31,15 @@ def glob_tfrecords(input_dirs, glob_pattern="example", recursively=False):
 def normalization(train_images, test_images):
     mean = np.mean(train_images, axis=(0, 1, 2, 3))
     std = np.std(train_images, axis=(0, 1, 2, 3))
-    train_images = (train_images - mean) / (std + 1e-7)
-    test_images = (test_images - mean) / (std + 1e-7)
+    # train_images = (train_images - mean) / (std + 1e-7)
+    # test_images = (test_images - mean) / (std + 1e-7)
     
     # subtract mean
     # x_train = np.reshape(train_images, (train_images.shape[0], -1)).astype('float32')
     # x_test = np.reshape(test_images, (test_images.shape[0], -1)).astype('float32')
     # mean_image = np.mean(x_train, axis=0).astype('uint8')
-    # train_images = train_images - mean
-    # test_images = test_images - mean
+    train_images = train_images - mean
+    test_images = test_images - mean
     
     return train_images, test_images
 
