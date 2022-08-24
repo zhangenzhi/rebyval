@@ -83,19 +83,19 @@ class Cifar10DataLoader(BaseDataLoader):
                      'epochs': dataloader_args['epochs']}
 
     def load_dataset(self, epochs=-1, format=None):
-        (raw_x_train, raw_y_train), (raw_x_test, raw_y_test) = tf.keras.datasets.cifar10.load_data()
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         
-        x_train = (raw_x_train / 255.0).astype(np.float32)
-        y_train = raw_y_train.astype(np.float32)
+        # x_train = (raw_x_train / 255.0).astype(np.float32)
+        # y_train = raw_y_train.astype(np.float32)
         
-        x_test = (raw_x_test / 255.0).astype(np.float32)
-        y_test = y_test.astype(np.float32)
-        if self.dataloader_args['da']:
-            x_train,x_test = normalization(raw_x_train, raw_x_test)
+        # x_test = (raw_x_test / 255.0).astype(np.float32)
+        # y_test = raw_y_test.astype(np.float32)
+        # if self.dataloader_args['da']:
+        #     x_train,x_test = normalization(raw_x_train, raw_x_test)
         
         # one-hot
-        y_train = tf.keras.utils.to_categorical(raw_y_train, 10)
-        y_test = tf.keras.utils.to_categorical(raw_y_test, 10)
+        y_train = tf.keras.utils.to_categorical(y_train, 10)
+        y_test = tf.keras.utils.to_categorical(y_test, 10)
         
         data_augmentation = tf.keras.Sequential(
                                 [
