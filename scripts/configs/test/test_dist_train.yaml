@@ -21,7 +21,7 @@ experiment:
       da: True
       # task: rl
     model:
-      name: resnet56 # default dnn
+      name: t-resnet56 # default dnn
       classes: 10
     loss:
       name: CategoricalCrossentropy
