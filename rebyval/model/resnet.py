@@ -307,7 +307,7 @@ class ResNet56(ResNetV2):
                  use_bias=True, 
                  pooling=None, 
                  classes=10, 
-                 regularizer=tf.keras.regularizers.l2(1e-3), 
+                 regularizer=tf.keras.regularizers.l2(1e-4), 
                  name='ResNet56',
                  **kwargs):
         super(ResNet56, self).__init__(use_bias=use_bias, 
