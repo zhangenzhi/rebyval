@@ -231,10 +231,10 @@ class Student(object):
                 if train_args["lr_decay"]:
                     if epoch == int(0.5*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                        print_green("Current decayed learning rate is {}".format(self.optimizer.learning_rate.numpy()))
                     elif epoch == int(0.75*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                        print_green("Current decayed learning rate is {}".format(self.optimizer.learning_rate.numpy()))
 
                 with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
