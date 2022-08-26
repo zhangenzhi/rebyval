@@ -1,10 +1,10 @@
 experiment:
   context:
-    name: dist-train
+    name: dist-1-train
     # devices: [0,1,2,3]
-    devices: [0,1,2,3,4,5,6,7]
+    devices: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     multi-p: False
-    dist: False
+    dist: True
     log_path: ./log
 
   main_loop:
@@ -18,7 +18,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 200
+      epochs: 400
       da: True
       # task: rl
     model:
