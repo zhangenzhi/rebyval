@@ -16,7 +16,7 @@ experiment:
     student_nums: 0
 
   student:
-    name: gpu8
+    name: gpu8-lr1
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
@@ -35,7 +35,7 @@ experiment:
       name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
-      learning_rate: 0.00625 # default 0.01
+      learning_rate: 0.0125 # default 0.01
     train_loop:
         train:
           lr_increase: 1
