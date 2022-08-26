@@ -17,7 +17,7 @@ def conv2d_bn(x, filters, kernel_size, weight_decay=.0, strides=(1, 1)):
                    strides=strides,
                    padding='same',
                    use_bias=False,
-                   kernel_initializer='he_normal', # test he init
+                #    kernel_initializer='he_normal', # test he init
                    kernel_regularizer=l2(weight_decay)
                    )(x)
     layer = BatchNormalization()(layer)

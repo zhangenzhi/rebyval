@@ -18,7 +18,7 @@ experiment:
     name: gpu16-fda-256
     dataloader:
       name: cifar10 # default cifar10
-      batch_size: 256
+      batch_size: 128
       epochs: 600
       da: True
       # task: rl
