@@ -115,9 +115,7 @@ class Student(object):
         return optimizer
 
     def _build_logger(self):
-        logdir = "tensorboard/" + \
-            "student-{}-".format(self.id) + \
-            datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/" + "student-{}-".format(self.id) + self.args['name'] + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         if self.dist:
             if hvd.local_rank() == 0:
