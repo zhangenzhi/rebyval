@@ -19,7 +19,7 @@ experiment:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 1200
+      epochs: 600
       da: True
       # task: rl
     model:
