@@ -16,11 +16,11 @@ experiment:
     student_nums: 0
 
   student:
-    name: gpu16-ep1200-
+    name: gpu16-ep3200-
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 1200
+      epochs: 3200
       da: True
       # task: rl
     model:
