@@ -21,7 +21,7 @@ class MultiController(BaseController):
             
         self.args = self.yaml_configs['experiment']
         self.context = self.args['context']
-        self.devices = self.context['devices']
+        self.devices = list(range(self.context['devices']))
         self.log_path = os.path.join(self.context['log_path'], self.context['name'])
 
     def device_dispatch(self, student):
