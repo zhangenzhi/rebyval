@@ -17,7 +17,7 @@ experiment:
     student_nums: 0
 
   student:
-    name: gpu64-ep6400-
+    name: gpu128-ep12800-
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
