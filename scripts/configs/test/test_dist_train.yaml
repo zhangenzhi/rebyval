@@ -4,7 +4,7 @@ experiment:
     # devices: [0,1,2,3]
     # devices: [0,1,2,3,4,5,6,7]
     # devices: 16
-    devices: 32
+    devices: 64
     multi-p: False
     dist: True
     log_path: ./log
@@ -17,11 +17,11 @@ experiment:
     student_nums: 0
 
   student:
-    name: gpu32-ep3200-
+    name: gpu64-ep6400-
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 3200
+      epochs: 6400
       da: True
       # task: rl
     model:
@@ -36,7 +36,7 @@ experiment:
       name: categorical_accuracy
     optimizer:
       name: sgd # default SGD
-      learning_rate: 0.003125 # default 0.01
+      learning_rate: 0.0015625 # default 0.01
     train_loop:
         train:
           lr_increase: 1
