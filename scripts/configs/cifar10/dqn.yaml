@@ -4,6 +4,7 @@ experiment:
     devices: 4
     multi-p: False
     dist: False
+    log_path: ./log
 
   main_loop:
     warmup: 
