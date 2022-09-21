@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: cifar100-da-de #for each exp
+    name: cifar10-da #for each exp
     devices: 4
     multi-p: False
     dist: False
@@ -14,6 +14,7 @@ experiment:
     student_nums: 1
 
   student:
+    name: gpu4-ep100
     dataloader:
       name: cifar10 # cifar100, mnist
       batch_size: 512
@@ -40,6 +41,8 @@ experiment:
           q_mode: TD
           weight_space: norm_reduce
           valid_gap: 10
+        test:
+          epoch: -1
 
   supervisor:
     dataloader:
