@@ -227,7 +227,7 @@ class Cifar10RLStudent(Student):
                     for train_step in t:
                         data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss, t_grad = self._train_step(data['inputs'], data['labels'])
+                            train_loss, t_grad, train_metrics = self._train_step(data['inputs'], data['labels'])
                             action = 1.0
                             self.act_idx.append(int(len(self.action_sample)/2))
                             values = tf.ones(shape=(len(self.action_sample)), dtype=tf.float32)
