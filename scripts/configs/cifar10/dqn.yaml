@@ -14,7 +14,7 @@ experiment:
     student_nums: 1
 
   student:
-    name: gpu4-ep100-
+    name: gpu4-ep100
     dataloader:
       name: cifar10 # cifar100, mnist
       batch_size: 512
