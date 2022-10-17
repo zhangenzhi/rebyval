@@ -1,0 +1,68 @@
+experiment:
+  context:
+    name: dist-train
+    devices: 4
+    multi-p: False
+    dist: True
+    log_path: ./log
+
+  main_loop:
+    warmup: 
+      student_nums: 1
+      supervisor_trains: 0
+    nums: 0
+    student_nums: 0
+
+  student:
+    name: gpu128-ep12800-
+    dataloader:
+      name: cifar10 # default cifar10
+      batch_size: 128
+      epochs: 400
+      da: True
+      # task: rl
+    model:
+      name: t-resnet56 # default dnn
+      classes: 10
+    loss:
+      name:
+        class_name: "CategoricalCrossentropy"
+        config: 
+           from_logits: False
+    metrics: 
+      name: categorical_accuracy
+    optimizer:
+      name: sgd # default SGD
+      learning_rate: 0.025 # default 0.01
+    train_loop:
+        train:
+          lr_increase: 1
+          lr_decay: True
+          action: fix
+          policy: greedy
+        valid:
+          weight_space:
+            format: sum_reduce
+          valid_gap: 195
+        test:
+          epoch: -1
+
+  supervisor:
+    dataloader:
+      name: dnn_sr_RL
+      replay_window: 64
+      batch_size: 32
+      epochs: 100
+    model:
+      name: dnn # default dnn
+      units: [128,64,32,1] # default 128,64,64,32
+      embedding: True
+      activations: [relu,relu,relu,relu] # default relu
+    optimizer:
+      name: sgd
+      learning_rate: 0.01
+    loss:
+      name: MeanAbsoluteError #MeanAbsoluteError 
+    train_loop:
+        valid:
+          valid_gap: 10000 

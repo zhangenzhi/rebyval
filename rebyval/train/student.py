@@ -1,7 +1,9 @@
 import os
+import wandb
 from tqdm import trange
 from datetime import datetime
 import tensorflow as tf
+import horovod.tensorflow as hvd
 
 # dataloader
 from rebyval.dataloader.factory import dataset_factory
@@ -10,21 +12,16 @@ from rebyval.dataloader.factory import dataset_factory
 from rebyval.model.factory import model_factory
 
 # others
-from rebyval.train.utils import ForkedPdb
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 
 
-class Student:
-    def __init__(self, student_args, supervisor=None, id=0, best_metric=tf.constant(0.5)):
+class Student(object):
+    def __init__(self, student_args, supervisor=None, id=0, dist=False):
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
-        
-        ## RL
-        self.best_metric = best_metric
-        self.baseline = 0.1
-        self.experience_buffer = {'states':[], 'rewards':[], 'metrics':[], 'actions':[], 'act_grads':[],'steps':[]}
+        self.dist = dist
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
@@ -41,32 +38,46 @@ class Student:
             sum_reduce = tf.math.reduce_sum(tensor, axis=-1)
             flat_vars.append(tf.reshape(sum_reduce, shape=(1, -1)))
         inputs = tf.concat(flat_vars, axis=1)
-
+        
         with tf.GradientTape() as tape:
-            predictions = self.supervisor(inputs, training=True)
+            predictions = self.supervisor(inputs)
             loss = supervisor_loss_fn(labels, predictions)
             gradients = tape.gradient(
                 loss, self.supervisor.trainable_variables)
             supervisor_opt.apply_gradients(
                 zip(gradients, self.supervisor.trainable_variables))
-        print(loss)
 
-    def _build_enviroment(self):
-        gpus = tf.config.experimental.list_physical_devices("GPU")
-        print_green("devices:", gpus)
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
+    def _build_enviroment(self, devices='0'):
+        if self.dist:
+            hvd.init()
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            if gpus:
+                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+        else:
+            gpus = tf.config.experimental.list_physical_devices("GPU")
+            print_green("devices:", gpus)
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
-        # TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         dataloader = dataset_factory(dataset_args)
 
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset()
         return train_dataset, valid_dataset, test_dataset, dataloader
+    
+    def _reset_dataset(self):
+        self.train_dataset, self.valid_dataset, self.test_dataset, self.dataloader = self._build_dataset()
+        # dataset train, valid, test
+        train_iter = iter(self.train_dataset)
+        valid_iter = iter(self.valid_dataset)
+        test_iter = iter(self.test_dataset)
+        return train_iter, valid_iter, test_iter
+        
 
     def _build_model(self):
-        # TODO: need model registry\
         model = model_factory(self.args['model'])
   
         # model restore
@@ -94,18 +105,25 @@ class Student:
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
-        # optimizer.momentum = 0.9
-        # optimizer.nesterov=False
-        # optimizer.decay = 1e-4
+        self.base_lr = optimizer_args['learning_rate']
+        if self.dist:
+            optimizer.learning_rate = optimizer.learning_rate * hvd.size()
+            optimizer.momentum=0.9
+            optimizer.nestrov = False
+            optimizer = hvd.DistributedOptimizer(optimizer)
+
         return optimizer
 
     def _build_logger(self):
-        logdir = "tensorboard/" + \
-            "student-{}-".format(self.id) + \
-            datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/" + "student-{}-".format(self.id) + self.args['name']+ "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
-        check_mkdir(logdir)
+        if self.dist:
+            if hvd.local_rank() == 0:
+                check_mkdir(logdir)
+        else:
+            check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
+        # self.wb = wandb.init(config=self.args, project=self.args['context']['name'], name="student-{}-".format(self.id)+datetime.now().strftime("%Y%m%d-%H%M%S"))
         return logger
 
     def _build_writter(self):
@@ -133,23 +151,28 @@ class Student:
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels):
-    
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                loss = self.loss_fn(labels, predictions)
+    def _train_step(self, inputs, labels, first_batch=False):
+        
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            loss = self.loss_fn(labels, predictions)
+            train_metrics = tf.reduce_mean(self.train_metrics(labels, predictions))
+
+        if self.dist:
+            tape = hvd.DistributedGradientTape(tape)
             gradients = tape.gradient(loss, self.model.trainable_variables)
-            norm_gard = gradients
-            # norm_gard = [g/(1e-8+tf.norm(g)) for g in gradients]
-            self.optimizer.apply_gradients(
-                zip(norm_gard, self.model.trainable_variables))
-        except:
-            print_error("train step error")
-            raise
+            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+            if first_batch:
+                hvd.broadcast_variables(self.model.variables, root_rank=0)
+                hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
+        else:
+            gradients = tape.gradient(loss, self.model.trainable_variables)
+            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+
+
         self.mt_loss_fn.update_state(loss)
         
-        return loss, gradients
+        return loss, gradients, train_metrics
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels):
@@ -170,6 +193,7 @@ class Student:
         test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
         return loss, test_metrics
+        # return loss
 
     def train(self, supervisor_info=None):
         
@@ -185,33 +209,47 @@ class Student:
         test_iter = iter(self.test_dataset)
         
         
+        total_epochs = self.dataloader.info['epochs']  
+        if self.dist:
+            total_epochs = int(total_epochs/hvd.size())
+        train_steps_per_epoch = self.dataloader.info['train_step']
+
         if supervisor_info != None:
-            # self.supervisor_info = supervisor_info
             self.supervisor = self._build_supervisor_from_vars(supervisor_info)
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
-        with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
+        with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
-
+                # lr increase
+                if train_args["lr_increase"] and epoch<10:
+                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
+                     
                 # lr decay
                 if train_args["lr_decay"]:
-                    if epoch/self.dataloader.info['epochs'] == 0.5:
+                    if epoch == int(0.5*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
-                    elif epoch/self.dataloader.info['epochs'] == 0.75:
+                        print_green("Current decayed learning rate is {}".format(self.optimizer.learning_rate.numpy()))
+                    elif epoch == int(0.75*total_epochs):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
-                        print("Current decayed learning rate is {}".format(self.optimizer.learning_rate))
+                        print_green("Current decayed learning rate is {}".format(self.optimizer.learning_rate.numpy()))
 
-                with trange(self.dataloader.info['train_step'], desc="Train steps", leave=False) as t:
+                with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
+                    etr_metrics = []
                     for train_step in t:
-                        data = train_iter.get_next()
                         if self.supervisor == None:
-                            train_loss,_ = self._train_step(data['inputs'], data['labels'])
+                            if self.dist:
+                                first_batch = True if epoch==0 and train_step==0 else False
+                                data = train_iter.get_next()
+                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'], first_batch)
+                            else:
+                                data = train_iter.get_next()
+                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'])
+                            etr_metrics.append(step_train_metric)
                         else:
-                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], 
-                                                        train_step=train_step, epoch=epoch)
+                            data = train_iter.get_next()
+                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         if train_step % valid_args['valid_gap'] == 0:
@@ -229,6 +267,7 @@ class Student:
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                     et_loss = self.mt_loss_fn.result()
+                    etr_metric = tf.reduce_mean(etr_metrics)
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
@@ -241,7 +280,8 @@ class Student:
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
-                e.set_postfix(et_loss=et_loss.numpy(), ett_metric=ett_metric.numpy(), ett_loss=ett_loss.numpy())
+                e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy(), ett_loss=ett_loss.numpy(), ett_metric=ett_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
+                train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
@@ -249,10 +289,10 @@ class Student:
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
         self.model.summary()
 
-    def run(self, new_student=None, supervisor_info=None):
+    def run(self, new_student=None, supervisor_info=None, devices='1'):
 
         # set enviroment
-        self._build_enviroment()
+        self._build_enviroment(devices=devices)
 
         # prepare dataset
         self.train_dataset, self.valid_dataset, self.test_dataset, \
@@ -272,12 +312,14 @@ class Student:
         self.writter, weight_dir = self._build_writter()
 
         # self.supervisor = self._build_supervisor_from_vars()
+        # with tf.device('GPU:{}'.format(devices)):
         self.train(supervisor_info=supervisor_info)
 
         self.writter.close()
         print('Finished training student {}'.format(self.id))
 
-        new_student.put(weight_dir)
+        if new_student != None:
+            new_student.put(weight_dir)
 
         return weight_dir
 
@@ -398,40 +440,8 @@ class Student:
 
         configs['num_of_students'] = len(glob_tfrecords(
             weight_dir, glob_pattern='*.tfrecords'))
-        configs['sample_per_student'] = int(self.dataloader.info['train_step'] / self.args['train_loop']['valid']['valid_gap']) * self.dataloader.info['epochs']
+        configs['sample_per_student'] = int(self.dataloader.info['train_step'] * self.dataloader.info['epochs'] / self.args['train_loop']['valid']['valid_gap'])
         configs['total_samples'] = configs['sample_per_student'] * \
             configs['num_of_students']
         save_yaml_contents(contents=configs, file_path=config_path)
-        
-    def mem_experience_buffer(self, weight, metric, action, step=0):
-                  
-        state = tf.concat([tf.reshape(tf.math.reduce_sum(w, axis=-1),(1,-1)) for w in weight], axis=1)
-        self.experience_buffer['states'].append(state)
-        
-        self.experience_buffer['metrics'].append(metric)
-        
-        # reward function
-        if metric > self.best_metric:
-            self.best_metric = metric + self.baseline/10
-        if metric <= self.baseline:
-             self.experience_buffer['rewards'].append(tf.constant(0.0))
-        else:
-            self.experience_buffer['rewards'].append(metric - self.baseline)
             
-        self.experience_buffer['actions'].append(tf.constant(action[0]))
-        self.experience_buffer['act_grads'].append(action[1])
-        self.experience_buffer['steps'].append(tf.cast(step, tf.float32))
-        
-    def save_experience(self, df=0.9):
-        s = len(self.experience_buffer['rewards'])
-        Q = [self.experience_buffer['rewards'][-1]]
-        for i in reversed(range(s-1)):
-            q_value = self.experience_buffer['rewards'][i] + df*Q[0]
-            Q.insert(0, q_value)
-        self.experience_buffer['Q'] = Q
-        self._write_trail_to_tfrecord(self.experience_buffer)
-        with self.logger.as_default():
-            for i in range(len(Q)):
-                tf.summary.scalar("T_Q", Q[i], step=i)
-        print("Finished student {} with best metric {}.".format(self.id, self.best_metric))
-        return self.best_metric - self.baseline/10              

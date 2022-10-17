@@ -1,8 +1,9 @@
 import os
+from unicodedata import name
+import wandb
 from datetime import datetime
 
 import tensorflow as tf
-from rebyval.train.student import Student
 
 from rebyval.dataloader.factory import dataset_factory
 from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
@@ -15,7 +16,7 @@ from rebyval.model.factory import model_factory
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir
 from rebyval.dataloader.utils import glob_tfrecords
 
-class Supervisor:
+class Supervisor(object):
     def __init__(self, supervisor_args, logger = None, id = 0):
         self.args = supervisor_args
         self.logger = logger
@@ -24,14 +25,15 @@ class Supervisor:
     def __call__(self, weights):
         pass
     
-    def _build_enviroment(self):
+    def _build_enviroment(self, devices='0'):
+
+        os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_green(gpus)
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
             
     def _build_model(self):
-        #TODO: need model registry
         model = model_factory(self.args['model'])
 
         # model restore
@@ -40,13 +42,12 @@ class Supervisor:
         return model
 
     def _build_dataset(self, new_students = []):
-        #TODO: need dataloader registry
         dataset_args = self.args['dataloader']
         
         datadir = "weight_space"
         dataset_args['path'] = os.path.join(self.args['log_path'], datadir)
         dataloader = dataset_factory(dataset_args)
-        
+        print_green("-"*10+"build_dataset"+"-"*10)
         train_dataset, valid_dataset, test_dataset = dataloader.load_dataset(new_students = new_students)
         return train_dataset, valid_dataset, test_dataset, dataloader
 
@@ -65,17 +66,17 @@ class Supervisor:
     def _build_optimizer(self):
         optimizer_args = self.args['optimizer']
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
-        # ls = LinearScalingWithDecaySchedule(base_learning_rate=optimizer_args['learning_rate'],
-        #                                      linear_scaling=1,warmup_steps=250000,decay_steps=250000)
         optimizer.learning_rate = optimizer_args['learning_rate']
         
         return optimizer
     
     def _build_logger(self):
+        print_green("-"*10+"build_logger"+"-"*10)
         logdir = "tensorboard/"+ "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
+        # self.wb = wandb.init(config=self.args, project=self.args['context']['name'], name= "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S"))
         return logger
 
     def model_restore(self, model):
@@ -136,10 +137,13 @@ class Supervisor:
         
         raise NotImplementedError("need train, valid, test logic.")
 
-    def run(self, new_students=[], keep_train=False):
+    def run(self, keep_train=False, new_students=[]):
+        
+        self.id += 1
         
         if keep_train:
             # prepare dataset
+            print_green("-"*10+"run_keep"+"-"*10)
             self.new_students = new_students
             self.train_dataset, self.valid_dataset, self.test_dataset \
                 = self.dataloader.load_dataset(new_students = new_students)
@@ -149,6 +153,7 @@ class Supervisor:
             
         else:
             # set enviroment
+            print_green("-"*10+"run_init"+"-"*10)
             self._build_enviroment()
 
             # prepare dataset
@@ -170,6 +175,4 @@ class Supervisor:
 
             # train
             self.train()
-            
-        self.id += 1
 

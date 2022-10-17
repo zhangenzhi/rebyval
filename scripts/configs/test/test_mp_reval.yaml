@@ -1,20 +1,21 @@
 experiment:
   context:
-    name: cifar10-mlp-de-ireval
+    name: test-mp-reval
+    devices: [0,1,2,3]
     multi-p: True
 
   main_loop:
     warmup: 
-      student_nums: 20
+      student_nums: 10
       supervisor_trains: 1
-    nums: 100
-    student_nums: 3
+    nums: 2
+    student_nums: 12
 
   student:
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 100
+      epochs: 30
       da: False
     model:
       name: dnn # default dnn
@@ -38,9 +39,9 @@ experiment:
   supervisor:
     dataloader:
       name: dnn_sumreduce
-      replay_window: 1000
+      replay_window: 10
       batch_size: 128
-      epochs: 200
+      epochs: 10
     model:
       name: dnn # default dnn
       units: [256,128,64,1] # default 128,64,64,32

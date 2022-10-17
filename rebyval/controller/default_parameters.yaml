@@ -1,71 +1,70 @@
-experiment:
+# experiment:
 
-  context:
-    name: rebyval 
-    author: Enzhi Zhang & Ruqin Wang
-    multi-p: False
-    log_path: ./log
+#   context:
+#     name: rebyval 
+#     author: Enzhi Zhang & Ruqin Wang
+#     multi-p: False
+#     log_path: ./log
 
-  main_loop:
-    warmup:
-      student_nums: 1 # train 1 student and collect validation weight.
-    nums: 0
-    student_nums: 0
+#   main_loop:
+#     warmup:
+#       student_nums: 1 # train 1 student and collect validation weight.
+#     nums: 0
+#     student_nums: 0
 
-  student:
-    dataloader:
-      name: cifar10 # default cifar10
-      path: ~/.keras/dataset/cifar10 # default using keras
-      epochs: 10
-      batch_size: 128
-    model:
-      name: dnn # default dnn
-    loss:
-      name: SparseCategoricalCrossentropy
-      metrics: SparseCategoricalAccuracy
-    optimizer:
-      name: SGD # default SGD
-      learning_rate: 0.01 # default 0.01
-    train_loop:
-      train:
-        epochs: 10 # default 10
-      valid:
-        weight_space:
-            format: tensor #tensor,numpy,tensor_sum_reduce
-        save_model:
-          save_in: student # or name as your wish
-          save_after_epoch: 1 # save latest and best model per 1000 steps
-      test:
-        epoch: 10
+#   student:
+#     dataloader:
+#       name: cifar10 # default cifar10
+#       path: ~/.keras/dataset/cifar10 # default using keras
+#       epochs: 10
+#       batch_size: 128
+#     model:
+#       name: dnn # default dnn
+#     loss:
+#       name: SparseCategoricalCrossentropy
+#       metrics: SparseCategoricalAccuracy
+#     optimizer:
+#       name: SGD # default SGD
+#       learning_rate: 0.01 # default 0.01
+#     train_loop:
+#       train:
+#         epochs: 10 # default 10
+#       valid:
+#         weight_space: tensor #tensor,numpy,tensor_sum_reduce
+#         save_model:
+#           save_in: student # or name as your wish
+#           save_after_epoch: 1 # save latest and best model per 1000 steps
+#       test:
+#         epoch: 10
 
-  supervisor:
-    dataloader:
-      name: weight
-      format: tensor
-      epochs: 10
-      batch_size: 8
-    model:
-      name: dnn # default dnn
-      dims: 64,32,16,1
-      activations: relu,relu,relu,relu
-#      restore_model:
-#        restore_from: ./log/supervisor/model_best # default best
-    optimizer:
-      name: SGD
-      learning_rate: 0.01
-    loss:
-      name: MeanSquaredError
-    metrics:
-      name: MeanSquaredError
-    train_loop:
-      preprocess:
-        name: normal # l2_sum_avg, sum_avg, normal
-      train:
-        epochs: 10 # default 10
-      valid:
-        save_model:
-          save_in: supvervisor # or name as your wish, default None
-          save_after_epochs: 1 # save latest and best model per epochs
-      test:
-        epoch: 10
+#   supervisor:
+#     dataloader:
+#       name: weight
+#       format: tensor
+#       epochs: 10
+#       batch_size: 8
+#     model:
+#       name: dnn # default dnn
+#       dims: 64,32,16,1
+#       activations: relu,relu,relu,relu
+# #      restore_model:
+# #        restore_from: ./log/supervisor/model_best # default best
+#     optimizer:
+#       name: SGD
+#       learning_rate: 0.01
+#     loss:
+#       name: MeanSquaredError
+#     metrics:
+#       name: MeanSquaredError
+#     train_loop:
+#       preprocess:
+#         name: normal # l2_sum_avg, sum_avg, normal
+#       train:
+#         epochs: 10 # default 10
+#       valid:
+#         save_model:
+#           save_in: supvervisor # or name as your wish, default None
+#           save_after_epochs: 1 # save latest and best model per epochs
+#       test:
+#         epoch: 10
 

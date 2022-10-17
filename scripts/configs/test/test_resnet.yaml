@@ -1,7 +1,8 @@
 experiment:
   context:
-    name: vgg16-test
-    multi-p: True
+    name: resnet-test
+    multi-p: False
+    distribute: True
 
   main_loop:
     warmup: 
@@ -11,25 +12,29 @@ experiment:
     student_nums: 0
 
   student:
+    distribute: True
     dataloader:
       name: cifar10 # default cifar10
       batch_size: 128
-      epochs: 100
+      epochs: 300
+      da: True
     model:
-      name: vgg16 # default dnn
+      name: resnet56 # default dnn
       classes: 10
     loss:
       name: CategoricalCrossentropy
     metrics: 
-      name: CategoricalAccuracy
+      name: categorical_accuracy
     optimizer:
-      name: adam # default SGD
-      learning_rate: 0.001 # default 0.01
+      name: sgd # default SGD
+      learning_rate: 0.1 # default 0.01
     train_loop:
+        train:
+          lr_decay: True
         valid:
           weight_space:
             format: sum_reduce
-          valid_gap: 10000
+          valid_gap: 1000
 
   supervisor:
     dataloader:
