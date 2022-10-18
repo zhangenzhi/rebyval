@@ -8,7 +8,7 @@ if sys.version_info < (3, 5):
 install_dependencies = [
     'networkx==2.5', 'tqdm==4.51.0', 'PyYAML==5.4.1', 'cloudpickle==1.6.0',
     'future==0.18.2', 'ruamel.yaml==0.16.10', 'colorama==0.4.4',
-    'psutil==5.7.3', 'schema==0.7.3'
+    'psutil==5.7.3', 'schema==0.7.3', 'scipy==1.9.1'
 ]
 
 for pack in install_dependencies:

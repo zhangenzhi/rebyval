@@ -10,7 +10,7 @@ from rebyval.controller.dist_controller import DistController
 from rebyval.controller.multi_controller import MultiController
 
 def args_parser():
-    parser = argparse.ArgumentParser('autosparsedl_config')
+    parser = argparse.ArgumentParser('reval_config')
     parser.add_argument(
         '--config',
         type=str,

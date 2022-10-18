@@ -1,6 +1,7 @@
 import os
 
 import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
 
 from rebyval.tools.utils import *
 from rebyval.dataloader.utils import *
