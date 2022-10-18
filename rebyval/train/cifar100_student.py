@@ -1,5 +1,3 @@
-from matplotlib.pyplot import sca
-from sklearn import metrics
 from tqdm import trange
 import numpy as np
 import tensorflow as tf

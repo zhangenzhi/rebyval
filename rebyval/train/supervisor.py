@@ -1,16 +1,15 @@
 import os
 from unicodedata import name
-import wandb
 from datetime import datetime
 
 import tensorflow as tf
 
-from rebyval.dataloader.factory import dataset_factory
+from rebyval.dataloader.dataset_factory import dataset_factory
 from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
 from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 
 # model
-from rebyval.model.factory import model_factory
+from rebyval.model.model_factory import model_factory
 
 # others
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir

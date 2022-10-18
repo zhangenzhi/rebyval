@@ -1,15 +1,15 @@
 import os
-import wandb
+
 from tqdm import trange
 from datetime import datetime
 import tensorflow as tf
-import horovod.tensorflow as hvd
+# import horovod.tensorflow as hvd
 
 # dataloader
-from rebyval.dataloader.factory import dataset_factory
+from rebyval.dataloader.dataset_factory import dataset_factory
 
 # model
-from rebyval.model.factory import model_factory
+from rebyval.model.model_factory import model_factory
 
 # others
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
@@ -49,12 +49,12 @@ class Student(object):
 
     def _build_enviroment(self, devices='0'):
         if self.dist:
-            hvd.init()
+            # hvd.init()
             gpus = tf.config.experimental.list_physical_devices('GPU')
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
-            if gpus:
-                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+            # if gpus:
+            #     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
         else:
             gpus = tf.config.experimental.list_physical_devices("GPU")
             print_green("devices:", gpus)
@@ -106,20 +106,21 @@ class Student(object):
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
         self.base_lr = optimizer_args['learning_rate']
-        if self.dist:
-            optimizer.learning_rate = optimizer.learning_rate * hvd.size()
-            optimizer.momentum=0.9
-            optimizer.nestrov = False
-            optimizer = hvd.DistributedOptimizer(optimizer)
+        # if self.dist:
+        #     optimizer.learning_rate = optimizer.learning_rate * hvd.size()
+        #     optimizer.momentum=0.9
+        #     optimizer.nestrov = False
+        #     optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
 
     def _build_logger(self):
-        logdir = "tensorboard/" + "student-{}-".format(self.id) + self.args['name']+ "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/" + "student-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         if self.dist:
-            if hvd.local_rank() == 0:
-                check_mkdir(logdir)
+            pass
+            # if hvd.local_rank() == 0:
+            #     check_mkdir(logdir)
         else:
             check_mkdir(logdir)
         logger = tf.summary.create_file_writer(logdir)
@@ -150,7 +151,7 @@ class Student(object):
         print(save_msg)
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
-    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels, first_batch=False):
         
         with tf.GradientTape() as tape:
@@ -159,12 +160,13 @@ class Student(object):
             train_metrics = tf.reduce_mean(self.train_metrics(labels, predictions))
 
         if self.dist:
-            tape = hvd.DistributedGradientTape(tape)
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-            if first_batch:
-                hvd.broadcast_variables(self.model.variables, root_rank=0)
-                hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
+            # tape = hvd.DistributedGradientTape(tape)
+            # gradients = tape.gradient(loss, self.model.trainable_variables)
+            # self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+            # if first_batch:
+            #     hvd.broadcast_variables(self.model.variables, root_rank=0)
+            #     hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
+            pass
         else:
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
@@ -201,7 +203,6 @@ class Student(object):
         train_loop_args = self.args['train_loop']
         train_args = train_loop_args['train']
         valid_args = train_loop_args['valid']
-        test_args = train_loop_args['test']
 
         # dataset train, valid, test
         train_iter = iter(self.train_dataset)
@@ -211,7 +212,8 @@ class Student(object):
         
         total_epochs = self.dataloader.info['epochs']  
         if self.dist:
-            total_epochs = int(total_epochs/hvd.size())
+            # total_epochs = int(total_epochs/hvd.size())
+            pass
         train_steps_per_epoch = self.dataloader.info['train_step']
 
         if supervisor_info != None:
@@ -222,8 +224,8 @@ class Student(object):
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
                 # lr increase
-                if train_args["lr_increase"] and epoch<10:
-                     self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
+                # if train_args["lr_increase"] and epoch<10:
+                #      self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
                      
                 # lr decay
                 if train_args["lr_decay"]:
@@ -387,31 +389,15 @@ class Student(object):
                 configs[feature_name] = {'type': 'float32', 'shape': [1]}
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
     
-    def rl_example(self, experience_buffer):
-        configs = {}
-        examples = []
 
-        values = list(experience_buffer.values())
-        keys = list(experience_buffer.keys())
-        sample_value = list(zip(*values))
-        samples = [dict(zip(keys, s)) for s in sample_value]
-        for s in samples:
-            feature = {}
-            for feature_name, value in s.items():
-                bytes_v = tf.io.serialize_tensor(value).numpy()
-                feature[feature_name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[bytes_v]))
-                configs[feature_name] = {'type': 'bytes', 'shape': value.shape.as_list()}
-            examples.append(tf.train.Example(features=tf.train.Features(feature=feature)))
-
-        return examples, configs
 
     def _write_trace_to_tfrecord(self, weights, valid_loss, weight_space=None):
 
         weight_loss = {'vars': weights, 'valid_loss': valid_loss}
 
-        if weight_space['format'] == 'tensor':
+        if weight_space == 'tensor':
             example, configs = self.tensor_example(weight_loss)
-        elif weight_space['format'] == 'sum_reduce':
+        elif weight_space == 'sum_reduce':
             example, configs = self.sum_reduce_example(weight_loss)
         else:
             example, configs = self.tensor_example(weight_loss)
@@ -428,20 +414,4 @@ class Student(object):
         save_yaml_contents(contents=configs, file_path=config_path)
 
         self.writter.write(example.SerializeToString())
-        
-    def _write_trail_to_tfrecord(self, experience_buffer):
-        
-        examples, configs = self.rl_example(experience_buffer)
-        for e in examples:
-            self.writter.write(e.SerializeToString())
-        
-        weight_dir = os.path.join(self.args['log_path'], 'weight_space')
-        config_path = os.path.join(weight_dir, 'feature_configs.yaml')
-
-        configs['num_of_students'] = len(glob_tfrecords(
-            weight_dir, glob_pattern='*.tfrecords'))
-        configs['sample_per_student'] = int(self.dataloader.info['train_step'] * self.dataloader.info['epochs'] / self.args['train_loop']['valid']['valid_gap'])
-        configs['total_samples'] = configs['sample_per_student'] * \
-            configs['num_of_students']
-        save_yaml_contents(contents=configs, file_path=config_path)
             

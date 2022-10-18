@@ -11,8 +11,8 @@ class DatasetFactory():
                              'imagenet': ImageNetDataLoader,
                              
                              'dnn_weights':DNNWeightsLoader,
-                             'dnn_sumreduce':DNNSumReduce,
-                             'dnn_sr_RL':DNNRL}
+                             'dnn_sumreduce':DNNSumReduce
+                            }
     
     def __call__(self, dataloader_args):
         dataset = self.get_dataset(dataloader_args)
