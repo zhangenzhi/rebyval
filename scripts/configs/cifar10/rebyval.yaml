@@ -6,7 +6,7 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 100
+      student_nums: 1
       supervisor_trains: 0
     nums: 0
     student_nums: 0
@@ -32,10 +32,10 @@ experiment:
         train:
           lr_decay: True
         valid:
-          valid_gap: 100 
+          valid_gap: 1000 
           weight_space: sum_reduce
           online_update: False
-          visual: False
+        visual: True
 
   supervisor:
     dataloader:

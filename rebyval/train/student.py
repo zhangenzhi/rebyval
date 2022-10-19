@@ -12,6 +12,7 @@ from rebyval.dataloader.dataset_factory import dataset_factory
 from rebyval.model.model_factory import model_factory
 
 # others
+from rebyval.plot.visualization import visualization
 from rebyval.tools.utils import print_green, print_error, print_normal, check_mkdir, save_yaml_contents
 from rebyval.dataloader.utils import glob_tfrecords
 
@@ -116,14 +117,14 @@ class Student(object):
 
     def _build_logger(self):
         logdir = "tensorboard/" + "student-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        logdir = os.path.join(self.args['log_path'], logdir)
+        self.logdir = os.path.join(self.args['log_path'], logdir)
         if self.dist:
             pass
             # if hvd.local_rank() == 0:
             #     check_mkdir(logdir)
         else:
             check_mkdir(logdir)
-        logger = tf.summary.create_file_writer(logdir)
+        logger = tf.summary.create_file_writer(self.logdir)
         # self.wb = wandb.init(config=self.args, project=self.args['context']['name'], name="student-{}-".format(self.id)+datetime.now().strftime("%Y%m%d-%H%M%S"))
         return logger
 
@@ -289,7 +290,10 @@ class Student(object):
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
                     tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+        
         self.model.summary()
+        if train_loop_args["visual"]:
+            visualization(self.model, test_iter.get_next(), self.loss_fn, step_size=1e-4, scale=300, save_to=self.logdir)
 
     def run(self, new_student=None, supervisor_info=None, devices='1'):
 
