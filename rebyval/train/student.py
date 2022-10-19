@@ -23,6 +23,7 @@ class Student(object):
         self.supervisor = supervisor
         self.id = id
         self.dist = dist
+        self.best_metrics = 0
 
     def _build_supervisor_from_vars(self, supervisor_info=None):
         model = None
@@ -116,7 +117,7 @@ class Student(object):
         return optimizer
 
     def _build_logger(self):
-        logdir = "tensorboard/" + "student-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir = "tensorboard/" + "st-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         self.logdir = os.path.join(self.args['log_path'], logdir)
         if self.dist:
             pass
@@ -125,7 +126,7 @@ class Student(object):
         else:
             check_mkdir(logdir)
         logger = tf.summary.create_file_writer(self.logdir)
-        # self.wb = wandb.init(config=self.args, project=self.args['context']['name'], name="student-{}-".format(self.id)+datetime.now().strftime("%Y%m%d-%H%M%S"))
+  
         return logger
 
     def _build_writter(self):
@@ -143,14 +144,12 @@ class Student(object):
         return model
 
     def model_save(self, name):
-        save_path = os.path.join(
-            self.valid_args['model_dir'], self.valid_args['save_model']['save_in'])
-        save_path = os.path.join(save_path, 'model_{}'.format(name))
+        save_path = os.path.join(self.logdir, '{}_{}'.format(type(self.model).__name__, name))
 
-        save_msg = '\033[33m[Model Status]: Saving {} model at step:{:08d} in {:}.\033[0m'.format(
-            name, self.global_step, save_path)
+        save_msg = '\033[33m[Model Status]: Saving {} model in {:}.\033[0m'.format(name, save_path)
         print(save_msg)
-        self.model.save_weights(save_path, overwrite=True, save_format='tf')
+        
+        self.model.save(save_path, overwrite=True, save_format='tf')
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
@@ -224,6 +223,7 @@ class Student(object):
         # tqdm update, logger
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
+                
                 # lr increase
                 # if train_args["lr_increase"] and epoch<10:
                 #      self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
@@ -237,6 +237,7 @@ class Student(object):
                         self.optimizer.learning_rate = self.optimizer.learning_rate*0.1
                         print_green("Current decayed learning rate is {}".format(self.optimizer.learning_rate.numpy()))
 
+                # train
                 with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
                     etr_metrics = []
@@ -269,6 +270,7 @@ class Student(object):
                                 # online update supervisor
                                 if self.supervisor != None:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
+                                    
                     et_loss = self.mt_loss_fn.result()
                     etr_metric = tf.reduce_mean(etr_metrics)
                 
@@ -283,7 +285,15 @@ class Student(object):
                     ett_loss = self.mtt_loss_fn.result()
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
-                e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy(), ett_loss=ett_loss.numpy(), ett_metric=ett_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
+                    # save best mdoel
+                    if self.best_metrics < ett_metric:
+                        self.model_save(name="best")
+                        self.best_metrics = ett_metric
+
+                    
+                e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy(), ett_loss=ett_loss.numpy(), 
+                              ett_metric=ett_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
+                
                 train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
@@ -292,6 +302,7 @@ class Student(object):
                     tf.summary.scalar("ett_metric", ett_metric, step=epoch)
         
         self.model.summary()
+        self.model_save(name="finished")
         if train_loop_args["visual"]:
             visualization(self.model, 
                           train_iter.get_next(), test_iter.get_next(), 

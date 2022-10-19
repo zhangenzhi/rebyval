@@ -31,7 +31,7 @@ class MultiController(BaseController):
         
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
-        supervisor_trains = warmup['supervisor_trains']
+        supervisor_iters = warmup['supervisor_iters']
         
         processes = []
         for i in range(init_samples):
@@ -46,7 +46,7 @@ class MultiController(BaseController):
                 processes = []
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
    
-        for j in range(supervisor_trains):
+        for j in range(supervisor_iters):
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
             
@@ -66,11 +66,8 @@ class MultiController(BaseController):
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 devices = str(self.device_dispatch(student=student))
-                supervisor_vars = [var.numpy() for var in self.supervisor.model.trainable_variables] # but model vars ok
-                self.args["supervisor"]['model']['initial_value'] = supervisor_vars
-                supervisor_info = self.args["supervisor"]['model']
                 
-                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
+                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=self.supervisor.log_dir, devices=devices)
 
                 p.start()
                 processes.append(p)

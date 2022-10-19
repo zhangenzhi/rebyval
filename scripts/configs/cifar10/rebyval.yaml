@@ -6,20 +6,20 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 1
-      supervisor_trains: 0
+      student_nums: 0
+      supervisor_iters: 1
     nums: 0
     student_nums: 0
 
   student:
     dataloader:
-      name: cifar100 # default cifar10
+      name: cifar10 # default cifar10
       epochs: 10
       batch_size: 128
       da: False
     model:
       name: dnn # default dnn
-      units: [128,64,32,100]
+      units: [128,64,32,10]
       activations: [relu,relu,relu,softmax]
     loss:
       name: CategoricalCrossentropy
@@ -32,14 +32,16 @@ experiment:
         train:
           lr_decay: False
         valid:
-          valid_gap: 1000 
+          valid_gap: 100
           weight_space: sum_reduce
           online_update: False
-        visual: True
+        visual: False
 
   supervisor:
     dataloader:
       name: dnn_weights
+      exp: decay
+      replay_window: 25
       batch_size: 32
       epochs: 10
     model:
@@ -50,7 +52,7 @@ experiment:
       name: SGD
       learning_rate: 0.001
     loss:
-      name: mean_squared_error
+      name: MeanSquaredError
     train_loop:
         valid:
           valid_gap: 100 

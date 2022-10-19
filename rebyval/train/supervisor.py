@@ -70,30 +70,23 @@ class Supervisor(object):
         return optimizer
     
     def _build_logger(self):
-        print_green("-"*10+"build_logger"+"-"*10)
-        logdir = "tensorboard/"+ "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        logdir = os.path.join(self.args['log_path'], logdir)
-        check_mkdir(logdir)
-        logger = tf.summary.create_file_writer(logdir)
-        # self.wb = wandb.init(config=self.args, project=self.args['context']['name'], name= "supervisor-" + datetime.now().strftime("%Y%m%d-%H%M%S"))
+        logdir = "tensorboard/" + "sp-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        self.logdir = os.path.join(self.args['log_path'], logdir)
+        check_mkdir(self.logdir )
+        logger = tf.summary.create_file_writer(self.logdir)
         return logger
 
-    def model_restore(self, model):
-        model_args = self.args['model']
-        model_path = model_args['restore_from']
-        model.load_weights(model_path)
-        print_normal("restore from {} success!".format(model_path))
+    def model_restore(self, name):
+        path = os.path.join(self.logdir,'{}_{}'.format(type(self.model).__name__, name))
+        model = tf.keras.models.load_model(path)
+        print_normal("restore from {} success!".format(path))
         return model
 
     def model_save(self, name):
-        save_path = os.path.join(self.valid_args['model_dir'], self.valid_args['save_model']['save_in'])
-        save_path = os.path.join(save_path, 'model_{}'.format(name))
-
-        save_msg = '\033[33m[Model Status]: Saving {} model at step:{:08d} in {:}.\033[0m'.format(
-            name, self.global_step, save_path)
+        save_path = os.path.join(self.logdir, '{}_{}'.format(type(self.model).__name__, name))
+        save_msg = '\033[33m[Model Status]: Saving {} model in {:}.\033[0m'.format(name, save_path)
         print(save_msg)
-    
-        self.model.save_weights(save_path, overwrite=True, save_format='tf')
+        self.model.save(save_path)
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
@@ -167,7 +160,6 @@ class Supervisor(object):
 
             # build losses and metrics
             self.loss_fn, self.mloss_fn = self._build_loss_fn()
-            self.metrics = self._build_metrics()
             
             # build weights and writter
             self.logger = self._build_logger()

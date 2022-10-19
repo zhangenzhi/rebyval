@@ -46,11 +46,11 @@ class BaseController(object):
 
     def _build_supervisor(self):
         student_args = self.args["student"]
-        supervisor_args = self.args["supervisor"]
-        supervisor_args['context'] = self.context
-        supervisor_args['log_path'] = self.log_path
+        self.supervisor_args = self.args["supervisor"]
+        self.supervisor_args['context'] = self.context
+        self.supervisor_args['log_path'] = self.log_path
 
-        supervisor = supervisor_factory(supervisor_args=supervisor_args,
+        supervisor = supervisor_factory(supervisor_args=self.supervisor_args,
                                         student_task= student_args['dataloader'],
                                         id = self._supervisor_ids)
 
@@ -59,13 +59,13 @@ class BaseController(object):
         
     def warmup(self, warmup):
         init_samples = warmup['student_nums']
-        supervisor_trains = warmup['supervisor_trains']
+        supervisor_iters = warmup['supervisor_iters']
         
         for i in range(init_samples):
             student = self._build_student()
             student.run()
         
-        for j in range(supervisor_trains):
+        for j in range(supervisor_iters):
             keep_train = False if j == 0 else True
             self.supervisor.run(keep_train=keep_train, new_students=[])
 

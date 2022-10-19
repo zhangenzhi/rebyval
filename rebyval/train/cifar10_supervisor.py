@@ -28,27 +28,21 @@ class Cifar10Supervisor(Supervisor):
         # inputs
         flat_vars = []
         for feat, tensor in raw_inputs.items():
-            # sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
             flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
         inputs = tf.concat(flat_vars, axis=1)
         
         return inputs, labels
         
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels, train_step = 0, epoch=0):
-        try:
-            with tf.GradientTape() as tape:
-                predictions = self.model(inputs, training=True)
-                predictions = tf.squeeze(predictions)
-                loss = self.loss_fn(labels, predictions)
+    def _train_step(self, inputs, labels):
+        
+        with tf.GradientTape() as tape:
+            predictions = self.model(inputs, training=True)
+            predictions = tf.squeeze(predictions)
+            loss = self.loss_fn(labels, predictions)
 
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-            
-        except:
-            print_error("train step error")
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables))
                 
         return loss
     
@@ -96,19 +90,13 @@ class Cifar10Supervisor(Supervisor):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
-        train_args = train_loop_args['train']
-        valid_args = train_loop_args['valid']
-        test_args = train_loop_args['test']
+
 
         # dataset train, valid, test
         train_iter = iter(self.train_dataset)
         valid_iter = iter(self.valid_dataset)
         test_iter = iter(self.test_dataset)
         
-        # metrics reset
-        metric_name = self.args['metrics']['name']
-        self.metrics[metric_name].reset_states()
-
         # train, valid, test
         # tqdm update, logger
         with trange(self.dataloader.info['epochs'], desc="Epochs") as e:
@@ -147,3 +135,5 @@ class Cifar10Supervisor(Supervisor):
                 inputs,labels = self.preprocess_weightspace(data)
                 t_loss = self._test_step(inputs, labels, test_step = test_step)
                 t.set_postfix(se_loss=t_loss.numpy())
+                
+        self.model_save(name="latest")
