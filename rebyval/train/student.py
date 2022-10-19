@@ -153,7 +153,7 @@ class Student(object):
         self.model.save_weights(save_path, overwrite=True, save_format='tf')
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _train_step(self, inputs, labels, first_batch=False):
+    def _train_step(self, inputs, labels):
         
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
@@ -293,7 +293,10 @@ class Student(object):
         
         self.model.summary()
         if train_loop_args["visual"]:
-            visualization(self.model, test_iter.get_next(), self.loss_fn, step_size=1e-4, scale=300, save_to=self.logdir)
+            visualization(self.model, 
+                          train_iter.get_next(), test_iter.get_next(), 
+                          step_size=1e-2, scale=100, 
+                          save_to=self.logdir)
 
     def run(self, new_student=None, supervisor_info=None, devices='1'):
 

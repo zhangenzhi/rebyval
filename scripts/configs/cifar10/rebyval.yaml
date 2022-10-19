@@ -13,13 +13,13 @@ experiment:
 
   student:
     dataloader:
-      name: cifar10 # default cifar10
+      name: cifar100 # default cifar10
       epochs: 10
       batch_size: 128
-      da: True
+      da: False
     model:
       name: dnn # default dnn
-      units: [128,64,32,10]
+      units: [128,64,32,100]
       activations: [relu,relu,relu,softmax]
     loss:
       name: CategoricalCrossentropy
@@ -30,7 +30,7 @@ experiment:
       learning_rate: 0.1 # default 0.01
     train_loop:
         train:
-          lr_decay: True
+          lr_decay: False
         valid:
           valid_gap: 1000 
           weight_space: sum_reduce
