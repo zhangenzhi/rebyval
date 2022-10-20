@@ -31,9 +31,9 @@ class DNNWeightsLoader(BaseDataLoader):
         train_samples = int(total_sample*0.6)
         valid_samples =int(total_sample*0.2)
         test_samples = int(total_sample*0.2)
-        train_step = int(train_samples / self.dataloader_args['batch_size'])
-        valid_step = int(valid_samples / self.dataloader_args['batch_size'])
-        test_step = int(test_samples / self.dataloader_args['batch_size'])
+        train_step = int(train_samples / self.dataloader_args['batch_size'] +1)
+        valid_step = int(valid_samples / self.dataloader_args['batch_size'] +1)
+        test_step = int(test_samples / self.dataloader_args['batch_size'] + 1)
         
         info = {'epochs': self.dataloader_args['epochs'],
                 'num_of_students': num_of_students,
@@ -152,7 +152,7 @@ class DNNWeightsLoader(BaseDataLoader):
         train_dataset = train_dataset.repeat(self.info["epochs"])
         train_dataset = train_dataset.batch(self.dataloader_args['batch_size'])
         
-        valid_dataset = valid_dataset.repeat(self.info["epochs"])
+        valid_dataset = valid_dataset.repeat(-1)
         valid_dataset = valid_dataset.batch(self.dataloader_args['batch_size'])
         
         test_dataset = test_dataset.batch(self.dataloader_args['batch_size'])
@@ -221,71 +221,3 @@ class DNNSumReduce(DNNWeightsLoader):
         parsed_analyse_dataset = parsed_analyse_dataset.prefetch(tf.data.AUTOTUNE)
 
         return parsed_analyse_dataset
-
-
-class DNNRL(DNNWeightsLoader):
-    def __init__(self, dataloader_args):
-        super(DNNRL, self).__init__(dataloader_args=dataloader_args)
-
-    def _feature_config_parse(self, config_path, name='feature_configs.yaml'):
-        yaml_path = os.path.join(config_path, name)
-        yaml_feature_config = get_yml_content(yaml_path)
-        info = self.get_info_inference(yaml_feature_config['num_of_students'],
-                                            yaml_feature_config['sample_per_student'])
-        
-        feature_config = {
-                    'states': {"type": 'value', "length": 1, "dtype": tf.string},
-                    'metrics':{"type": 'value', "length": 1, "dtype": tf.string},
-                    'Q':{"type": 'value', "length": 1, "dtype": tf.string},
-                    'actions':{"type": 'value', "length": 1, "dtype": tf.string},
-                    'act_grads':{"type": 'value', "length": 1, "dtype": tf.string},
-                    'steps':{"type": 'value', "length": 1, "dtype": tf.string},
-                    'rewards':{"type": 'value', "length": 1, "dtype": tf.string}
-            }
-
-        return feature_config, info
-
-    def _make_rl_describs(self, feature_config=None):
-        
-        feature_describs = {}
-        for feature, info in feature_config.items():
-            if info['type'] == 'value':
-                feature_type = tf.io.FixedLenFeature([], info["dtype"])
-                feature_describs[feature] = feature_type
-            else:
-                raise ("no such type to describe")
-        # feature_describs["vars_length"] = tf.io.FixedLenFeature([], tf.int64)
-        return feature_describs
-
-    def _load_tensor_from_tfrecord(self, filelist, feature_config):
-        
-        # filelist = ["./log/DE-rl-step/weight_space/45.tfrecords"]
-        raw_dataset = tf.data.Dataset.from_tensor_slices(filelist)
-
-        raw_dataset = raw_dataset.interleave(
-            lambda x: tf.data.TFRecordDataset(x, num_parallel_reads=32),
-            block_length=256,
-            cycle_length=32,
-            num_parallel_calls=16,
-            deterministic=False)
-
-        feature_describ = self._make_rl_describs(feature_config = feature_config)
-
-        def _parse_weights_function(example_proto):
-            example = tf.io.parse_example(example_proto, feature_describ)
-            parsed_example = {}
-            for feat, tensor in feature_describ.items():
-                if example[feat].dtype == tf.string:
-                    parsed_example[feat] = tf.io.parse_tensor(example[feat], out_type=tf.float32)
-                else:
-                    parsed_example[feat] = example[feat]
-
-            return parsed_example
-
-        parsed_dataset = raw_dataset.map(_parse_weights_function, num_parallel_calls=tf.data.AUTOTUNE, deterministic=True)
-
-        parsed_dataset = parsed_dataset.prefetch(tf.data.AUTOTUNE)
-
-        # ForkedPdb().set_trace()
-        
-        return parsed_dataset

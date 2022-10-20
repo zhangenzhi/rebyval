@@ -106,7 +106,7 @@ class Cifar10Supervisor(Supervisor):
                     for train_step in t:
                         data = train_iter.get_next()
                         inputs, labels = self.preprocess_weightspace(data)
-                        train_loss = self._train_step(inputs, labels, train_step=train_step, epoch=epoch)
+                        train_loss = self._train_step(inputs, labels)
                         self.mloss_fn.update_state(train_loss)
                         t.set_postfix(st_loss=train_loss.numpy())
                     et_loss = self.mloss_fn.result()
