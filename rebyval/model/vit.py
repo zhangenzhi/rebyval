@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras import layers
 
+from dnn import DNN
+
 
 class Patches(layers.Layer):
     def __init__(self, patch_size):
@@ -36,5 +38,42 @@ class PatchEncoder(layers.Layer):
         return encoded
 
 class VIT(Model):
-    def __init__(self, patch_size, num_patches, dims_emb, num_heads, regularizer=None, name='vit', **kwargs):
+    
+    def __init__(self, patch_size, num_patches, 
+                 dims_emb, num_heads, trans_layers=8, mlp_head_units=[2048,1024], regularizer=None, name='vit', **kwargs):
         super(VIT, self).__init__()
+        
+        self.patch_size = patch_size
+        self.num_patches = num_patches
+        self.num_heads = num_heads
+        self.dims_emb = dims_emb
+        self.trans_units = [self.dims_emb*2, self.dims_emb]
+        self.trans_layers = trans_layers
+        self.mlp_head_units = [2048,1024]
+        
+        self.projection = layers.Dense(units=dims_emb)
+        self.position_embedding = layers.Embedding(input_dim=num_patches, output_dim=dims_emb)
+        
+        
+    def _build_trans_block(self):
+        trans_block = {}
+        trans_block["LBN_1"] = layers.LayerNormalization(epsilon=1e-6)
+        trans_block["MHA"] = layers.MultiHeadAttention(num_heads=self.num_heads, key_dim=self.dims_emb, dropout=0.1)
+        trans_block["skip_1"] = layers.Add()
+        trans_block["LBN_2"] = layers.LayerNormalization(epsilon=1e-6)
+        trans_block["mlp"] = DNN(units=self.trans_units, activations=["gelu"]*len(self.trans_units))
+        trans_block["skip_2"] = layers.Add()
+        return trans_block
+    
+    def _build_trans(self):
+        trans = {}
+        for i in range(self.trans_layers):
+            trans["trans_layer_{]".format(i)] = self._build_trans_block()
+        trans["LBN"] = layers.LayerNormalization(epsilon=1e-6)
+        trans["flatten"] = layers.Flatten()
+        trans["DP"] = layers.Dropout(0.5)
+        trans["mlp"] = DNN(units=self.mlp_head_units, activations=["gelu"]*len(self.mlp_head_units))
+        
+        
+        
+            

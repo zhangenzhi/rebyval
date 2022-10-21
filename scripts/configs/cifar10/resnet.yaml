@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: reval
+    name: cifar10-resnet
     devices: 0
     log_path: ./log
 
@@ -14,13 +14,12 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 100
+      epochs: 10
       batch_size: 128
       da: False
     model:
-      name: dnn # default dnn
-      units: [128,64,32,10]
-      activations: [relu,relu,relu,softmax]
+      name: resnet56 # default dnn
+      classes: 10
     loss:
       name: CategoricalCrossentropy
     metrics: 
