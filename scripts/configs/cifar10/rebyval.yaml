@@ -35,7 +35,6 @@ experiment:
         valid:
           valid_gap: 100
           weight_space: sum_reduce
-          online_update_sp: False
         visual: False
 
   supervisor:
