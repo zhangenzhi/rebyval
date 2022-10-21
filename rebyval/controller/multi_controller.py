@@ -5,6 +5,7 @@ import multiprocessing as mp
 from multiprocessing import Pool, Queue, Process
 
 from rebyval.tools.utils import *
+from rebyval.train.supervisor import Supervisor
 from rebyval.train.utils import ForkedPdb
 from rebyval.controller.utils import *
 from rebyval.controller.base_controller import BaseController
@@ -15,6 +16,7 @@ class MultiController(BaseController):
         super(MultiController, self).__init__(yaml_configs=yaml_configs)
         self.queue = Queue(maxsize=100)
         self.sp_queue = Queue(maxsize=100)
+        self.parallel = yaml_configs['experiment']['context']['multi-p']
 
     def _build_enviroment(self):
         mp.set_start_method("spawn")
@@ -41,7 +43,7 @@ class MultiController(BaseController):
             p.start()
             processes.append(p)
             time.sleep(2)
-            if (i+1) % 5 == 0:
+            if (i+1) % self.parallel == 0:
                 pres = [p.join() for p in processes]
                 processes = []
         new_students = [self.queue.get() for _ in range(self.queue.qsize())]
@@ -66,12 +68,13 @@ class MultiController(BaseController):
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 devices = str(self.device_dispatch(student=student))
-                
-                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=self.supervisor.log_dir, devices=devices)
+                supervisor_info = {"logdir":self.supervisor.log_dir}
+                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
 
                 p.start()
                 processes.append(p)
                 time.sleep(3)
+                
             pres = [p.join() for p in processes]
             new_students = [self.queue.get() for _ in range(self.queue.qsize())]
                     
