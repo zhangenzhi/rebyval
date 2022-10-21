@@ -30,7 +30,7 @@ class Student(object):
             sp_model_logdir = supervisor_info["logdir"] 
             supervisor = tf.keras.models.load_model(sp_model_logdir)
         else:
-            supervisor == self.supervisor
+            supervisor = self.supervisor
         return supervisor
 
     def update_supervisor(self, inputs, labels):
