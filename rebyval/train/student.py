@@ -113,12 +113,7 @@ class Student(object):
     def _build_logger(self):
         logdir = "tensorboard/" + "st-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         self.logdir = os.path.join(self.args['log_path'], logdir)
-        if self.dist:
-            pass
-            # if hvd.local_rank() == 0:
-            #     check_mkdir(logdir)
-        else:
-            check_mkdir(logdir)
+        check_mkdir(logdir)
         logger = tf.summary.create_file_writer(self.logdir)
   
         return logger
@@ -155,7 +150,6 @@ class Student(object):
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-
 
         self.mt_loss_fn.update_state(loss)
         
@@ -195,9 +189,6 @@ class Student(object):
         
         
         total_epochs = self.dataloader.info['epochs']  
-        if self.dist:
-            # total_epochs = int(total_epochs/hvd.size())
-            pass
         train_steps_per_epoch = self.dataloader.info['train_step']
 
         # load supervisor
@@ -278,7 +269,7 @@ class Student(object):
                 e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy(), ett_loss=ett_loss.numpy(), 
                               ett_metric=ett_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
                 
-                train_iter, valid_iter, test_iter = self._reset_dataset()
+                # train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
                     tf.summary.scalar("et_loss", et_loss, step=epoch)
                     tf.summary.scalar("ev_loss", ev_loss, step=epoch)
