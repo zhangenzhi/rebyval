@@ -261,7 +261,7 @@ class Student(object):
                     ett_metric = tf.reduce_mean(tt_metrics)
                     
                     # save best mdoel
-                    if self.best_metrics < ett_metric:
+                    if self.best_metrics < ett_metric and e%10==0:
                         self.model_save(name="best")
                         self.best_metrics = ett_metric
 
