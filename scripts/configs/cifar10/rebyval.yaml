@@ -32,7 +32,7 @@ experiment:
         train:
           lr_decay: False
         valid:
-          valid_gap: 30
+          valid_gap: 100
           weight_space: sum_reduce
           online_update: False
         visual: False
