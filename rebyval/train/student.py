@@ -3,6 +3,7 @@ import os
 from tqdm import trange
 from datetime import datetime
 import tensorflow as tf
+
 # import horovod.tensorflow as hvd
 
 # dataloader
@@ -22,12 +23,12 @@ class Student(object):
         self.args = student_args
         self.supervisor = supervisor
         self.id = id
-        self.dist = dist
         self.best_metrics = 0
+        self.logdir = self._create_logdir()
 
-    def _load_supervisor_model(self, supervisor_info=None):
-        if supervisor_info != None:
-            sp_model_logdir = supervisor_info["logdir"] 
+    def _load_supervisor_model(self, supervisor_info, model_name="DNN_latest"):
+        if self.supervisor == None:
+            sp_model_logdir = os.path.join(supervisor_info["logdir"], model_name)
             supervisor = tf.keras.models.load_model(sp_model_logdir)
         else:
             supervisor = self.supervisor
@@ -52,15 +53,10 @@ class Student(object):
                 zip(gradients, self.supervisor.trainable_variables))
 
     def _build_enviroment(self, devices='0'):
-        if self.dist:
-            gpus = tf.config.experimental.list_physical_devices('GPU')
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        else:
-            gpus = tf.config.experimental.list_physical_devices("GPU")
-            print_green("devices:", gpus)
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        print_green("devices:", gpus)
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
 
     def _build_dataset(self):
         dataset_args = self.args['dataloader']
@@ -110,12 +106,14 @@ class Student(object):
 
         return optimizer
 
-    def _build_logger(self):
-        logdir = "tensorboard/" + "st-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.logdir = os.path.join(self.args['log_path'], logdir)
+    def _create_logdir(self):
+        logdir = "tensorboard/" + "st-{}".format(self.id)
+        logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
+        return logdir
+    
+    def _build_logger(self):
         logger = tf.summary.create_file_writer(self.logdir)
-  
         return logger
 
     def _build_writter(self):
@@ -218,17 +216,12 @@ class Student(object):
                     etr_metrics = []
                     for train_step in t:
                         if self.supervisor == None:
-                            if self.dist:
-                                first_batch = True if epoch==0 and train_step==0 else False
-                                data = train_iter.get_next()
-                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'], first_batch)
-                            else:
-                                data = train_iter.get_next()
-                                train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'])
+                            data = train_iter.get_next()
+                            train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'])
                             etr_metrics.append(step_train_metric)
                         else:
                             data = train_iter.get_next()
-                            train_loss = self._rebyval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
+                            train_loss = self._reval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
                         t.set_postfix(st_loss=train_loss.numpy())
                         
                         if train_step % valid_args['valid_gap'] == 0:
@@ -284,7 +277,7 @@ class Student(object):
                           step_size=1e-2, scale=100, 
                           save_to=self.logdir)
 
-    def run(self, new_student=None, supervisor_info=None, devices='1'):
+    def run(self, connect_queue=None, supervisor_info=None, devices='1'):
 
         # set enviroment
         self._build_enviroment(devices=devices)
@@ -302,6 +295,7 @@ class Student(object):
         # build losses and metrics
         self.loss_fn, self.mt_loss_fn, self.mv_loss_fn, self.mtt_loss_fn = self._build_loss_fn()
         self.train_metrics, self.valid_metrics, self.test_metrics = self._build_metrics()
+        
         # build weights save writter
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
@@ -311,8 +305,8 @@ class Student(object):
         self.writter.close()
         print('Finished training student {}'.format(self.id))
 
-        if new_student != None:
-            new_student.put(weight_dir)
+        if connect_queue != None:
+            connect_queue.put(weight_dir)
 
         return weight_dir
 

@@ -36,17 +36,19 @@ class MultiController(BaseController):
         supervisor_iters = warmup['supervisor_iters']
         
         processes = []
+        new_students = []
         for i in range(init_samples):
             student = self._build_student()
             devices = str(self.device_dispatch(student=student))
-            p = StudentProcess(student=student, new_student=self.queue, supervisor_info=None, devices=devices)
+            p = StudentProcess(student=student, connect_queue=self.queue, supervisor_info=None, devices=devices)
             p.start()
             processes.append(p)
             time.sleep(2)
             if (i+1) % self.parallel == 0:
                 pres = [p.join() for p in processes]
                 processes = []
-        new_students = [self.queue.get() for _ in range(self.queue.qsize())]
+        while not self.queue.empty():
+            new_students += [self.queue.get()]
    
         for j in range(supervisor_iters):
             keep_train = False if j == 0 else True
@@ -68,15 +70,17 @@ class MultiController(BaseController):
             for i in range(main_loop['student_nums']):
                 student = total_students.pop(0)
                 devices = str(self.device_dispatch(student=student))
-                supervisor_info = {"logdir":self.supervisor.log_dir}
-                p = StudentProcess(student=student, new_student=self.queue, supervisor_info=supervisor_info, devices=devices)
+                supervisor_info = {"logdir": self.supervisor.logdir}
+                p = StudentProcess(student=student, connect_queue=self.queue, supervisor_info=supervisor_info, devices=devices)
 
                 p.start()
                 processes.append(p)
                 time.sleep(3)
                 
             pres = [p.join() for p in processes]
-            new_students = [self.queue.get() for _ in range(self.queue.qsize())]
+            new_students = []
+            while not self.queue.empty():
+                new_students += [self.queue.get()]
                     
             # supervisor
             print_green("new_student:{}, welcome!".format(new_students))
@@ -84,14 +88,14 @@ class MultiController(BaseController):
 
 
 class StudentProcess(mp.Process):
-    def __init__(self, student, new_student=None, supervisor_info=None, devices='0'):
+    def __init__(self, student, connect_queue=None, supervisor_info=None, devices='0'):
         super().__init__()
         print_green("Init Student:{} Process on Device:{}.".format(student.id, devices))
 
         os.environ['CUDA_VISIBLE_DEVICES'] = devices
 
         self.student = student 
-        self.new_student = new_student
+        self.connect_queue = connect_queue
         self.supervisor_info = supervisor_info
         self.devices= devices
         return
@@ -100,7 +104,7 @@ class StudentProcess(mp.Process):
 
         gpus = tf.config.experimental.list_physical_devices("GPU")
         print_red("Init Student:{} Process on Device:{}.".format(self.student.id, gpus))
-        self.student.run(new_student=self.new_student, supervisor_info=self.supervisor_info, devices=self.devices)
+        self.student.run(connect_queue=self.connect_queue, supervisor_info=self.supervisor_info, devices=self.devices)
 
 
 class SupervisorProcess(mp.Process):

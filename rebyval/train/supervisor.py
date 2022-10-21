@@ -20,6 +20,7 @@ class Supervisor(object):
         self.args = supervisor_args
         self.logger = logger
         self.id = id
+        self.logdir = self._create_logdir()
     
     def __call__(self, weights):
         pass
@@ -69,10 +70,13 @@ class Supervisor(object):
         
         return optimizer
     
+    def _create_logdir(self):
+        logdir = "tensorboard/" + "sp-{}".format(self.id)
+        logdir = os.path.join(self.args['log_path'], logdir)
+        check_mkdir(logdir)
+        return logdir
+    
     def _build_logger(self):
-        logdir = "tensorboard/" + "sp-{}-".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.logdir = os.path.join(self.args['log_path'], logdir)
-        check_mkdir(self.logdir )
         logger = tf.summary.create_file_writer(self.logdir)
         return logger
 
