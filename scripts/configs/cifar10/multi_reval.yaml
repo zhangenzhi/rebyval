@@ -15,7 +15,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 10
+      epochs: 100
       batch_size: 256
       da: False
     model:
