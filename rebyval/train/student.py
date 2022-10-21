@@ -25,11 +25,13 @@ class Student(object):
         self.dist = dist
         self.best_metrics = 0
 
-    def _build_supervisor_from_vars(self, supervisor_info=None):
-        model = None
+    def _load_supervisor_model(self, supervisor_info=None):
         if supervisor_info != None:
-            model = model_factory(supervisor_info)
-        return model
+            sp_model_logdir = supervisor_info["logdir"] 
+            supervisor = tf.keras.models.load_model(sp_model_logdir)
+        else:
+            supervisor == self.supervisor
+        return supervisor
 
     def update_supervisor(self, inputs, labels):
         
@@ -51,12 +53,9 @@ class Student(object):
 
     def _build_enviroment(self, devices='0'):
         if self.dist:
-            # hvd.init()
             gpus = tf.config.experimental.list_physical_devices('GPU')
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
-            # if gpus:
-            #     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
         else:
             gpus = tf.config.experimental.list_physical_devices("GPU")
             print_green("devices:", gpus)
@@ -108,11 +107,6 @@ class Student(object):
         optimizer = tf.keras.optimizers.get(optimizer_args['name'])
         optimizer.learning_rate = optimizer_args['learning_rate']
         self.base_lr = optimizer_args['learning_rate']
-        # if self.dist:
-        #     optimizer.learning_rate = optimizer.learning_rate * hvd.size()
-        #     optimizer.momentum=0.9
-        #     optimizer.nestrov = False
-        #     optimizer = hvd.DistributedOptimizer(optimizer)
 
         return optimizer
 
@@ -151,7 +145,7 @@ class Student(object):
         
         self.model.save(save_path, overwrite=True, save_format='tf')
 
-    # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
+    @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _train_step(self, inputs, labels):
         
         with tf.GradientTape() as tape:
@@ -159,15 +153,6 @@ class Student(object):
             loss = self.loss_fn(labels, predictions)
             train_metrics = tf.reduce_mean(self.train_metrics(labels, predictions))
 
-        if self.dist:
-            # tape = hvd.DistributedGradientTape(tape)
-            # gradients = tape.gradient(loss, self.model.trainable_variables)
-            # self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-            # if first_batch:
-            #     hvd.broadcast_variables(self.model.variables, root_rank=0)
-            #     hvd.broadcast_variables(self.optimizer.variables(), root_rank=0)
-            pass
-        else:
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
@@ -195,7 +180,6 @@ class Student(object):
         test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
         self.mtt_loss_fn.update_state(loss)
         return loss, test_metrics
-        # return loss
 
     def train(self, supervisor_info=None):
         
@@ -216,8 +200,8 @@ class Student(object):
             pass
         train_steps_per_epoch = self.dataloader.info['train_step']
 
-        if supervisor_info != None:
-            self.supervisor = self._build_supervisor_from_vars(supervisor_info)
+        # load supervisor
+        self.supervisor = self._load_supervisor_model(supervisor_info)
 
         # train, valid, write to tfrecords, test
         # tqdm update, logger
@@ -331,8 +315,6 @@ class Student(object):
         self.logger = self._build_logger()
         self.writter, weight_dir = self._build_writter()
 
-        # self.supervisor = self._build_supervisor_from_vars()
-        # with tf.device('GPU:{}'.format(devices)):
         self.train(supervisor_info=supervisor_info)
 
         self.writter.close()
@@ -344,7 +326,6 @@ class Student(object):
         return weight_dir
 
     # weights space
-    
     def collect_test_metrics(self, current_state=None, metric=None, format=None):
         self._write_trace_to_tfrecord(weights = current_state, valid_loss = metric, weight_space = format)
 
