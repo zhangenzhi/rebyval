@@ -6,8 +6,8 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 20
-      supervisor_iters: 1
+      student_nums: 1
+      supervisor_iters: 0
     nums: 0
     student_nums: 0
 
@@ -16,7 +16,7 @@ experiment:
       name: cifar10 # default cifar10
       epochs: 100
       batch_size: 256
-      da: False
+      da: True
     model:
       name: dnn # default dnn
       units: [128,64,32,10]
@@ -31,6 +31,7 @@ experiment:
     train_loop:
         train:
           lr_decay: False
+          online_update_sp: False
         valid:
           valid_gap: 100
           weight_space: sum_reduce

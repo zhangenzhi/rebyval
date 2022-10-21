@@ -100,7 +100,7 @@ class Cifar10DataLoader(BaseDataLoader):
         data_augmentation = tf.keras.Sequential([
                             preprocessing.RandomFlip(mode="horizontal"),
                             # preprocessing.RandomContrast(0.1),
-                            preprocessing.RandomTranslation(height_factor=0.4, width_factor=0.4),
+                            preprocessing.RandomTranslation(height_factor=0.2, width_factor=0.2),
                             # preprocessing.RandomCrop(32, 32),
                             # preprocessing.RandomRotation(factor=(-0.2, 0.2)),
                             # preprocessing.RandomZoom(0.2)
@@ -129,7 +129,7 @@ class Cifar10DataLoader(BaseDataLoader):
 
         test_dataset = tf.data.Dataset.from_tensor_slices({'inputs': x_test, 'labels': y_test})
         # all 1w test
-        test_dataset = test_dataset.batch(self.dataloader_args['batch_size']*10, drop_remainder=True).repeat(-1)
+        test_dataset = test_dataset.batch(self.dataloader_args['batch_size'], drop_remainder=True).repeat(-1)
         valid_dataset = test_dataset
         
         # test_dataset = test_dataset.shuffle(test_size)

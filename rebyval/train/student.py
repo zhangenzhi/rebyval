@@ -147,14 +147,14 @@ class Student(object):
         with tf.GradientTape() as tape:
             predictions = self.model(inputs, training=True)
             loss = self.loss_fn(labels, predictions)
-            train_metrics = tf.reduce_mean(self.train_metrics(labels, predictions))
+            self.train_metrics.update_state(labels, predictions)
 
             gradients = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
         self.mt_loss_fn.update_state(loss)
         
-        return loss, gradients, train_metrics
+        return loss, gradients
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _rebyval_train_step(self, inputs, labels):
@@ -164,17 +164,17 @@ class Student(object):
     def _valid_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        valid_metrics = tf.reduce_mean(self.valid_metrics(labels, predictions))
+        self.valid_metrics.update_state(labels, predictions)
         self.mv_loss_fn.update_state(loss)
-        return loss, valid_metrics
+        return loss
 
     @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _test_step(self, inputs, labels):
         predictions = self.model(inputs, training=False)
         loss = self.loss_fn(labels, predictions)
-        test_metrics = tf.reduce_mean(self.test_metrics(labels, predictions))
+        self.test_metrics.update_state(labels, predictions)
         self.mtt_loss_fn.update_state(loss)
-        return loss, test_metrics
+        return loss
 
     def train(self, supervisor_info=None):
         
@@ -200,10 +200,6 @@ class Student(object):
         with trange(total_epochs, desc="Epochs") as e:
             for epoch in e:
                 
-                # lr increase
-                # if train_args["lr_increase"] and epoch<10:
-                #      self.optimizer.learning_rate = self.optimizer.learning_rate + self.base_lr*(train_args["lr_increase"]-1)/10*4
-                     
                 # lr decay
                 if train_args["lr_decay"]:
                     if epoch == int(0.5*total_epochs):
@@ -216,12 +212,11 @@ class Student(object):
                 # train
                 with trange(train_steps_per_epoch, desc="Train steps", leave=False) as t:
                     self.mt_loss_fn.reset_states()
-                    etr_metrics = []
+                    self.train_metrics.reset_states()
                     for train_step in t:
                         if self.supervisor == None:
                             data = train_iter.get_next()
-                            train_loss,_, step_train_metric = self._train_step(data['inputs'], data['labels'])
-                            etr_metrics.append(step_train_metric)
+                            train_loss,_,  = self._train_step(data['inputs'], data['labels'])
                         else:
                             data = train_iter.get_next()
                             train_loss = self._reval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
@@ -232,45 +227,44 @@ class Student(object):
                                 self.mv_loss_fn.reset_states()
                                 for valid_step in v:
                                     v_data = valid_iter.get_next()
-                                    valid_loss, valid_metric = self._valid_step(v_data['inputs'], v_data['labels'])
+                                    valid_loss = self._valid_step(v_data['inputs'], v_data['labels'])
                                     v.set_postfix(sv_loss=valid_loss.numpy())
                                 ev_loss = self.mv_loss_fn.result()
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
                                                           format=valid_args['weight_space'])
                                 # online update supervisor
-                                if self.supervisor != None:
+                                if train_args["online_update_sp"]:
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                                     
-                    et_loss = self.mt_loss_fn.result()
-                    etr_metric = tf.reduce_mean(etr_metrics)
+                    etr_loss = self.mt_loss_fn.result()
+                    etr_metric = self.train_metrics.result()
                 
                 with trange(self.dataloader.info['test_step'], desc="Test steps") as t:
                     self.mtt_loss_fn.reset_states()
-                    tt_metrics = []
+                    self.test_metrics.reset_states()
                     for test_step in t:
                         t_data = test_iter.get_next()
-                        t_loss,t_metric = self._test_step(t_data['inputs'], t_data['labels'])
+                        t_loss = self._test_step(t_data['inputs'], t_data['labels'])
                         t.set_postfix(test_loss=t_loss.numpy())
-                        tt_metrics.append(t_metric)
-                    ett_loss = self.mtt_loss_fn.result()
-                    ett_metric = tf.reduce_mean(tt_metrics)
+                    ete_loss = self.mtt_loss_fn.result()
+                    ete_metric = self.test_metrics.result()
                     
                     # save best mdoel
-                    if self.best_metrics < ett_metric and epoch%10==0:
+                    if self.best_metrics < ete_metric and epoch%10==0:
                         self.model_save(name="best")
-                        self.best_metrics = ett_metric
+                        self.best_metrics = ete_metric
 
                     
-                e.set_postfix(et_loss=et_loss.numpy(), etr_metric=etr_metric.numpy(), ett_loss=ett_loss.numpy(), 
-                              ett_metric=ett_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
+                e.set_postfix(etr_loss=etr_loss.numpy(), etr_metric=etr_metric.numpy(), ete_loss=ete_loss.numpy(), 
+                              ete_metric=ete_metric.numpy(), lr = self.optimizer.learning_rate.numpy())
                 
                 # train_iter, valid_iter, test_iter = self._reset_dataset()
                 with self.logger.as_default():
-                    tf.summary.scalar("et_loss", et_loss, step=epoch)
-                    tf.summary.scalar("ev_loss", ev_loss, step=epoch)
-                    tf.summary.scalar("ett_mloss", ett_loss, step=epoch)
-                    tf.summary.scalar("ett_metric", ett_metric, step=epoch)
+                    tf.summary.scalar("etr_loss", etr_loss, step=epoch)
+                    tf.summary.scalar("etr_metric", etr_metric, step=epoch)
+                    tf.summary.scalar("ete_loss", ete_loss, step=epoch)
+                    tf.summary.scalar("ete_metric", ete_metric, step=epoch)
         
         self.model.summary()
         self.model_save(name="finished")
