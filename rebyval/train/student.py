@@ -28,8 +28,11 @@ class Student(object):
 
     def _load_supervisor_model(self, supervisor_info, model_name="DNN_latest"):
         if self.supervisor == None:
-            sp_model_logdir = os.path.join(supervisor_info["logdir"], model_name)
-            supervisor = tf.keras.models.load_model(sp_model_logdir)
+            if supervisor_info==None:
+                return None
+            else:
+                sp_model_logdir = os.path.join(supervisor_info["logdir"], model_name)
+                supervisor = tf.keras.models.load_model(sp_model_logdir)
         else:
             supervisor = self.supervisor
         return supervisor
