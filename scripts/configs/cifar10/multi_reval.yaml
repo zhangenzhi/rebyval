@@ -1,6 +1,6 @@
 experiment:
   context:
-    name: multi_reval_2
+    name: multi_reval
     devices: 1
     log_path: ./log
     multi-p: 5
