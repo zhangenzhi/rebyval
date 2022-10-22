@@ -14,7 +14,7 @@ experiment:
   student:
     dataloader:
       name: cifar10 # default cifar10
-      epochs: 10000
+      epochs: 100000
       batch_size: 256
       da: True
     model:
@@ -33,7 +33,7 @@ experiment:
           lr_decay: False
           online_update_sp: False
         valid:
-          valid_gap: 100
+          valid_gap: 10000
           weight_space: sum_reduce
         visual: False
 
