@@ -1,16 +1,16 @@
 experiment:
   context:
-    name: multi_reval
+    name: ireval-flatten
     devices: 1
     log_path: ./log
-    multi-p: 5
+    multi-p: 1
 
   main_loop:
     warmup: 
-      student_nums: 0
-      supervisor_iters: 1
-    nums: 1
-    student_nums: 1
+      student_nums: 1
+      supervisor_iters: 0
+    nums: 0
+    student_nums: 0
 
   student:
     dataloader:
@@ -32,16 +32,16 @@ experiment:
     train_loop:
         train:
           lr_decay: False
+          ireval: True
           online_update_sp: False
         valid:
           valid_gap: 100
-          weight_space: sum_reduce
-          online_update: False
+          weight_space: flatten
         visual: False
 
   supervisor:
     dataloader:
-      name: dnn_sumreduce
+      name: dnn_flatten
       exp: decay
       replay_window: 25
       batch_size: 128
@@ -49,7 +49,7 @@ experiment:
     model:
       name: dnn # default dnn
       units: [128,64,32,1]
-      activations: [relu,relu,relu,relu]
+      activations: [sigmoid,sigmoid,sigmoid,linear]
     optimizer:
       name: sgd
       learning_rate: 0.001

@@ -1,7 +1,6 @@
-from mimetypes import init
-from unicodedata import name
+
 from .dataset_loader import Cifar10DataLoader, MinistDataLoader, ImageNetDataLoader, Cifar100DataLoader
-from .weights_loader import DNNWeightsLoader, DNNSumReduce
+from .wdnn_loader import DNNWeightsLoader, DNNSumReduce
 
 class DatasetFactory():
     def __init__(self) -> None:
@@ -10,7 +9,7 @@ class DatasetFactory():
                              'mnist':MinistDataLoader, 
                              'imagenet': ImageNetDataLoader,
                              
-                             'dnn_weights':DNNWeightsLoader,
+                             'dnn_flatten':DNNWeightsLoader,
                              'dnn_sumreduce':DNNSumReduce
                             }
     

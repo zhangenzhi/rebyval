@@ -23,7 +23,7 @@ class Cifar10Supervisor(Supervisor):
         labels = raw_inputs.pop('valid_loss')
         
         # var_length
-        raw_inputs.pop('vars_length')
+        # raw_inputs.pop('vars_length')
         
         # inputs
         flat_vars = []

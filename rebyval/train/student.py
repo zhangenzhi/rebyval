@@ -39,8 +39,8 @@ class Student(object):
 
     def update_supervisor(self, inputs, labels):
         
-        supervisor_opt = tf.keras.optimizers.SGD(0.01)
-        supervisor_loss_fn = tf.keras.losses.mae
+        sp_opt = tf.keras.optimizers.SGD(0.01)
+        sp_loss_fn = tf.keras.losses.MeanSquaredError()
         flat_vars = []
         for tensor in inputs:
             sum_reduce = tf.math.reduce_sum(tensor, axis=-1)
@@ -49,11 +49,12 @@ class Student(object):
         
         with tf.GradientTape() as tape:
             predictions = self.supervisor(inputs)
-            loss = supervisor_loss_fn(labels, predictions)
+            loss = sp_loss_fn(labels, predictions)
             gradients = tape.gradient(
                 loss, self.supervisor.trainable_variables)
-            supervisor_opt.apply_gradients(
+            sp_opt.apply_gradients(
                 zip(gradients, self.supervisor.trainable_variables))
+        return loss
 
     def _build_enviroment(self, devices='0'):
         gpus = tf.config.experimental.list_physical_devices("GPU")
@@ -110,7 +111,7 @@ class Student(object):
         return optimizer
 
     def _create_logdir(self):
-        logdir = "tensorboard/" + "st-{}".format(self.id)
+        logdir = "tensorboard/" + "st-{}".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         return logdir
@@ -214,14 +215,8 @@ class Student(object):
                     self.mt_loss_fn.reset_states()
                     self.train_metrics.reset_states()
                     for train_step in t:
-                        if self.supervisor == None:
-                            data = train_iter.get_next()
-                            train_loss,_,  = self._train_step(data['inputs'], data['labels'])
-                        else:
-                            data = train_iter.get_next()
-                            train_loss = self._reval_train_step(data['inputs'], data['labels'], train_step=train_step, epoch=epoch)
-                        t.set_postfix(st_loss=train_loss.numpy())
                         
+                        # valid
                         if train_step % valid_args['valid_gap'] == 0:
                             with trange(self.dataloader.info['valid_step'], desc="Valid steps", leave=False) as v:
                                 self.mv_loss_fn.reset_states()
@@ -233,9 +228,32 @@ class Student(object):
                                 self.collect_test_metrics(current_state=self.model.trainable_variables,
                                                           metric=ev_loss,
                                                           format=valid_args['weight_space'])
-                                # online update supervisor
-                                if train_args["online_update_sp"]:
+                                
+                                # get exp grad & online update supervisor
+                                if train_args["ireval"] and self.supervisor != None:
+                                    with tf.GradientTape() as tape_s:
+                                        s_loss = self.weightspace_loss(self.model.trainable_variables)
+                                    self.exp_grad = tape_s.gradient(s_loss, self.model.trainable_variables)
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
+                        # train
+                        if self.supervisor == None:
+                            data = train_iter.get_next()
+                            train_loss,_,  = self._train_step(data['inputs'], data['labels'])
+                            t.set_postfix(st_loss=train_loss.numpy())
+                        elif train_args["ireval"]:
+                            data = train_iter.get_next()
+                            v_data = valid_iter.get_next()
+                            train_loss, exp_loss = self._ireval_train_step(data['inputs'], data['labels'], 
+                                                                           format=valid_args['weight_space'])
+                            with self.logger.as_default():
+                                tf.summary.scalar("exp_loss", exp_loss, step=train_step + epoch*train_steps_per_epoch)
+                            t.set_postfix(st_loss=train_loss.numpy(), pt_loss=exp_loss.numpy())
+                        else:
+                            data = train_iter.get_next()
+                            train_loss, exp_loss = self._reval_train_step(data['inputs'], data['labels'])
+                            with self.logger.as_default():
+                                tf.summary.scalar("exp_loss", exp_loss, step=train_step + epoch*train_steps_per_epoch)
+                            t.set_postfix(st_loss=train_loss.numpy(), pt_loss=exp_loss.numpy())
                                     
                     etr_loss = self.mt_loss_fn.result()
                     etr_metric = self.train_metrics.result()
@@ -337,6 +355,36 @@ class Student(object):
                     float_list=tf.train.FloatList(value=value))
                 configs[feature_name] = {'type': 'float32', 'shape': [1]}
         return tf.train.Example(features=tf.train.Features(feature=feature)), configs
+    
+    def flatten_example(self, weight_loss):
+        feature = {}
+        configs = {}
+        for feature_name, value in weight_loss.items():
+            if isinstance(value, list):
+                model_vars = []
+                for tensor in value:
+                    compressed_tensor = tensor
+                    model_vars.append(tf.reshape(
+                        compressed_tensor, shape=(-1)))
+                model_vars = tf.concat(model_vars, axis=0)
+                bytes_v = tf.io.serialize_tensor(model_vars).numpy()
+                #vars
+                feature[feature_name] = tf.train.Feature(
+                    bytes_list=tf.train.BytesList(value=[bytes_v]))
+                configs[feature_name] = {'type': 'bytes', 'shape': model_vars.shape.as_list()}
+                #vars_length
+                feature[feature_name + "_length"] = tf.train.Feature(
+                    int64_list=tf.train.Int64List(value=[1])
+                )
+                configs[feature_name +
+                        "_length"] = {'type': 'int64', 'shape': [1], 'value': 1}
+
+            else:
+                value = [value.numpy()]
+                feature[feature_name] = tf.train.Feature(
+                    float_list=tf.train.FloatList(value=value))
+                configs[feature_name] = {'type': 'float32', 'shape': [1]}
+        return tf.train.Example(features=tf.train.Features(feature=feature)), configs
 
     def sum_reduce_example(self, weight_loss):
         feature = {}
@@ -376,8 +424,8 @@ class Student(object):
 
         weight_loss = {'vars': weights, 'valid_loss': valid_loss}
 
-        if weight_space == 'tensor':
-            example, configs = self.tensor_example(weight_loss)
+        if weight_space == 'flatten':
+            example, configs = self.flatten_example(weight_loss)
         elif weight_space == 'sum_reduce':
             example, configs = self.sum_reduce_example(weight_loss)
         else:

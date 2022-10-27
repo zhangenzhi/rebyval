@@ -1,12 +1,8 @@
 import os
-from unicodedata import name
 from datetime import datetime
-
 import tensorflow as tf
 
 from rebyval.dataloader.dataset_factory import dataset_factory
-from rebyval.dataloader.weights_loader import DNNWeightsLoader, DNNSumReduce
-from rebyval.optimizer.scheduler.linear_scaling_with_decay import LinearScalingWithDecaySchedule
 
 # model
 from rebyval.model.model_factory import model_factory
@@ -71,7 +67,7 @@ class Supervisor(object):
         return optimizer
     
     def _create_logdir(self):
-        logdir = "tensorboard/" + "sp-{}".format(self.id)
+        logdir = "tensorboard/" + "sp-{}".format(self.id) + "-" + datetime.now().strftime("%Y%m%d-%H%M%S")
         logdir = os.path.join(self.args['log_path'], logdir)
         check_mkdir(logdir)
         return logdir

@@ -19,7 +19,7 @@ def args_parser():
     args = parser.parse_args()
     return args
     
-
+#TODO check dataset complete
 def main():
     cmd_args = args_parser()
     yaml_configs = get_yml_content(cmd_args.config)
