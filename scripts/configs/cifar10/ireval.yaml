@@ -3,11 +3,11 @@ experiment:
     name: ireval-flatten
     devices: 1
     log_path: ./log
-    multi-p: 1
+    multi-p: 5
 
   main_loop:
     warmup: 
-      student_nums: 1
+      student_nums: 20
       supervisor_iters: 0
     nums: 0
     student_nums: 0
