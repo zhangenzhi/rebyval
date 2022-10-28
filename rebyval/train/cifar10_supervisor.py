@@ -22,14 +22,20 @@ class Cifar10Supervisor(Supervisor):
         # label
         labels = raw_inputs.pop('valid_loss')
         
-        # var_length
-        # raw_inputs.pop('vars_length')
-        
         # inputs
-        flat_vars = []
-        for feat, tensor in raw_inputs.items():
-            flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
-        inputs = tf.concat(flat_vars, axis=1)
+        if self.train_args["weight_space"] == "sum_reduce":
+            flat_vars = []
+            for feat, tensor in raw_inputs.items():
+                flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+            inputs = tf.concat(flat_vars, axis=1)
+        elif self.train_args["weight_space"] == "flatten":
+            pass
+        else:
+            flat_vars = []
+            for feat, tensor in raw_inputs.items():
+                flat_vars.append(tf.reshape(tensor, shape=(tensor.shape[0], -1)))
+            inputs = tf.concat(flat_vars, axis=1)
+        
         
         return inputs, labels
         
@@ -43,26 +49,11 @@ class Cifar10Supervisor(Supervisor):
         gradients = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables))
+        
+        for w in self.model.trainable_variables:
+            w.assign(tf.clip_by_value(w, 0.0, 1.0))
                 
         return loss
-    
-    def update(self, inputs, labels):
-        flat_vars = []
-        for tensor in inputs:
-            sum_reduce = tf.math.reduce_sum(tensor, axis= -1)
-            flat_vars.append(tf.reshape(sum_reduce, shape=(-1)))
-        inputs = tf.concat(flat_vars, axis=1)
-        
-        with tf.GradientTape() as tape:
-            predictions = self.model(inputs, training=True)
-            predictions = tf.squeeze(predictions)
-            loss = self.loss_fn(labels, predictions)
-
-            gradients = tape.gradient(loss, self.model.trainable_variables)
-
-            self.optimizer.apply_gradients(
-                zip(gradients, self.model.trainable_variables))
-        print(loss)
         
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
     def _valid_step(self, inputs, labels, valid_step = 0, epoch=0):
@@ -90,7 +81,7 @@ class Cifar10Supervisor(Supervisor):
         
         # parse train loop control args
         train_loop_args = self.args['train_loop']
-
+        self.train_args = train_loop_args["train"]
 
         # dataset train, valid, test
         train_iter = iter(self.train_dataset)

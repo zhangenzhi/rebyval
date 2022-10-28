@@ -18,7 +18,7 @@ class Cifar10Student(Student):
         self.action_space = np.random.uniform(low=1.0, high=1.0, size=100)
         self.index_min = 0
     
-    def weight_reduce(self, weights):
+    def weight_sumreduce(self, weights):
         flat_vars = []
         for var in weights:
             sum_reduce = tf.math.reduce_sum(var, axis= -1)
@@ -36,15 +36,16 @@ class Cifar10Student(Student):
     def weightspace_loss(self, weights, format="flatten"):
         # label
         if format == "sum_reduce":
-            inputs = self.weight_reduce(weights)
+            inputs = self.weight_sumreduce(weights)
         else:
             inputs = self.weight_flatten(weights)
+            
         s_loss = self.supervisor(inputs)
         s_loss = tf.squeeze(s_loss)
         return s_loss
 
     # @tf.function(experimental_relax_shapes=True, experimental_compile=None)
-    def _reval_train_step(self, inputs, labels, decay_factor=0.1):
+    def _reval_train_step(self, inputs, labels, decay_factor=1.0):
         
         with tf.GradientTape() as tape_t:
             predictions = self.model(inputs, training=True)
@@ -65,7 +66,7 @@ class Cifar10Student(Student):
         
         return t_loss, s_loss
     
-    def _ireval_train_step(self, inputs, labels, decay_factor=0.1, format="flatten"):
+    def _ireval_train_step(self, inputs, labels, decay_factor=0.01, format="flatten"):
         
         # train loss
         with tf.GradientTape() as tape_t:
@@ -80,6 +81,14 @@ class Cifar10Student(Student):
         # s_grad = tape_s.gradient(s_loss, self.model.trainable_variables)
         s_grad = self.exp_grad
         
+        ns_grad = []
+        for s_g, w in zip(s_grad, self.model.trainable_variables):
+            if len(s_g.shape)==2:
+                ns_grad += [s_g/tf.reshape(tf.norm(s_g, axis=-1), (-1,1)) * w]
+            else:
+                ns_grad += [s_g/tf.norm(s_g, axis=-1) * w]
+        s_grad = ns_grad
+                
         # true vloss
         # v_preds = self.model(v_inputs, training=False)
         # v_loss = self.loss_fn(v_labels, v_preds)

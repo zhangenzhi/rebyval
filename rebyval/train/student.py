@@ -54,6 +54,10 @@ class Student(object):
                 loss, self.supervisor.trainable_variables)
             sp_opt.apply_gradients(
                 zip(gradients, self.supervisor.trainable_variables))
+            
+        for w in  self.supervisor.trainable_variables:
+            w.assign(tf.clip_by_value(w, 0.0, 1.0))
+            
         return loss
 
     def _build_enviroment(self, devices='0'):
@@ -232,7 +236,8 @@ class Student(object):
                                 # get exp grad & online update supervisor
                                 if train_args["ireval"] and self.supervisor != None:
                                     with tf.GradientTape() as tape_s:
-                                        s_loss = self.weightspace_loss(self.model.trainable_variables)
+                                        s_loss = self.weightspace_loss(self.model.trainable_variables, 
+                                                                       format=valid_args['weight_space'])
                                     self.exp_grad = tape_s.gradient(s_loss, self.model.trainable_variables)
                                     self.update_supervisor(self.model.trainable_variables, ev_loss)
                         # train

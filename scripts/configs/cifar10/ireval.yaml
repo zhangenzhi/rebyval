@@ -1,16 +1,16 @@
 experiment:
   context:
-    name: ireval-flatten
+    name: ireval-re
     devices: 1
     log_path: ./log
     multi-p: 5
 
   main_loop:
     warmup: 
-      student_nums: 20
-      supervisor_iters: 0
-    nums: 0
-    student_nums: 0
+      student_nums: 30
+      supervisor_iters: 1
+    nums: 10
+    student_nums: 5
 
   student:
     dataloader:
@@ -36,16 +36,16 @@ experiment:
           online_update_sp: False
         valid:
           valid_gap: 100
-          weight_space: flatten
+          weight_space: sum_reduce
         visual: False
 
   supervisor:
     dataloader:
-      name: dnn_flatten
+      name: dnn_sumreduce
       exp: decay
       replay_window: 25
       batch_size: 128
-      epochs: 100
+      epochs: 10
     model:
       name: dnn # default dnn
       units: [128,64,32,1]
@@ -56,5 +56,5 @@ experiment:
     loss:
       name: MeanSquaredError
     train_loop:
-        valid:
-          valid_gap: 100 
+        train:
+          weight_space: sum_reduce
