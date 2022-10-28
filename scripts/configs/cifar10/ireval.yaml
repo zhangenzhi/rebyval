@@ -7,10 +7,10 @@ experiment:
 
   main_loop:
     warmup: 
-      student_nums: 30
+      student_nums: 20
       supervisor_iters: 1
     nums: 10
-    student_nums: 5
+    student_nums: 3
 
   student:
     dataloader:
